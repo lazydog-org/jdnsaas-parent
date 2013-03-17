@@ -59,9 +59,10 @@
         <com.sun.jersey.version>1.17</com.sun.jersey.version>
     </properties>
     <scm>
-        <connection>scm:git:gitolite@git.home:lazydog/jdnsaas-parent.git</connection>
-        <developerConnection>scm:git:gitolite@git.home:lazydog/jdnsaas-parent.git</developerConnection>
+        <connection>scm:git:git@github.com:lazydog-org/jdnsaas-parent.git</connection>
+        <developerConnection>scm:git:git@github.com:lazydog-org/jdnsaas-parent.git</developerConnection>
         <tag>HEAD</tag>
+        <url>git@github.com:lazydog-org/jdnsaas-parent.git</url>
     </scm>
     <build>
         <pluginManagement>
