@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2013 lazydog.org.
+
+    This file is part of JDNSaaS.
+
+    This project is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program  If not, see <http://www.gnu.org/licenses />.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.lazydog.jdnsaas</groupId>
+        <artifactId>jdnsaas-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>jdnsaas-database-setup</artifactId>
+    <packaging>pom</packaging>
+    <name>Java DNSaaS Database Setup</name>
+    <description>The Java DNSaaS application is a REST API for BIND 9+ servers.</description>
+    <url>http://www.lazydog.org</url>
+    <organization>
+        <name>Lazydog</name>
+        <url>http://www.lazydog.org</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>Ronald Rickard</name>
+            <email>rjrjr@cox.net</email>
+            <url>http://www.rjrjr.org</url>
+            <organization>Lazydog</organization>
+            <organizationUrl>http://www.lazydog.org</organizationUrl>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License (LGPL) version 3.0</name>
+            <url>http://www.gnu.org/licenses/</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <properties>
+        <mysql.user.username>jdnsaas</mysql.user.username>
+        <mysql.user.password>jdnsaas</mysql.user.password>
+        <mysql.database.name>jdnsaas</mysql.database.name>
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>sql-maven-plugin</artifactId>
+                <configuration>
+                    <driver>com.mysql.jdbc.Driver</driver>
+                    <url>jdbc:mysql://${mysql.database.server}:${mysql.database.port}</url>
+                    <username>${mysql.admin.username}</username>
+                    <password>${mysql.admin.password}</password>
+                    <autocommit>true</autocommit>
+                    <forceMojoExecution>true</forceMojoExecution>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>drop-db</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <sqlCommand>drop database ${mysql.database.name}</sqlCommand>
+                            <onError>continue</onError>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>drop-local-user</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <sqlCommand>drop user '${mysql.user.username}'@'localhost'</sqlCommand>
+                            <onError>continue</onError>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>drop-remote-user</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <sqlCommand>drop user '${mysql.user.username}'@'%'</sqlCommand>
+                            <onError>continue</onError>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-db</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <sqlCommand>create database ${mysql.database.name}</sqlCommand>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-local-user</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <sqlCommand>create user '${mysql.user.username}'@'localhost' identified by '${mysql.user.password}'</sqlCommand>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>grant-local-user</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <sqlCommand>grant all on ${mysql.database.name}.* to '${mysql.user.username}'@'localhost'</sqlCommand>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-remote-user</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <sqlCommand>create user '${mysql.user.username}'@'%' identified by '${mysql.user.password}'</sqlCommand>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>grant-remote-user</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <sqlCommand>grant all on ${mysql.database.name}.* to '${mysql.user.username}'@'%'</sqlCommand>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>flush-privileges</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <sqlCommand>flush privileges</sqlCommand>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-schema</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <srcFiles>
+                                <srcFile>src/main/resources/schema.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>create-data</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <autocommit>true</autocommit>
+                            <srcFiles>
+                                <srcFile>src/main/resources/data.sql</srcFile>
+                            </srcFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>mysql</groupId>
+                        <artifactId>mysql-connector-java</artifactId>
+                        <version>5.1.13</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+</project>

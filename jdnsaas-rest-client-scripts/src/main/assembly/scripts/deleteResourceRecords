@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# Add records.
+
+#set -x
+
+default_endpoint=http://localhost:8084/jdnsaas/rest/1.0
+
+url=$default_endpoint/dnsservers/dns-int1.lazydog.org/zones/lazydog.org/records
+
+payload='{"records":[{"operation":"DELETE","name":"test1","timeToLive":86400,"type":"A","data":{"ipAddress":"192.168.0.201"}},{"operation":"DELETE","name":"test1","timeToLive":86400,"type":"MX","data":{"target":"mailhost.lazydog.org","priority":20}}]}'
+
+echo $url
+
+curl -i -s \
+-H "Content-Type: application/json" \
+-H "Accept: application/json" \
+-X POST \
+-d $payload \
+$url
+
+echo ""
+exit 0

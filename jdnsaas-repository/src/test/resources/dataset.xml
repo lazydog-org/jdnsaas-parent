@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <transaction_signature_algorithm id="1" name="testalgorithm"/>
+    <transaction_signature id="1" name="testname" secret="testsecret" transaction_signature_algorithm_id="1"/>
+    <dns_server id="1" name="dns1.testdomain" port="53" transaction_signature_id="1"/>
+    <dns_server id="2" name="dns2.testdomain" port="53" transaction_signature_id="1"/>
+    <zone id="1" name="testzone1" dns_server_id="1"/>
+    <zone id="2" name="testzone2" dns_server_id="1"/>
+    <zone id="3" name="testzone2" dns_server_id="2"/>
+    <zone id="4" name="testzone3" dns_server_id="2"/>
+</dataset>

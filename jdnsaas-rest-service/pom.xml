@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2013 lazydog.org.
+
+    This file is part of JDNSaaS.
+
+    This project is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program  If not, see <http://www.gnu.org/licenses />.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+	                     http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.lazydog.jdnsaas</groupId>
+        <artifactId>jdnsaas-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>jdnsaas-rest-service</artifactId>
+    <packaging>war</packaging>
+    <name>Java DNSaaS REST Service</name>
+    <description>The Java DNSaaS application is a REST API for BIND 9+ servers.</description>
+    <url>http://www.lazydog.org</url>
+    <organization>
+        <name>Lazydog</name>
+        <url>http://www.lazydog.org</url>
+    </organization>
+    <developers>
+        <developer>
+            <name>Ronald Rickard</name>
+            <email>rjrjr@cox.net</email>
+            <url>http://www.rjrjr.org</url>
+            <organization>Lazydog</organization>
+            <organizationUrl>http://www.lazydog.org</organizationUrl>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License (LGPL) version 3.0</name>
+            <url>http://www.gnu.org/licenses/</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.enunciate</groupId>
+                <artifactId>maven-enunciate-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>docs</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <docsDir>${project.build.directory}/${project.artifactId}-${project.version}</docsDir>
+                    <configFile>enunciate.xml</configFile>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.lazydog.jdnsaas</groupId>
+            <artifactId>jdnsaas-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.lazydog.jdnsaas</groupId>
+            <artifactId>jdnsaas-service-bind-impl</artifactId>
+        </dependency>
+    </dependencies>
+</project>

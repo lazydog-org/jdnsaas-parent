@@ -1,0 +1,226 @@
+#!/bin/sh
+#
+# The Java DNS as a Service client.
+
+#set -x
+
+VERSION="Version 1.0"
+PROGNAME=`/bin/basename $0`
+
+# Exit codes
+STATE_OK=0
+STATE_FAIL=1
+
+default_endpoint=http://localhost:8080/jdnsaas/rest/1.0
+
+print_revision() {
+    echo "$PROGNAME - $VERSION"
+}
+
+print_more_information() {
+    echo "Try '$PROGNAME --help' for more information."
+}
+
+print_help() {
+    print_revision
+    echo -e "The Java DNS as a Service client.\n"
+    echo "$PROGNAME [options]"
+    /bin/cat << EOT
+
+Options:
+-e, --endpoint          	The Rest service endpoint 
+                        	(default: $default_endpoint)
+-D, --all-dns-server-names	All DNS server names
+				(mutually exclusive with -d)
+-d, --dns-server-name		The DNS server name
+				(mutually exclusive with -D)
+-Z, --all-zones-names		All zone names 
+				(mutually exclusive with -z)
+				(must also specify -d)
+-z, --zone-name             	The zone name
+				(mutually exclusive with -Z)
+				(must also specify -d)
+-R, --all-records               All records
+				(must also specify -z)
+-t, --record-type               The record type
+				(implies -R)
+-n, --record-name               The record name
+				(implies -R)
+-h, --help			Print detailed help
+-v, --version			Print version information
+
+EOT
+}
+
+# Parse the command line options.
+while [ "$1" ] ; do
+
+    case "$1" in
+
+        -e | --endpoint)
+	    if [ -z "$2" -o "$2" = "-*" ] ; then
+                echo "$PROGNAME: Option '$1' requires an argument."
+		print_more_information
+		exit $STATE_FAIL
+	    fi
+	    endpoint=$2
+	    shift 2
+	    ;;
+  
+  	-D | --all-dns-server-names)
+	    if [ -n "$dns_server_name" ] ; then
+           	echo "$PROGNAME: Option '$1' and '-d' are mutually exclusive."
+		print_more_information
+		exit $STATE_FAIL
+	    fi 
+	    all_dns_server_names="yes"
+	    shift 1
+	    ;;
+
+        -d | --dns-server-name)
+	    if [ -n "$all_dns_server_names" ] ; then
+           	echo "$PROGNAME: Option '$1' and '-D' are mutually exclusive."
+		print_more_information
+		exit $STATE_FAIL
+	    fi
+	    if [ -z "$2" -o "$2" = "-*" ] ; then
+                echo "$PROGNAME: Option '$1' requires an argument."
+		print_more_information
+		exit $STATE_FAIL
+	    fi
+	    dns_server_name=$2
+	    shift 2
+	    ;;
+         
+  	-Z | --all-zone-names)
+	    if [ -n "$zone_name" ] ; then
+           	echo "$PROGNAME: Option '$1' and '-z' are mutually exclusive."
+		print_more_information
+		exit $STATE_FAIL
+	    fi 
+	    all_zone_names="yes"
+	    shift 1
+	    ;;
+
+        -z | --zone-name)
+	    if [ -n "$all_zone_names" ] ; then
+           	echo "$PROGNAME: Option '$1' and '-Z' are mutually exclusive."
+		print_more_information
+		exit $STATE_FAIL
+	    fi 
+	    if [ -z "$2" -o "$2" = "-*" ] ; then
+                echo "$PROGNAME: Option '$1' requires an argument."
+		print_more_information
+		exit $STATE_FAIL
+	    fi
+	    zone_name=$2
+	    shift 2
+	    ;;
+
+	-R | --all-records)
+	    all_records="yes"
+	    shift 1
+	    ;;
+
+        -t | --record-type)
+	    if [ -z "$2" -o "$2" = "-*" ] ; then
+                echo "$PROGNAME: Option '$1' requires an argument."
+		print_more_information
+		exit $STATE_FAIL
+	    fi
+	    record_type=$2
+	    shift 2
+	    ;;
+
+        -n | --record-name)
+	    if [ -z "$2" -o "$2" = "-*" ] ; then
+                echo "$PROGNAME: Option '$1' requires an argument."
+		print_more_information
+		exit $STATE_FAIL
+	    fi
+	    record_name=$2
+	    shift 2
+	    ;;
+
+        -?)
+	    print_help
+	    exit $STATE_OK
+	    ;;
+
+        -h | --help)
+	    print_help
+	    exit $STATE_OK
+	    ;;
+  
+        -v | --version)
+	    print_revision
+	    exit $STATE_OK
+	    ;;
+
+        *)
+	    echo "$PROGNAME: Invalid option '$1'."
+	    print_more_information
+	    exit $STATE_FAIL
+	    ;;
+    esac
+
+done
+
+# Check if the endpoint was not specified on the command line.
+if [ -z "$endpoint" ] ; then
+
+    # Use the default endpoint.
+    endpoint=$default_endpoint
+fi
+
+url=${endpoint}
+
+if [ -n "$all_dns_server_names" -o -n "$dns_server_name" ] ; then
+
+    url=${url}/dnsservers
+
+    if [ -n "$dns_server_name" ] ; then
+
+        url=${url}/${dns_server_name}
+
+        if [ -n "$all_zone_names" -o -n "$zone_name" ] ; then
+
+	    url=${url}/zones
+
+            if [ -n "$zone_name" ] ; then
+
+                url=${url}/${zone_name}
+
+                if [ -n "$all_records" -o -n "$record_type" -o -n "$record_name" ] ; then 
+	       
+	       	    url=${url}/records
+		
+		    if [ -n "$record_type" -a -z "$record_name" ] ; then
+	    
+	                url=${url}?recordType=${record_type}
+
+                    elif [ -z "$record_type" -a -n "$record_name" ] ; then
+
+	                url=${url}?recordName=${record_name}
+
+                    elif [ -n "$record_type" -a -n "$record_name" ] ; then
+
+                        url=${url}?recordType=${record_type}\&recordName=${record_name}
+
+	            fi
+		fi
+            fi
+	fi
+    fi
+fi
+
+echo $url
+
+curl -i -s \
+-H "Content-Type: application/json" \
+-H "Accept: application/json" \
+-X GET \
+$url
+
+echo ""
+exit $STATE_OK

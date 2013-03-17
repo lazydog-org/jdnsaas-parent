@@ -1,0 +1,7 @@
+/jdnsaas-api/target/
+/jdnsaas-repository-spi/target/
+/jdnsaas-repository/target/
+/jdnsaas-service-bind-impl/target/
+/jdnsaas-rest-service/target/
+/jdnsaas-rest-client/target/
+/jdnsaas-rest-client-scripts/target/

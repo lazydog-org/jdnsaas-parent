@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<enunciate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:noNamespaceSchemaLocation="http://enunciate.codehaus.org/schemas/enunciate-1.26.xsd">
+    <modules>
+        <amf disabled="true"/>
+        <basic-app disabled="true"/>
+        <c disabled="true"/>
+        <csharp disabled="true"/>
+        <cxf disabled="true"/>
+        <docs disabled="false" includeDefaultDownloads="false" includeExampleXml="false" disableRestMountpoint="true"/>
+        <gwt disabled="true"/>
+        <java-client disabled="true"/>
+        <jaxws disabled="true"/>
+        <jaxws-client disabled="true"/>
+        <jaxws-ri disabled="true"/>
+        <jboss disabled="true"/>
+        <jersey disabled="true"/>
+        <obj-c disabled="true"/>
+        <ruby disabled="true"/>
+        <spring-app disabled="true"/>
+        <xfire disabled="true"/>
+        <xfire-client disabled="true"/>
+        <xml disabled="false"/>
+    </modules>
+</enunciate>
