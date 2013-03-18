@@ -18,7 +18,6 @@
  */
 package org.lazydog.jdnsaas.rest.model;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import org.lazydog.jdnsaas.model.Zone;
 
 /**
@@ -26,7 +25,6 @@ import org.lazydog.jdnsaas.model.Zone;
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class ZoneWrapper extends Zone {
     
     private static final long serialVersionUID = 1L;
@@ -59,7 +57,7 @@ public class ZoneWrapper extends Zone {
      * 
      * @return  a new instance of the zone wrapper class.
      */
-    public static ZoneWrapper newInstance(String zoneName, String url) {
+    public static ZoneWrapper newInstance(final String zoneName, final String url) {
         
         ZoneWrapper zoneResponse = new ZoneWrapper();
         zoneResponse.setName(zoneName);
@@ -77,7 +75,7 @@ public class ZoneWrapper extends Zone {
      * 
      * @return  a new instance of the zone wrapper class.
      */
-    public static ZoneWrapper newInstance(Zone zone, String url, String recordsUrl) {
+    public static ZoneWrapper newInstance(final Zone zone, final String url, final String recordsUrl) {
         
         ZoneWrapper zoneResponse = new ZoneWrapper();
         zoneResponse.setName(zone.getName());
@@ -93,7 +91,7 @@ public class ZoneWrapper extends Zone {
      * 
      * @param  recordsUrl  the records URL.
      */
-    public void setRecordsUrl(String recordsUrl) {
+    public void setRecordsUrl(final String recordsUrl) {
         this.recordsUrl = recordsUrl;
     }
     
@@ -102,7 +100,7 @@ public class ZoneWrapper extends Zone {
      * 
      * @param  url  the URL. 
      */
-    public void setUrl(String url) {
+    public void setUrl(final String url) {
         this.url = url;
     }
 }

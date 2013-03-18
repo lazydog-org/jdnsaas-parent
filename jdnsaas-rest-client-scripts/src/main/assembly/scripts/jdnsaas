@@ -11,7 +11,8 @@ PROGNAME=`/bin/basename $0`
 STATE_OK=0
 STATE_FAIL=1
 
-default_endpoint=http://localhost:8080/jdnsaas/rest/1.0
+endpoint=http://localhost:8080/jdnsaas/rest/1.0
+media_type="application/json"
 
 print_revision() {
     echo "$PROGNAME - $VERSION"
@@ -29,7 +30,7 @@ print_help() {
 
 Options:
 -e, --endpoint          	The Rest service endpoint 
-                        	(default: $default_endpoint)
+                        	(default: $endpoint)
 -D, --all-dns-server-names	All DNS server names
 				(mutually exclusive with -d)
 -d, --dns-server-name		The DNS server name
@@ -46,6 +47,8 @@ Options:
 				(implies -R)
 -n, --record-name               The record name
 				(implies -R)
+-x, --xml			Produce and consume XML
+			        (default: $media_type)
 -h, --help			Print detailed help
 -v, --version			Print version information
 
@@ -142,6 +145,11 @@ while [ "$1" ] ; do
 	    shift 2
 	    ;;
 
+        -x | --xml)
+            media_type="application/xml"
+	    shift 1
+	    ;;
+
         -?)
 	    print_help
 	    exit $STATE_OK
@@ -165,13 +173,6 @@ while [ "$1" ] ; do
     esac
 
 done
-
-# Check if the endpoint was not specified on the command line.
-if [ -z "$endpoint" ] ; then
-
-    # Use the default endpoint.
-    endpoint=$default_endpoint
-fi
 
 url=${endpoint}
 
@@ -217,8 +218,8 @@ fi
 echo $url
 
 curl -i -s \
--H "Content-Type: application/json" \
--H "Accept: application/json" \
+-H "Content-Type: $media_type" \
+-H "Accept: $media_type" \
 -X GET \
 $url
 

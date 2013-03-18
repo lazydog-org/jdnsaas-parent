@@ -21,19 +21,17 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Zones wrapper.
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class ZonesWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;
-    @XmlElement(name = "zones")
+    @JsonProperty("zones")
     private List<ZoneWrapper> zoneWrappers = new ArrayList<ZoneWrapper>();
     
     /**
@@ -52,7 +50,7 @@ public class ZonesWrapper implements Serializable {
      * 
      * @return  a new instance of the zones wrapper class.
      */
-    public static ZonesWrapper newInstance(List<ZoneWrapper> zoneWrappers) {
+    public static ZonesWrapper newInstance(final List<ZoneWrapper> zoneWrappers) {
         ZonesWrapper zonesWrapper = new ZonesWrapper();
         zonesWrapper.setZoneWrappers(zoneWrappers);
         return zonesWrapper;
@@ -63,7 +61,7 @@ public class ZonesWrapper implements Serializable {
      * 
      * @param  zoneWrappers  the zone wrappers.
      */
-    public void setZoneWrappers(List<ZoneWrapper> zoneWrappers) {
+    public void setZoneWrappers(final List<ZoneWrapper> zoneWrappers) {
         this.zoneWrappers = zoneWrappers;
     }
 }

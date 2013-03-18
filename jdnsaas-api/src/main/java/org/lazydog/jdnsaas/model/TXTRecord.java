@@ -18,14 +18,11 @@
  */
 package org.lazydog.jdnsaas.model;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * TXT record.
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class TXTRecord extends Record<TXTRecordData> {
     
     private static final long serialVersionUID = 1L;

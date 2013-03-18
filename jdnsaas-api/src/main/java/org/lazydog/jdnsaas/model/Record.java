@@ -19,14 +19,12 @@
 package org.lazydog.jdnsaas.model;
 
 import java.lang.reflect.ParameterizedType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Record.
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public abstract class Record<T extends RecordData> extends Model {
         
     private static final long serialVersionUID = 1L;

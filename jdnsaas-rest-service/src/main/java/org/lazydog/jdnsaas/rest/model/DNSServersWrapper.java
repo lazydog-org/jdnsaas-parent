@@ -21,19 +21,17 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * DNS servers wrapper.
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class DNSServersWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;
-    @XmlElement(name = "dnsServers")
+    @JsonProperty("dnsServers")
     private List<DNSServerWrapper> dnsServerWrappers = new ArrayList<DNSServerWrapper>();
     
     /**
@@ -52,7 +50,7 @@ public class DNSServersWrapper implements Serializable {
      * 
      * @return  a new instance of the DNS servers wrapper class.
      */
-    public static DNSServersWrapper newInstance(List<DNSServerWrapper> dnsServerWrappers) {
+    public static DNSServersWrapper newInstance(final List<DNSServerWrapper> dnsServerWrappers) {
         DNSServersWrapper dnsServersWrapper = new DNSServersWrapper();
         dnsServersWrapper.setDnsServerWrappers(dnsServerWrappers);
         return dnsServersWrapper;
@@ -63,7 +61,7 @@ public class DNSServersWrapper implements Serializable {
      * 
      * @param  dnsServerWrappers  the DNS server wrappers.
      */
-    public void setDnsServerWrappers(List<DNSServerWrapper> dnsServerWrappers) {
+    public void setDnsServerWrappers(final List<DNSServerWrapper> dnsServerWrappers) {
         this.dnsServerWrappers = dnsServerWrappers;
     }
 }

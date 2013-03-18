@@ -18,14 +18,11 @@
  */
 package org.lazydog.jdnsaas.model;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * CNAME record.
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class CNAMERecord extends Record<CNAMERecordData> {
     
     private static final long serialVersionUID = 1L;

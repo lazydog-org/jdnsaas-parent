@@ -18,7 +18,6 @@
  */
 package org.lazydog.jdnsaas.rest.model;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import org.lazydog.jdnsaas.model.DNSServer;
 
 /**
@@ -26,7 +25,6 @@ import org.lazydog.jdnsaas.model.DNSServer;
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class DNSServerWrapper extends DNSServer {
 
     private static final long serialVersionUID = 1L;
@@ -59,7 +57,7 @@ public class DNSServerWrapper extends DNSServer {
      * 
      * @return  a new instance of the DNS server wrapper class.
      */
-    public static DNSServerWrapper newInstance(String dnsServerName, String url) {
+    public static DNSServerWrapper newInstance(final String dnsServerName, final String url) {
 
         DNSServerWrapper dnsServerResponse = new DNSServerWrapper();
         dnsServerResponse.setName(dnsServerName);
@@ -77,7 +75,7 @@ public class DNSServerWrapper extends DNSServer {
      * 
      * @return  a new instance of the DNS server wrapper class.
      */
-    public static DNSServerWrapper newInstance(DNSServer dnsServer, String url, String zonesUrl) {
+    public static DNSServerWrapper newInstance(final DNSServer dnsServer, final String url, final String zonesUrl) {
         
         DNSServerWrapper dnsServerResponse = new DNSServerWrapper();
         dnsServerResponse.setName(dnsServer.getName());
@@ -93,7 +91,7 @@ public class DNSServerWrapper extends DNSServer {
      * 
      * @param  url  the URL.
      */
-    public void setUrl(String url) {
+    public void setUrl(final String url) {
         this.url = url;
     }
     
@@ -102,7 +100,7 @@ public class DNSServerWrapper extends DNSServer {
      * 
      * @param  zonesUrl  the zones URL.
      */
-    public void setZonesUrl(String zonesUrl) {
+    public void setZonesUrl(final String zonesUrl) {
         this.zonesUrl = zonesUrl;
     }
 }

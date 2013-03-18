@@ -20,14 +20,12 @@ package org.lazydog.jdnsaas.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * DNS server.
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class DNSServer extends Model {
     
     private static final long serialVersionUID = 1L;

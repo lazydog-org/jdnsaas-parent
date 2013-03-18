@@ -159,7 +159,7 @@ public class DNSServiceResource {
     @GET
     @Path("dnsservers/{dnsServerName}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDnsServer(@PathParam("dnsServerName") String dnsServerName) {
+    public Response getDnsServer(@PathParam("dnsServerName") final String dnsServerName) {
         
         Response response;
         
@@ -206,7 +206,7 @@ System.out.println(e);
      * 
      * @return  the next path.
      */
-    private String getNextPath(String path) {
+    private String getNextPath(final String path) {
         return this.uriInfo.getAbsolutePathBuilder().path(path).build().toASCIIString();
     }
  
@@ -224,7 +224,7 @@ System.out.println(e);
     @GET
     @Path("dnsservers/{dnsServerName}/zones/{zoneName}/records")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getRecords(@PathParam("dnsServerName") String dnsServerName, @PathParam("zoneName") String zoneName, @DefaultValue("any") @QueryParam("recordType") String recordType, @QueryParam("recordName") String recordName) {
+    public Response getRecords(@PathParam("dnsServerName") final String dnsServerName, @PathParam("zoneName") final String zoneName, @DefaultValue("any") @QueryParam("recordType") final String recordType, @QueryParam("recordName") final String recordName) {
         
         Response response;
         
@@ -252,7 +252,7 @@ System.out.println(e);
     @GET
     @Path("dnsservers/{dnsServerName}/zones/{zoneName}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getZone(@PathParam("dnsServerName") String dnsServerName, @PathParam("zoneName") String zoneName) {
+    public Response getZone(@PathParam("dnsServerName") final String dnsServerName, @PathParam("zoneName") final String zoneName) {
         
         Response response;
         
@@ -279,7 +279,7 @@ System.out.println(e);
     @GET
     @Path("dnsservers/{dnsServerName}/zones")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getZoneNames(@PathParam("dnsServerName") String dnsServerName) {
+    public Response getZoneNames(@PathParam("dnsServerName") final String dnsServerName) {
         
         Response response;
         
@@ -312,7 +312,7 @@ System.out.println(e);
     @Path("dnsservers/{dnsServerName}/zones/{zoneName}/records")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response processRecords(@PathParam("dnsServerName") String dnsServerName, @PathParam("zoneName") String zoneName, RecordsWrapper recordsWrapper) {
+    public Response processRecords(@PathParam("dnsServerName") final String dnsServerName, @PathParam("zoneName") final String zoneName, final RecordsWrapper recordsWrapper) {
 
         Response response;
         

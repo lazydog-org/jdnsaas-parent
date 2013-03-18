@@ -18,14 +18,11 @@
  */
 package org.lazydog.jdnsaas.model;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * MX record.
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class MXRecord extends Record<MXRecordData> {
     
     private static final long serialVersionUID = 1L;

@@ -21,7 +21,6 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -42,7 +41,6 @@ import org.lazydog.jdnsaas.model.TXTRecord;
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class RecordsWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;
@@ -75,7 +73,7 @@ public class RecordsWrapper implements Serializable {
      * 
      * @return  a new instance of the records wrapper class.
      */
-    public static RecordsWrapper newInstance(List<Record> records) {
+    public static RecordsWrapper newInstance(final List<Record> records) {
         
         RecordsWrapper recordsWrapper = new RecordsWrapper();
         recordsWrapper.setRecords(records);
@@ -88,7 +86,7 @@ public class RecordsWrapper implements Serializable {
      * 
      * @param  records  the records.
      */
-    public void setRecords(List<Record> records) {
+    public void setRecords(final List<Record> records) {
         this.records = records;
     }
 }

@@ -18,14 +18,11 @@
  */
 package org.lazydog.jdnsaas.model;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * A record.
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class ARecord extends Record<ARecordData> {
     
     private static final long serialVersionUID = 1L;

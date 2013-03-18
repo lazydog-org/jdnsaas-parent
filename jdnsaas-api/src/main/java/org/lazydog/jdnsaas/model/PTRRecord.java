@@ -18,14 +18,11 @@
  */
 package org.lazydog.jdnsaas.model;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * PTR record.
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class PTRRecord extends Record<PTRRecordData> {
     
     private static final long serialVersionUID = 1L;

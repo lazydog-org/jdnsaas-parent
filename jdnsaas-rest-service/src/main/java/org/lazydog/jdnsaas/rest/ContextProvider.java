@@ -24,20 +24,17 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
 
 /**
- * Jackson context resolver.
+ * Context provider.
  * 
  * @author  Ron Rickard
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
-public class CustomProvider implements ContextResolver<ObjectMapper> {
+public class ContextProvider implements ContextResolver<ObjectMapper> {
     
     /**
      * Get the object mapper that will convert an object to and from JSON.
@@ -47,14 +44,11 @@ public class CustomProvider implements ContextResolver<ObjectMapper> {
      * @return  the object mapper.
      */
     @Override
-    public ObjectMapper getContext(Class<?> type) {
+    public ObjectMapper getContext(final Class<?> type) {
         
         // Initialize the object mapper.
         ObjectMapper objectMapper = new ObjectMapper();
-        
-        // Use Jackson and JAXB annotations.
-        objectMapper.setAnnotationIntrospector(new AnnotationIntrospector.Pair(new JacksonAnnotationIntrospector(), new JaxbAnnotationIntrospector()));
-        
+
         // Do not include null values in the JSON.
         objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
         objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);
