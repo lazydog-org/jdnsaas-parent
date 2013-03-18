@@ -33,7 +33,7 @@ public abstract class Record<T extends RecordData> extends Model {
     private String name;
     private RecordOperation operation;
     private Integer timeToLive = new Integer(DEFAULT_TIME_TO_LIVE);
-    private RecordType type;
+    private transient RecordType type;
   
     /**
      * Get the data.

@@ -46,14 +46,14 @@ public class RecordsWrapper implements Serializable {
     private static final long serialVersionUID = 1L;
     @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
     @JsonSubTypes({
-        @Type(value=AAAARecord.class, name="AAAA"),
-        @Type(value=ARecord.class, name="A"),
-        @Type(value=CNAMERecord.class, name="CNAME"),
-        @Type(value=MXRecord.class, name="MX"),
-        @Type(value=NSRecord.class, name="NS"),
-        @Type(value=PTRRecord.class, name="PTR"),
-        @Type(value=SRVRecord.class, name="SRV"),
-        @Type(value=TXTRecord.class, name="TXT")
+        @Type(value = AAAARecord.class,  name = "AAAA"),
+        @Type(value = ARecord.class,     name = "A"),
+        @Type(value = CNAMERecord.class, name = "CNAME"),
+        @Type(value = MXRecord.class,    name = "MX"),
+        @Type(value = NSRecord.class,    name = "NS"),
+        @Type(value = PTRRecord.class,   name = "PTR"),
+        @Type(value = SRVRecord.class,   name = "SRV"),
+        @Type(value = TXTRecord.class,   name = "TXT")
     })
     private List<Record> records = new ArrayList<Record>();
     

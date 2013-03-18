@@ -4,11 +4,11 @@
 
 #set -x
 
-default_endpoint=http://localhost:8084/jdnsaas/rest/1.0
+default_endpoint=http://localhost:8080/jdnsaas/rest/1.0
 
-url=$default_endpoint/dnsservers/dns-int1.lazydog.org/zones/lazydog.org/records
+url=$default_endpoint/dnsservers/ns.zone.test/zones/zone.test/records
 
-payload='{"records":[{"operation":"ADD","name":"test1","timeToLive":86400,"type":"A","data":{"ipAddress":"192.168.0.201"}},{"operation":"ADD","name":"test1","timeToLive":86400,"type":"MX","data":{"target":"mailhost.lazydog.org","priority":20}}]}'
+payload='{"records":[{"operation":"ADD","name":"test1","timeToLive":86400,"type":"A","data":{"ipAddress":"172.16.0.201"}}]}'
 
 echo $url
 
