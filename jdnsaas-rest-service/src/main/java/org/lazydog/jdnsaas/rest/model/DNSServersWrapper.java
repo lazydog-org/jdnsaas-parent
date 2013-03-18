@@ -21,8 +21,8 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.lazydog.jdnsaas.model.DNSServer;
 
 /**
  * DNS servers wrapper.
@@ -33,38 +33,37 @@ import org.lazydog.jdnsaas.model.DNSServer;
 public class DNSServersWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;
-    private List<DNSServer> dnsServers = new ArrayList<DNSServer>();
+    @XmlElement(name = "dnsServers")
+    private List<DNSServerWrapper> dnsServerWrappers = new ArrayList<DNSServerWrapper>();
     
     /**
-     * Get the DNS servers.
+     * Get the DNS server wrappers.
      * 
-     * @return  the DNS servers.
+     * @return  the DNS server wrappers.
      */
-    public List<DNSServer> getDnsServers() {
-        return this.dnsServers;
+    public List<DNSServerWrapper> getDnsServerWrappers() {
+        return this.dnsServerWrappers;
     }
     
     /**
      * Create a new instance of the DNS servers wrapper class.
      * 
-     * @param  dnsServers  the DNS servers.
+     * @param  dnsServerWrappers  the DNS wrappers.
      * 
      * @return  a new instance of the DNS servers wrapper class.
      */
-    public static DNSServersWrapper newInstance(List<DNSServer> dnsServers) {
-        
+    public static DNSServersWrapper newInstance(List<DNSServerWrapper> dnsServerWrappers) {
         DNSServersWrapper dnsServersWrapper = new DNSServersWrapper();
-        dnsServersWrapper.setDnsServers(dnsServers);
-        
+        dnsServersWrapper.setDnsServerWrappers(dnsServerWrappers);
         return dnsServersWrapper;
     }
     
     /**
-     * Set the DNS servers.
+     * Set the DNS server wrappers.
      * 
-     * @param  dnsServers  the DNS servers.
+     * @param  dnsServerWrappers  the DNS server wrappers.
      */
-    public void setDnsServers(List<DNSServer> dnsServers) {
-        this.dnsServers = dnsServers;
+    public void setDnsServerWrappers(List<DNSServerWrapper> dnsServerWrappers) {
+        this.dnsServerWrappers = dnsServerWrappers;
     }
 }

@@ -20,6 +20,7 @@ package org.lazydog.jdnsaas.spi.repository;
 
 import java.util.List;
 import org.lazydog.jdnsaas.spi.repository.model.DNSServerEntity;
+import org.lazydog.jdnsaas.spi.repository.model.ZoneEntity;
 import org.lazydog.repository.Repository;
 
 /**
@@ -30,18 +31,45 @@ import org.lazydog.repository.Repository;
 public interface DNSRepository extends Repository {
 
     /**
-     * Find the DNS server for the DNS server name.
+     * Find the DNS server.
      * 
      * @param  dnsServerName  the DNS server name.
      * 
      * @return  the DNS server.
+     * 
+     * @throws  DNSRepositoryException  if unable to find the DNS server due to an exception.
      */
-    DNSServerEntity findDnsServer(String dnsServerName);
+    DNSServerEntity findDnsServer(String dnsServerName) throws DNSRepositoryException;
     
     /**
-     * Find the DNS servers.
+     * Find the DNS server names.
      * 
-     * @return  the DNS servers.
+     * @return  the DNS server names.
+     * 
+     * @throws  DNSRepositoryException  if unable to find the DNS server names due to an exception.
      */
-    List<DNSServerEntity> findDnsServers();
+    List<String> findDnsServerNames() throws DNSRepositoryException;
+    
+    /**
+     * Find the zone.
+     * 
+     * @param  dnsServerName  the DNS server name.
+     * @param  zoneName       the zone name.
+     * 
+     * @return  the zone.
+     * 
+     * @throws  DNSRepositoryException  if unable to find the zone due to an exception.
+     */
+    ZoneEntity findZone(String dnsServerName, String zoneName) throws DNSRepositoryException;
+    
+    /**
+     * Find the zone names.
+     * 
+     * @param  dnsServerName  the DNS server name.
+     * 
+     * @return  the zone names.
+     * 
+     * @throws  DNSRepositoryException  if unable to find the zone names due to an exception.
+     */
+    List<String> findZoneNames(String dnsServerName) throws DNSRepositoryException;
 }

@@ -38,16 +38,17 @@ public interface DNSService {
      * 
      * @return  the DNS server.
      * 
-     * @throws  ResourceNotFoundException  if the DNS server cannot be found.
+     * @throws  DNSServiceException        if unable to get the DNS server due to an exception.
+     * @throws  ResourceNotFoundException  if the DNS server is not found.
      */
-    DNSServer getDnsServer(String dnsServerName) throws ResourceNotFoundException;
+    DNSServer getDnsServer(String dnsServerName) throws DNSServiceException, ResourceNotFoundException;
     
     /**
-     * Get the DNS servers.
+     * Get the DNS server names.
      * 
-     * @return  the DNS servers.
+     * @return  the DNS server names.
      */
-    List<DNSServer> getDnsServers();
+    List<String> getDnsServerNames() throws DNSServiceException;
 
     /**
      * Get the records.
@@ -59,8 +60,8 @@ public interface DNSService {
      * 
      * @return  the records.
      * 
-     * @throws  DNSServiceException        if unable to get the records.
-     * @throws  ResourceNotFoundException  if the DNS server cannot be found.
+     * @throws  DNSServiceException        if unable to get the records due to an exception.
+     * @throws  ResourceNotFoundException  if the zone is not found.
      */
     List<Record> getRecords(String dnsServerName, String zoneName, RecordType recordType, String recordName) throws DNSServiceException, ResourceNotFoundException;
     
@@ -72,21 +73,22 @@ public interface DNSService {
      * 
      * @return  the zone.
      * 
-     * @throws  DNSServiceException        if unable to get the records for the zone.
-     * @throws  ResourceNotFoundException  if the DNS server or zone cannot be found.
+     * @throws  DNSServiceException        if unable to get the zone due to an exception.
+     * @throws  ResourceNotFoundException  if the zone is not found.
      */
     Zone getZone(String dnsServerName, String zoneName) throws DNSServiceException, ResourceNotFoundException;
         
     /**
-     * Get the zones.
+     * Get the zone names.
      * 
      * @param  dnsServerName  the DNS server name.
      * 
-     * @return  the zones.
+     * @return  the zone names.
      * 
-     * @throws  ResourceNotFoundException  if the DNS server cannot be found.
+     * @throws  DNSServiceException        if unable to get the zone names due to an exception.
+     * @throws  ResourceNotFoundException  if the DNS server is not found.
      */
-    List<Zone> getZones(String dnsServerName) throws ResourceNotFoundException;
+    List<String> getZoneNames(String dnsServerName) throws DNSServiceException, ResourceNotFoundException;
         
     /**
      * Process the records.
@@ -98,7 +100,7 @@ public interface DNSService {
      * @return  true if the records are processed successfully, otherwise false.
      * 
      * @throws  DNSServiceException        if unable to process the records due to an exception.
-     * @throws  ResourceNotFoundException  if the DNS server cannot be found.
+     * @throws  ResourceNotFoundException  if the zone is not found.
      */
     boolean processRecords(String dnsServerName, String zoneName, List<Record> records) throws DNSServiceException, ResourceNotFoundException;
 }

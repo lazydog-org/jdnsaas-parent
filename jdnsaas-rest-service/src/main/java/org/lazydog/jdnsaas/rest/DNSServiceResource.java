@@ -18,7 +18,9 @@
  */
 package org.lazydog.jdnsaas.rest;
 
+import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -26,9 +28,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 import org.lazydog.jdnsaas.DNSService;
 import org.lazydog.jdnsaas.DNSServiceException;
 import org.lazydog.jdnsaas.ResourceNotFoundException;
@@ -37,8 +41,10 @@ import org.lazydog.jdnsaas.model.DNSServer;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.Zone;
+import org.lazydog.jdnsaas.rest.model.DNSServerWrapper;
 import org.lazydog.jdnsaas.rest.model.DNSServersWrapper;
 import org.lazydog.jdnsaas.rest.model.RecordsWrapper;
+import org.lazydog.jdnsaas.rest.model.ZoneWrapper;
 import org.lazydog.jdnsaas.rest.model.ZonesWrapper;
 
 /**
@@ -46,15 +52,17 @@ import org.lazydog.jdnsaas.rest.model.ZonesWrapper;
  * 
  * @author  Ron Rickard
  */
-@Path("/1.0")
+@Path("1.0")
 public class DNSServiceResource {
-    
-    DNSService dnsService;
+      
+    private DNSService dnsService;
+    @Context
+    private UriInfo uriInfo;
    
     /**
      * Initialize the DNS service resource.
      */
-    public DNSServiceResource() {
+    public DNSServiceResource() throws DNSServiceException {
         dnsService = DNSServiceImpl.newInstance();
     }
     
@@ -92,8 +100,53 @@ public class DNSServiceResource {
      * 
      * @return  the ok response.
      */
-    private static Response buildOkResponse(Object object) {
+    private static Response buildOkResponse(final Object object) {
         return Response.ok(object).build();
+    }
+
+    /**
+     * Create the DNS server wrappers.
+     * 
+     * @param  dnsServerNames  the DNS server names.
+     * 
+     * @return  the DNS server wrappers.
+     */
+    private List<DNSServerWrapper> createDnsServerWrappers(final List<String> dnsServerNames) {
+        
+        List<DNSServerWrapper> dnsServerWrappers = new ArrayList<DNSServerWrapper>();
+        
+        for (String dnsServerName : dnsServerNames) {
+            dnsServerWrappers.add(DNSServerWrapper.newInstance(dnsServerName, this.getNextPath(dnsServerName)));
+        }
+        
+        return dnsServerWrappers;
+    }
+    
+    /**
+     * Create the zone wrappers.
+     * 
+     * @param  zoneNames  the zone names.
+     * 
+     * @return  the zone wrappers.
+     */
+    private List<ZoneWrapper> createZoneWrappers(final List<String> zoneNames) {
+        
+        List<ZoneWrapper> zoneWrappers = new ArrayList<ZoneWrapper>();
+        
+        for (String zoneName : zoneNames) {
+            zoneWrappers.add(ZoneWrapper.newInstance(zoneName, this.getNextPath(zoneName)));
+        }
+        
+        return zoneWrappers;
+    }
+     
+    /**
+     * Get the current path.
+     * 
+     * @return  the current path.
+     */
+    private String getCurrentPath() {
+        return this.uriInfo.getAbsolutePath().toASCIIString();
     }
 
     /**
@@ -104,7 +157,7 @@ public class DNSServiceResource {
      * @return  the DNS server.
      */
     @GET
-    @Path("/dnsservers/{dnsServerName}")
+    @Path("dnsservers/{dnsServerName}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDnsServer(@PathParam("dnsServerName") String dnsServerName) {
         
@@ -112,9 +165,12 @@ public class DNSServiceResource {
         
         try {
             DNSServer dnsServer = this.dnsService.getDnsServer(dnsServerName);
-            response = buildOkResponse(dnsServer);
+            response = buildOkResponse(DNSServerWrapper.newInstance(dnsServer, this.getCurrentPath(), this.getNextPath("zones")));
         } catch (ResourceNotFoundException e) {
             response = buildNotFoundResponse();
+        } catch (Exception e) {
+            response = buildInternalServerErrorResponse();
+System.out.println(e);
         }
         
         return response;
@@ -126,13 +182,34 @@ public class DNSServiceResource {
      * @return  the DNS servers.
      */
     @GET
-    @Path("/dnsservers")
+    @Path("dnsservers")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDnsServers() {
-        List<DNSServer> dnsServers = this.dnsService.getDnsServers();
-        return buildOkResponse(DNSServersWrapper.newInstance(dnsServers));
+    public Response getDnsServerNames() {
+        
+        Response response;
+        
+        try {
+            List<String> dnsServerNames = this.dnsService.getDnsServerNames();
+            return buildOkResponse(DNSServersWrapper.newInstance(createDnsServerWrappers(dnsServerNames)));
+        } catch (Exception e) {
+            response = buildInternalServerErrorResponse();
+System.out.println(e); 
+        }
+        
+        return response;
     }
-    
+        
+    /**
+     * Get the next path.
+     * 
+     * @param  path  the path to add to the current path.
+     * 
+     * @return  the next path.
+     */
+    private String getNextPath(String path) {
+        return this.uriInfo.getAbsolutePathBuilder().path(path).build().toASCIIString();
+    }
+ 
     /**
      * Get the records for the DNS server name and zone name.
      * Optionally, filter the records by the record type and/or record name.
@@ -145,7 +222,7 @@ public class DNSServiceResource {
      * @return  the records.
      */
     @GET
-    @Path("/dnsservers/{dnsServerName}/zones/{zoneName}/records")
+    @Path("dnsservers/{dnsServerName}/zones/{zoneName}/records")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRecords(@PathParam("dnsServerName") String dnsServerName, @PathParam("zoneName") String zoneName, @DefaultValue("any") @QueryParam("recordType") String recordType, @QueryParam("recordName") String recordName) {
         
@@ -153,12 +230,12 @@ public class DNSServiceResource {
         
         try {
             List<Record> records = this.dnsService.getRecords(dnsServerName, zoneName, RecordType.fromString(recordType), recordName);
-            response = buildOkResponse(RecordsWrapper.newInstance(records));
-        } catch (DNSServiceException e) {
-            response = buildInternalServerErrorResponse();
-System.out.println(e);
+            response = buildOkResponse(RecordsWrapper.newInstance(records)); 
         } catch (ResourceNotFoundException e) {
             response = buildNotFoundResponse();
+        } catch (Exception e) {
+            response = buildInternalServerErrorResponse();
+System.out.println(e);
         }
         
         return response;
@@ -173,7 +250,7 @@ System.out.println(e);
      * @return  the zone.
      */
     @GET
-    @Path("/dnsservers/{dnsServerName}/zones/{zoneName}")
+    @Path("dnsservers/{dnsServerName}/zones/{zoneName}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getZone(@PathParam("dnsServerName") String dnsServerName, @PathParam("zoneName") String zoneName) {
         
@@ -181,12 +258,12 @@ System.out.println(e);
         
         try {
             Zone zone = this.dnsService.getZone(dnsServerName, zoneName);
-            response = buildOkResponse(zone);
-        } catch (DNSServiceException e) {
+            response = buildOkResponse(ZoneWrapper.newInstance(zone, this.getCurrentPath(), this.getNextPath("records")));
+        }  catch (ResourceNotFoundException e) {
+            response = buildNotFoundResponse();
+        } catch (Exception e) {
             response = buildInternalServerErrorResponse();
 System.out.println(e);
-        } catch (ResourceNotFoundException e) {
-            response = buildNotFoundResponse();
         }
         
         return response;
@@ -200,17 +277,20 @@ System.out.println(e);
      * @return  the zones.
      */
     @GET
-    @Path("/dnsservers/{dnsServerName}/zones")
+    @Path("dnsservers/{dnsServerName}/zones")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getZones(@PathParam("dnsServerName") String dnsServerName) {
+    public Response getZoneNames(@PathParam("dnsServerName") String dnsServerName) {
         
         Response response;
         
         try {
-            List<Zone> zones = this.dnsService.getZones(dnsServerName);
-            response = buildOkResponse(ZonesWrapper.newInstance(zones));
+            List<String> zoneNames = this.dnsService.getZoneNames(dnsServerName);
+            response = buildOkResponse(ZonesWrapper.newInstance(createZoneWrappers(zoneNames)));
         } catch (ResourceNotFoundException e) {
             response = buildNotFoundResponse();
+        } catch (Exception e) {
+            response = buildInternalServerErrorResponse();
+System.out.println(e);
         }
         
         return response;
@@ -229,7 +309,8 @@ System.out.println(e);
      * @throws  ResourceNotFoundException  if the DNS server cannot be found.
      */
     @POST
-    @Path("/dnsservers/{dnsServerName}/zones/{zoneName}/records")
+    @Path("dnsservers/{dnsServerName}/zones/{zoneName}/records")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response processRecords(@PathParam("dnsServerName") String dnsServerName, @PathParam("zoneName") String zoneName, RecordsWrapper recordsWrapper) {
 
@@ -242,11 +323,11 @@ System.out.println(e);
             } else {
                 response = buildBadRequestResponse();
             }
-        } catch (DNSServiceException e) {
-            response = buildInternalServerErrorResponse();
-System.out.println(e);
         } catch (ResourceNotFoundException e) {
             response = buildNotFoundResponse();
+        } catch (Exception e) {
+            response = buildInternalServerErrorResponse();
+System.out.println(e);
         }
 
         return response;

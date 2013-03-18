@@ -16,23 +16,23 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.lazydog.jdnsaas;
+package org.lazydog.jdnsaas.spi.repository;
 
 import java.io.Serializable;
 
 /**
- * Resource not found exception.
+ * DNS repository exception.
  * 
  * @author  Ron Rickard
  */
-public class ResourceNotFoundException extends Exception implements Serializable {
+public class DNSRepositoryException extends Exception implements Serializable {
     
     public static final long serialVersionUID = 1L;
     
     /**
      * Constructs a new exception with no message.
      */
-    public ResourceNotFoundException() {
+    public DNSRepositoryException() {
         super();
     }
 
@@ -41,7 +41,7 @@ public class ResourceNotFoundException extends Exception implements Serializable
      *
      * @param  message  the message.
      */
-    public ResourceNotFoundException(final String message) {
+    public DNSRepositoryException(final String message) {
         super(message);
     }
 
@@ -51,7 +51,7 @@ public class ResourceNotFoundException extends Exception implements Serializable
      * @param  message  the message.
      * @param  cause    the cause.
      */
-    public ResourceNotFoundException(final String message, final Throwable cause) {
+    public DNSRepositoryException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -60,7 +60,7 @@ public class ResourceNotFoundException extends Exception implements Serializable
      *
      * @param  cause  the cause.
      */
-    public ResourceNotFoundException(final Throwable cause) {
+    public DNSRepositoryException(final Throwable cause) {
         super(cause);
     }
 }

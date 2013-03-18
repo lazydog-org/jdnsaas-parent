@@ -19,8 +19,6 @@
 package org.lazydog.jdnsaas.spi.repository.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,7 +27,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -56,10 +53,7 @@ public class DNSServerEntity implements Serializable {
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="transaction_signature_id", nullable=false)
     private TransactionSignatureEntity transactionSignature;
-    @OneToMany(fetch=FetchType.EAGER)
-    @JoinColumn(name="dns_server_id")
-    private List<ZoneEntity> zones = new ArrayList<ZoneEntity>();
-    
+
     /**
      * Compare this object to the specified object.
      * 
@@ -107,16 +101,7 @@ public class DNSServerEntity implements Serializable {
     public TransactionSignatureEntity getTransactionSignature() {
         return this.transactionSignature;
     }
-    
-    /**
-     * Get the zones.
-     * 
-     * @return  the zones.
-     */
-    public List<ZoneEntity> getZones() {
-        return this.zones;
-    }
-    
+
     /**
      * Returns a hash code for this object.
      * 
@@ -162,16 +147,7 @@ public class DNSServerEntity implements Serializable {
     public void setTransactionSignature(TransactionSignatureEntity transactionSignature) {
         this.transactionSignature = transactionSignature;
     }
-    
-    /**
-     * Set the zones.
-     * 
-     * @param  zones  the zones.
-     */
-    public void setZones(List<ZoneEntity> zones) {
-        this.zones = zones;
-    }
-    
+
     /**
      * Get this object as a string.
      *

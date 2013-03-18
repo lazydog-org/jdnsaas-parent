@@ -21,9 +21,12 @@ package org.lazydog.jdnsaas.spi.repository.model;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -45,6 +48,9 @@ public class ZoneEntity implements Serializable {
     private Integer id;
     @Column(name="name", nullable=false)
     private String name;
+    @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name="dns_server_id", nullable=false)
+    private DNSServerEntity dnsServerEntity;
       
     /**
      * Compare this object to the specified object.
@@ -58,6 +64,15 @@ public class ZoneEntity implements Serializable {
         return EqualsBuilder.reflectionEquals(this, object);
     }
 
+    /**
+     * Get the DNS server entity.
+     * 
+     * @return  the DNS server entity.
+     */
+    public DNSServerEntity getDnsServerEntity() {
+        return this.dnsServerEntity;
+    }
+    
     /**
      * Get the ID.
      * 
@@ -86,6 +101,15 @@ public class ZoneEntity implements Serializable {
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
+    /**
+     * Set the DNS server entity.
+     * 
+     * @param  dnsServerEntity  the DNS server entity.
+     */
+    public void setDnsServerEntity(DNSServerEntity dnsServerEntity) {
+        this.dnsServerEntity = dnsServerEntity;
+    }
+    
     /**
      * Set the ID.
      * 

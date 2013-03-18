@@ -21,8 +21,8 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.lazydog.jdnsaas.model.Zone;
 
 /**
  * Zones wrapper.
@@ -33,38 +33,37 @@ import org.lazydog.jdnsaas.model.Zone;
 public class ZonesWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;
-    private List<Zone> zones = new ArrayList<Zone>();
+    @XmlElement(name = "zones")
+    private List<ZoneWrapper> zoneWrappers = new ArrayList<ZoneWrapper>();
     
     /**
-     * Get the zones.
+     * Get the zone wrappers.
      * 
-     * @return  the zones.
+     * @return  the zone wrappers.
      */
-    public List<Zone> getZones() {
-        return this.zones;
+    public List<ZoneWrapper> getZoneWrappers() {
+        return this.zoneWrappers;
     }
         
     /**
      * Create a new instance of the zones wrapper class.
      * 
-     * @param  zones  the zones.
+     * @param  zoneWrappers  the zone wrappers.
      * 
      * @return  a new instance of the zones wrapper class.
      */
-    public static ZonesWrapper newInstance(List<Zone> zones) {
-        
+    public static ZonesWrapper newInstance(List<ZoneWrapper> zoneWrappers) {
         ZonesWrapper zonesWrapper = new ZonesWrapper();
-        zonesWrapper.setZones(zones);
-        
+        zonesWrapper.setZoneWrappers(zoneWrappers);
         return zonesWrapper;
     }
     
     /**
-     * Set the zones.
+     * Set the zone wrappers.
      * 
-     * @param  zones  the zones.
+     * @param  zoneWrappers  the zone wrappers.
      */
-    public void setZones(List<Zone> zones) {
-        this.zones = zones;
+    public void setZoneWrappers(List<ZoneWrapper> zoneWrappers) {
+        this.zoneWrappers = zoneWrappers;
     }
 }
