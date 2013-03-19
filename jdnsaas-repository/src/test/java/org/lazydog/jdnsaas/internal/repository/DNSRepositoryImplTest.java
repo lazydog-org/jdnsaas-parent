@@ -31,11 +31,11 @@ import org.dbunit.operation.DatabaseOperation;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import org.lazydog.jdnsaas.spi.repository.DNSRepository;
 import org.lazydog.jdnsaas.model.DNSServer;
-import org.lazydog.jdnsaas.model.TransactionSignatureAlgorithm;
 import org.lazydog.jdnsaas.model.TransactionSignature;
+import org.lazydog.jdnsaas.model.TransactionSignatureAlgorithm;
 import org.lazydog.jdnsaas.model.Zone;
+import org.lazydog.jdnsaas.spi.repository.DNSRepository;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 import org.unitils.reflectionassert.ReflectionComparatorMode;
 
@@ -91,11 +91,8 @@ public class DNSRepositoryImplTest {
  
     @Test
     public void testFindDnsServer() throws Exception {
-        TransactionSignatureAlgorithm transactionSignatureAlgorithm = new TransactionSignatureAlgorithm();
-        transactionSignatureAlgorithm.setId(new Integer(1));
-        transactionSignatureAlgorithm.setName("testalgorithm");
         TransactionSignature transactionSignature = new TransactionSignature();
-        transactionSignature.setAlgorithm(transactionSignatureAlgorithm);
+        transactionSignature.setAlgorithm(TransactionSignatureAlgorithm.HMAC_SHA512);
         transactionSignature.setId(new Integer(1));
         transactionSignature.setName("testname");
         transactionSignature.setSecret("testsecret");
@@ -121,11 +118,8 @@ public class DNSRepositoryImplTest {
 
     @Test
     public void testFindZone() throws Exception {
-        TransactionSignatureAlgorithm transactionSignatureAlgorithm = new TransactionSignatureAlgorithm();
-        transactionSignatureAlgorithm.setId(new Integer(1));
-        transactionSignatureAlgorithm.setName("testalgorithm");
         TransactionSignature transactionSignature = new TransactionSignature();
-        transactionSignature.setAlgorithm(transactionSignatureAlgorithm);
+        transactionSignature.setAlgorithm(TransactionSignatureAlgorithm.HMAC_SHA512);
         transactionSignature.setId(new Integer(1));
         transactionSignature.setName("testname");
         transactionSignature.setSecret("testsecret");

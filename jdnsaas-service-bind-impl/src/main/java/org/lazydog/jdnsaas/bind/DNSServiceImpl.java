@@ -67,7 +67,7 @@ public class DNSServiceImpl implements DNSService {
      * @return  the domain name server.
      */
     private static DomainNameServer createDomainNameServer(final DNSServer dnsServer, final String zoneName) {
-        return DomainNameServer.newInstance(dnsServer.getName(), dnsServer.getPort(), dnsServer.getTransactionSignature().getAlgorithm().getName(), dnsServer.getTransactionSignature().getName(), dnsServer.getTransactionSignature().getSecret(), zoneName);
+        return DomainNameServer.newInstance(dnsServer.getName(), dnsServer.getPort(), dnsServer.getTransactionSignature().getAlgorithm().asString(), dnsServer.getTransactionSignature().getName(), dnsServer.getTransactionSignature().getSecret(), zoneName);
     }
 
     /**

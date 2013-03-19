@@ -9,15 +9,16 @@
     <entity class="TransactionSignature" access="FIELD">
         <table name="transaction_signature" schema="jdnsaas"/>
         <attributes>
+            <basic name="algorithm">
+                <column name="algorithm" nullable="false"/>
+                <enumerated>STRING</enumerated>
+            </basic>
             <basic name="name">
                 <column name="name" nullable="false"/>
             </basic>
             <basic name="secret">
                 <column name="secret" nullable="false"/>
             </basic>
-            <many-to-one name="algorithm" fetch="EAGER">
-                <join-column name="transaction_signature_algorithm_id" nullable="false"/>
-            </many-to-one>
         </attributes>
     </entity>
 </entity-mappings>

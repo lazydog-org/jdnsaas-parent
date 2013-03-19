@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
-    <transaction_signature_algorithm id="1" name="testalgorithm"/>
-    <transaction_signature id="1" name="testname" secret="testsecret" transaction_signature_algorithm_id="1"/>
+    <transaction_signature id="1" name="testname" secret="testsecret" algorithm="HMAC_SHA512"/>
     <dns_server id="1" name="dns1.testdomain" port="53" transaction_signature_id="1"/>
     <dns_server id="2" name="dns2.testdomain" port="53" transaction_signature_id="1"/>
     <zone id="1" name="testzone1" dns_server_id="1"/>

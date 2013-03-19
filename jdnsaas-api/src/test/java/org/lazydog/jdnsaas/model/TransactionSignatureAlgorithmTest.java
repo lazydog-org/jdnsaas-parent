@@ -18,26 +18,24 @@
  */
 package org.lazydog.jdnsaas.model;
 
+import java.util.Arrays;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+
 /**
- * Transaction signature (TSIG) algorithm.
+ * Record type test.
  * 
  * @author  Ron Rickard
  */
-public enum TransactionSignatureAlgorithm {
-    HMAC_MD5,
-    HMAC_SHA1,
-    HMAC_SHA224,
-    HMAC_SHA256,
-    HMAC_SHA384,
-    HMAC_SHA512;
-    
-    
-    /**
-     * Get the record type as a String.
-     * 
-     * @return  the record type as a String.
-     */
-    public String asString() {
-        return this.toString().replace("_", "-").toLowerCase();
+public class TransactionSignatureAlgorithmTest {
+        
+    @Test
+    public void testAsString() {
+        assertEquals("hmac-md5", TransactionSignatureAlgorithm.HMAC_MD5.asString());
+        assertEquals("hmac-sha1", TransactionSignatureAlgorithm.HMAC_SHA1.asString());
+        assertEquals("hmac-sha224", TransactionSignatureAlgorithm.HMAC_SHA224.asString());
+        assertEquals("hmac-sha256", TransactionSignatureAlgorithm.HMAC_SHA256.asString());
+        assertEquals("hmac-sha384", TransactionSignatureAlgorithm.HMAC_SHA384.asString());
+        assertEquals("hmac-sha512", TransactionSignatureAlgorithm.HMAC_SHA512.asString());
     }
 }

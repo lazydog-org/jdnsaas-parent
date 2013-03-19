@@ -1,19 +1,9 @@
 use jdnsaas;
 
-insert into transaction_signature_algorithm
-    (name)
-values
-    ('hmac-md5'),
-    ('hmac-sha1'),
-    ('hmac-sha224'),
-    ('hmac-sha256'),
-    ('hmac-sha384'),
-    ('hmac-sha512');
-
 insert into transaction_signature
-    (name, secret, transaction_signature_algorithm_id)
+    (name, secret, algorithm)
 values
-    ('ddns', '5ifB05a6nUMByf7BqJn5S/wcy8gUaJIidU3TWMX3FkZ/ypLIWnwyCybp6qgn+CbxRNLZz8Xr2QoDTTWEeAJfqw==', 6);
+    ('ddns', '5ifB05a6nUMByf7BqJn5S/wcy8gUaJIidU3TWMX3FkZ/ypLIWnwyCybp6qgn+CbxRNLZz8Xr2QoDTTWEeAJfqw==', 'HMAC_SHA512');
 
 insert into dns_server
     (name, port, transaction_signature_id)

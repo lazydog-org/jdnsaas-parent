@@ -1,18 +1,11 @@
 use jdnsaas;
 
-create table transaction_signature_algorithm(
-    id                                  int unsigned not null auto_increment,
-    name                                varchar(255) not null,
-    primary key(id)
-) engine = innodb;
-
 create table transaction_signature(
     id                                  int unsigned not null auto_increment,
     name                                varchar(255) not null,
     secret                              varchar(255) not null,
-    transaction_signature_algorithm_id  int unsigned not null,
-    primary key(id),
-    foreign key(transaction_signature_algorithm_id) references transaction_signature_algorithm(id)
+    algorithm                           varchar(255) not null,
+    primary key(id)
 ) engine = innodb;
 
 create table dns_server(

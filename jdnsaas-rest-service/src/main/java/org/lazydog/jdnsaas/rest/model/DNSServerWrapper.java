@@ -80,6 +80,7 @@ public class DNSServerWrapper extends DNSServer {
         DNSServerWrapper dnsServerResponse = new DNSServerWrapper();
         dnsServerResponse.setName(dnsServer.getName());
         dnsServerResponse.setPort(dnsServer.getPort());
+        dnsServerResponse.setTransactionSignature(dnsServer.getTransactionSignature());
         dnsServerResponse.setUrl(url);
         dnsServerResponse.setZonesUrl(zonesUrl);
 
