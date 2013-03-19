@@ -32,10 +32,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.lazydog.jdnsaas.spi.repository.DNSRepository;
-import org.lazydog.jdnsaas.spi.repository.model.DNSServerEntity;
-import org.lazydog.jdnsaas.spi.repository.model.TransactionSignatureAlgorithmEntity;
-import org.lazydog.jdnsaas.spi.repository.model.TransactionSignatureEntity;
-import org.lazydog.jdnsaas.spi.repository.model.ZoneEntity;
+import org.lazydog.jdnsaas.model.DNSServer;
+import org.lazydog.jdnsaas.model.TransactionSignatureAlgorithm;
+import org.lazydog.jdnsaas.model.TransactionSignature;
+import org.lazydog.jdnsaas.model.Zone;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 import org.unitils.reflectionassert.ReflectionComparatorMode;
 
@@ -91,74 +91,74 @@ public class DNSRepositoryImplTest {
  
     @Test
     public void testFindDnsServer() throws Exception {
-        TransactionSignatureAlgorithmEntity transactionSignatureAlgorithm = new TransactionSignatureAlgorithmEntity();
+        TransactionSignatureAlgorithm transactionSignatureAlgorithm = new TransactionSignatureAlgorithm();
         transactionSignatureAlgorithm.setId(new Integer(1));
         transactionSignatureAlgorithm.setName("testalgorithm");
-        TransactionSignatureEntity transactionSignatureEntity = new TransactionSignatureEntity();
-        transactionSignatureEntity.setAlgorithm(transactionSignatureAlgorithm);
-        transactionSignatureEntity.setId(new Integer(1));
-        transactionSignatureEntity.setName("testname");
-        transactionSignatureEntity.setSecret("testsecret");
-        DNSServerEntity expectedDnsServer = new DNSServerEntity();
+        TransactionSignature transactionSignature = new TransactionSignature();
+        transactionSignature.setAlgorithm(transactionSignatureAlgorithm);
+        transactionSignature.setId(new Integer(1));
+        transactionSignature.setName("testname");
+        transactionSignature.setSecret("testsecret");
+        DNSServer expectedDnsServer = new DNSServer();
         expectedDnsServer.setId(new Integer(1));
         expectedDnsServer.setName("dns1.testdomain");
         expectedDnsServer.setPort(new Integer(53));
-        expectedDnsServer.setTransactionSignature(transactionSignatureEntity);
+        expectedDnsServer.setTransactionSignature(transactionSignature);
         assertReflectionEquals(expectedDnsServer, this.dnsRepository.findDnsServer("dns1.testdomain"), ReflectionComparatorMode.LENIENT_ORDER);
-        expectedDnsServer = new DNSServerEntity();
+        expectedDnsServer = new DNSServer();
         expectedDnsServer.setId(new Integer(2));
         expectedDnsServer.setName("dns2.testdomain");
         expectedDnsServer.setPort(new Integer(53));
-        expectedDnsServer.setTransactionSignature(transactionSignatureEntity);
+        expectedDnsServer.setTransactionSignature(transactionSignature);
         assertReflectionEquals(expectedDnsServer, this.dnsRepository.findDnsServer("dns2.testdomain"), ReflectionComparatorMode.LENIENT_ORDER);
     }
-     
-    @Test
-    public void testFindZone() throws Exception {
-        TransactionSignatureAlgorithmEntity transactionSignatureAlgorithm = new TransactionSignatureAlgorithmEntity();
-        transactionSignatureAlgorithm.setId(new Integer(1));
-        transactionSignatureAlgorithm.setName("testalgorithm");
-        TransactionSignatureEntity transactionSignatureEntity = new TransactionSignatureEntity();
-        transactionSignatureEntity.setAlgorithm(transactionSignatureAlgorithm);
-        transactionSignatureEntity.setId(new Integer(1));
-        transactionSignatureEntity.setName("testname");
-        transactionSignatureEntity.setSecret("testsecret");
-        DNSServerEntity dnsServerEntity = new DNSServerEntity();
-        dnsServerEntity.setId(new Integer(1));
-        dnsServerEntity.setName("dns1.testdomain");
-        dnsServerEntity.setPort(new Integer(53));
-        dnsServerEntity.setTransactionSignature(transactionSignatureEntity);
-        ZoneEntity expectedZone = new ZoneEntity();
-        expectedZone.setDnsServerEntity(dnsServerEntity);
-        expectedZone.setId(new Integer(1));
-        expectedZone.setName("testzone1");
-        assertReflectionEquals(expectedZone, this.dnsRepository.findZone("dns1.testdomain", "testzone1"), ReflectionComparatorMode.LENIENT_ORDER);
-        expectedZone = new ZoneEntity();
-        expectedZone.setDnsServerEntity(dnsServerEntity);
-        expectedZone.setId(new Integer(2));
-        expectedZone.setName("testzone2");
-        assertReflectionEquals(expectedZone, this.dnsRepository.findZone("dns1.testdomain", "testzone2"), ReflectionComparatorMode.LENIENT_ORDER);
-        dnsServerEntity = new DNSServerEntity();
-        dnsServerEntity.setId(new Integer(2));
-        dnsServerEntity.setName("dns2.testdomain");
-        dnsServerEntity.setPort(new Integer(53));
-        dnsServerEntity.setTransactionSignature(transactionSignatureEntity);
-        expectedZone = new ZoneEntity();
-        expectedZone.setDnsServerEntity(dnsServerEntity);
-        expectedZone.setId(new Integer(3));
-        expectedZone.setName("testzone2");
-        assertReflectionEquals(expectedZone, this.dnsRepository.findZone("dns2.testdomain", "testzone2"), ReflectionComparatorMode.LENIENT_ORDER);
-        expectedZone = new ZoneEntity();
-        expectedZone.setDnsServerEntity(dnsServerEntity);
-        expectedZone.setId(new Integer(4));
-        expectedZone.setName("testzone3");
-        assertReflectionEquals(expectedZone, this.dnsRepository.findZone("dns2.testdomain", "testzone3"), ReflectionComparatorMode.LENIENT_ORDER);
-    }
-    
+         
     @Test
     public void testFindDnsServerNames() throws Exception {
         List<String> expectedDnsServerNames = new ArrayList<String>(Arrays.asList("dns1.testdomain", "dns2.testdomain"));
         assertReflectionEquals(expectedDnsServerNames, this.dnsRepository.findDnsServerNames(), ReflectionComparatorMode.LENIENT_ORDER);
+    }
+
+    @Test
+    public void testFindZone() throws Exception {
+        TransactionSignatureAlgorithm transactionSignatureAlgorithm = new TransactionSignatureAlgorithm();
+        transactionSignatureAlgorithm.setId(new Integer(1));
+        transactionSignatureAlgorithm.setName("testalgorithm");
+        TransactionSignature transactionSignature = new TransactionSignature();
+        transactionSignature.setAlgorithm(transactionSignatureAlgorithm);
+        transactionSignature.setId(new Integer(1));
+        transactionSignature.setName("testname");
+        transactionSignature.setSecret("testsecret");
+        DNSServer dnsServer = new DNSServer();
+        dnsServer.setId(new Integer(1));
+        dnsServer.setName("dns1.testdomain");
+        dnsServer.setPort(new Integer(53));
+        dnsServer.setTransactionSignature(transactionSignature);
+        Zone expectedZone = new Zone();
+        expectedZone.setDnsServer(dnsServer);
+        expectedZone.setId(new Integer(1));
+        expectedZone.setName("testzone1");
+        assertReflectionEquals(expectedZone, this.dnsRepository.findZone("dns1.testdomain", "testzone1"), ReflectionComparatorMode.LENIENT_ORDER);
+        expectedZone = new Zone();
+        expectedZone.setDnsServer(dnsServer);
+        expectedZone.setId(new Integer(2));
+        expectedZone.setName("testzone2");
+        assertReflectionEquals(expectedZone, this.dnsRepository.findZone("dns1.testdomain", "testzone2"), ReflectionComparatorMode.LENIENT_ORDER);
+        dnsServer = new DNSServer();
+        dnsServer.setId(new Integer(2));
+        dnsServer.setName("dns2.testdomain");
+        dnsServer.setPort(new Integer(53));
+        dnsServer.setTransactionSignature(transactionSignature);
+        expectedZone = new Zone();
+        expectedZone.setDnsServer(dnsServer);
+        expectedZone.setId(new Integer(3));
+        expectedZone.setName("testzone2");
+        assertReflectionEquals(expectedZone, this.dnsRepository.findZone("dns2.testdomain", "testzone2"), ReflectionComparatorMode.LENIENT_ORDER);
+        expectedZone = new Zone();
+        expectedZone.setDnsServer(dnsServer);
+        expectedZone.setId(new Integer(4));
+        expectedZone.setName("testzone3");
+        assertReflectionEquals(expectedZone, this.dnsRepository.findZone("dns2.testdomain", "testzone3"), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     @Test

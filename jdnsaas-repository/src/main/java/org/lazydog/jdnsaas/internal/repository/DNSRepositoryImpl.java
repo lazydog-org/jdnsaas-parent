@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
+import org.lazydog.jdnsaas.model.DNSServer;
+import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.jdnsaas.spi.repository.DNSRepository;
 import org.lazydog.jdnsaas.spi.repository.DNSRepositoryException;
-import org.lazydog.jdnsaas.spi.repository.model.DNSServerEntity;
-import org.lazydog.jdnsaas.spi.repository.model.ZoneEntity;
 import org.lazydog.repository.Criteria;
 import org.lazydog.repository.criterion.Comparison;
 import org.lazydog.repository.criterion.Logical;
@@ -67,23 +67,23 @@ public class DNSRepositoryImpl extends AbstractRepository implements DNSReposito
      * @throws  DNSRepositoryException  if unable to find the DNS server due to an exception.
      */
     @Override
-    public DNSServerEntity findDnsServer(final String dnsServerName) throws DNSRepositoryException {
+    public DNSServer findDnsServer(final String dnsServerName) throws DNSRepositoryException {
         
-        DNSServerEntity dnsServerEntity;
+        DNSServer dnsServer;
         
         try {
             
-            // Set the DNS server entity criteria.
-            Criteria<DNSServerEntity> criteria = this.getCriteria(DNSServerEntity.class);
+            // Set the DNS server criteria.
+            Criteria<DNSServer> criteria = this.getCriteria(DNSServer.class);
             criteria.add(Comparison.eq("name", dnsServerName));
             
-            // Find the DNS server entity.
-            dnsServerEntity = this.find(DNSServerEntity.class, criteria);
+            // Find the DNS server.
+            dnsServer = this.find(DNSServer.class, criteria);
         } catch (Exception e) {
             throw new DNSRepositoryException("Unable to find the DNS server " + dnsServerName + ".", e);
         }
         
-        return dnsServerEntity;
+        return dnsServer;
     }
     
     /**
@@ -100,11 +100,11 @@ public class DNSRepositoryImpl extends AbstractRepository implements DNSReposito
         
         try {
             
-            // Loop through the DNS server entities.
-            for (DNSServerEntity dnsServerEntity : this.findList(DNSServerEntity.class)) {
+            // Loop through the DNS servers.
+            for (DNSServer dnsServer : this.findList(DNSServer.class)) {
 
                 // Add the DNS server name to the list.
-                dnsServerNames.add(dnsServerEntity.getName());
+                dnsServerNames.add(dnsServer.getName());
             }
         } catch (Exception e) {
             throw new DNSRepositoryException("Unable to find the DNS server names.", e);
@@ -124,24 +124,24 @@ public class DNSRepositoryImpl extends AbstractRepository implements DNSReposito
      * @throws  DNSRepositoryException  if unable to find the zone due to an exception.
      */
     @Override
-    public ZoneEntity findZone(final String dnsServerName, final String zoneName) throws DNSRepositoryException {
+    public Zone findZone(final String dnsServerName, final String zoneName) throws DNSRepositoryException {
 
-        ZoneEntity zoneEntity;
+        Zone zone;
         
         try {
             
-            // Set the zone entity criteria.
-            Criteria<ZoneEntity> criteria = this.getCriteria(ZoneEntity.class);
+            // Set the zone criteria.
+            Criteria<Zone> criteria = this.getCriteria(Zone.class);
             criteria.add(Comparison.eq("name", zoneName));
-            criteria.add(Logical.and(Comparison.eq("dnsServerEntity.name", dnsServerName)));
+            criteria.add(Logical.and(Comparison.eq("dnsServer.name", dnsServerName)));
             
-            // Find the zone entity.
-            zoneEntity = this.find(ZoneEntity.class, criteria);
+            // Find the zone.
+            zone = this.find(Zone.class, criteria);
         } catch (Exception e) {
             throw new DNSRepositoryException("Unable to find the zone " + zoneName + " for DNS server " + dnsServerName + ".", e);
         }
         
-        return zoneEntity;
+        return zone;
     }
     
     /**
@@ -160,14 +160,14 @@ public class DNSRepositoryImpl extends AbstractRepository implements DNSReposito
         
         try {
             
-            // Loop through the zone entities.
-            for (ZoneEntity zoneEntity : this.findList(ZoneEntity.class)) {
+            // Loop through the zones.
+            for (Zone zone : this.findList(Zone.class)) {
 
-                // Check if the DNS server entity name is the desire DNS server name.
-                if (zoneEntity.getDnsServerEntity().getName().equals(dnsServerName)) {
+                // Check if the zone's DNS server name is the desire DNS server name.
+                if (zone.getDnsServer().getName().equals(dnsServerName)) {
                     
                     // Add the zone name to the list.
-                    zoneNames.add(zoneEntity.getName());
+                    zoneNames.add(zone.getName());
                 }
             }
         } catch (Exception e) {

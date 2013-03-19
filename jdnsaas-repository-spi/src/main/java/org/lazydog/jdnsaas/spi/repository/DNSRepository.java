@@ -19,8 +19,8 @@
 package org.lazydog.jdnsaas.spi.repository;
 
 import java.util.List;
-import org.lazydog.jdnsaas.spi.repository.model.DNSServerEntity;
-import org.lazydog.jdnsaas.spi.repository.model.ZoneEntity;
+import org.lazydog.jdnsaas.model.DNSServer;
+import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.repository.Repository;
 
 /**
@@ -39,7 +39,7 @@ public interface DNSRepository extends Repository {
      * 
      * @throws  DNSRepositoryException  if unable to find the DNS server due to an exception.
      */
-    DNSServerEntity findDnsServer(String dnsServerName) throws DNSRepositoryException;
+    DNSServer findDnsServer(String dnsServerName) throws DNSRepositoryException;
     
     /**
      * Find the DNS server names.
@@ -60,7 +60,7 @@ public interface DNSRepository extends Repository {
      * 
      * @throws  DNSRepositoryException  if unable to find the zone due to an exception.
      */
-    ZoneEntity findZone(String dnsServerName, String zoneName) throws DNSRepositoryException;
+    Zone findZone(String dnsServerName, String zoneName) throws DNSRepositoryException;
     
     /**
      * Find the zone names.

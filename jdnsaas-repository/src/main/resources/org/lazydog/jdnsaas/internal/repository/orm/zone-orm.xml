@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings
+    xmlns="http://java.sun.com/xml/ns/persistence/orm"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm 
+                        http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+    version="2.0">
+    <package>org.lazydog.jdnsaas.model</package>
+    <entity class="Zone" access="FIELD">
+        <table name="zone" schema="jdnsaas"/>
+        <attributes>
+            <many-to-one name="dnsServer" fetch="EAGER">
+                <join-column name="dns_server_id" nullable="false"/>
+            </many-to-one>
+            <basic name="name">
+                <column name="name" nullable="false"/>
+            </basic>
+            <transient name="records"/>
+            <transient name="supportedRecordTypes"/>
+        </attributes>
+    </entity>
+</entity-mappings>

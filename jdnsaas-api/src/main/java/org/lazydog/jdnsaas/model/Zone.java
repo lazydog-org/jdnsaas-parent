@@ -28,13 +28,23 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author  Ron Rickard
  */
 @XmlRootElement
-public class Zone extends Model {
+public class Zone extends Entity {
     
     private static final long serialVersionUID = 1L;
+    private DNSServer dnsServer;
     private String name;
     private List<Record> records = new ArrayList<Record>();
     private List<RecordType> supportedRecordTypes = new ArrayList<RecordType>();
-
+    
+    /**
+     * Get the DNS server.
+     * 
+     * @return  the DNS server.
+     */
+    public DNSServer getDnsServer() {
+        return this.dnsServer;
+    }
+    
     /**
      * Get the name.
      * 
@@ -88,6 +98,15 @@ public class Zone extends Model {
         return this.supportedRecordTypes;
     }
 
+    /**
+     * Set the DNS server.
+     * 
+     * @param  dnsServer  the DNS server.
+     */
+    public void setDnsServer(DNSServer dnsServer) {
+        this.dnsServer = dnsServer;
+    }
+    
     /**
      * Set the name.
      * 

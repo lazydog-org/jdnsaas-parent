@@ -32,8 +32,6 @@ import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.jdnsaas.spi.repository.DNSRepository;
 import org.lazydog.jdnsaas.spi.repository.DNSRepositoryException;
-import org.lazydog.jdnsaas.spi.repository.model.DNSServerEntity;
-import org.lazydog.jdnsaas.spi.repository.model.ZoneEntity;
 
 /**
  * DNS service implementation.
@@ -59,57 +57,17 @@ public class DNSServiceImpl implements DNSService {
             throw new DNSServiceException("Unable to initialize the DNS service.", e);
         }
     }
-    
-    /**
-     * Convert the DNS server entity to a DNS server.
-     * 
-     * @param  dnsServerEntity  the DNS server entity.
-     * 
-     * @return  the DNS server.
-     */
-    private static DNSServer convertToDnsServer(final DNSServerEntity dnsServerEntity) {
-
-        DNSServer dnsServer = null;
-        
-        if (dnsServerEntity != null) {
-            dnsServer = new DNSServer();
-            dnsServer.setName(dnsServerEntity.getName());
-            dnsServer.setPort(dnsServerEntity.getPort());
-        }
-        
-        return dnsServer;
-    }
-      
-    /**
-     * Convert the zone entity to a zone.
-     * 
-     * @param  zoneEntity  the zone entity.
-     * 
-     * @return  the zone.
-     */
-    private static Zone convertToZone(final ZoneEntity zoneEntity) {
-
-        Zone zone = null;
-        
-        if (zoneEntity != null) {
-            zone = new Zone();
-            zone.setName(zoneEntity.getName());
-            zone.setSupportedRecordTypes(ZoneResolver.newInstance(zoneEntity.getName()).isForwardZone() ? RecordType.getForwardTypes() : RecordType.getReverseTypes());
-        }
-        
-        return zone;
-    }
 
     /**
      * Create the domain name server.
      * 
-     * @param  dnsServerEntity  the DNS server entity.
-     * @param  zoneName         the zone name.
+     * @param  dnsServer  the DNS server.
+     * @param  zoneName   the zone name.
      * 
      * @return  the domain name server.
      */
-    private static DomainNameServer createDomainNameServer(final DNSServerEntity dnsServerEntity, final String zoneName) {
-        return DomainNameServer.newInstance(dnsServerEntity.getName(), dnsServerEntity.getPort(), dnsServerEntity.getTransactionSignature().getAlgorithm().getName(), dnsServerEntity.getTransactionSignature().getName(), dnsServerEntity.getTransactionSignature().getSecret(), zoneName);
+    private static DomainNameServer createDomainNameServer(final DNSServer dnsServer, final String zoneName) {
+        return DomainNameServer.newInstance(dnsServer.getName(), dnsServer.getPort(), dnsServer.getTransactionSignature().getAlgorithm().getName(), dnsServer.getTransactionSignature().getName(), dnsServer.getTransactionSignature().getSecret(), zoneName);
     }
 
     /**
@@ -125,20 +83,20 @@ public class DNSServiceImpl implements DNSService {
     @Override
     public DNSServer getDnsServer(final String dnsServerName) throws DNSServiceException, ResourceNotFoundException {
 
-        DNSServerEntity dnsServerEntity;
+        DNSServer dnsServer;
             
         try {
             
-            // Find the DNS server entity.
-            dnsServerEntity = this.dnsRepository.findDnsServer(dnsServerName);
-            if (dnsServerEntity == null) {
+            // Find the DNS server.
+            dnsServer = this.dnsRepository.findDnsServer(dnsServerName);
+            if (dnsServer == null) {
                 throw new ResourceNotFoundException("TheDNS server (" + dnsServerName + ") is not found.");
             }
         } catch (DNSRepositoryException e) {
             throw new DNSServiceException("Unable to get the DNS server (" + dnsServerName + ").", e);
         }
     
-        return convertToDnsServer(dnsServerEntity);
+        return dnsServer;
     }
     
     /**
@@ -185,9 +143,9 @@ public class DNSServiceImpl implements DNSService {
     
         try {
 
-            // Find the zone entity.
-            ZoneEntity zoneEntity = this.dnsRepository.findZone(dnsServerName, zoneName);
-            if (zoneEntity == null) {
+            // Find the zone.
+            Zone zone = this.dnsRepository.findZone(dnsServerName, zoneName);
+            if (zone == null) {
                 throw new ResourceNotFoundException("The zone (" + zoneName + ") for DNS server (" + dnsServerName + ") is not found.");
             }
             
@@ -195,7 +153,7 @@ public class DNSServiceImpl implements DNSService {
             int dnsRecordType = RecordConverter.getDnsRecordType((recordType == null) ? RecordType.ANY : recordType);
             
             // Get the DNS records.
-            List<org.xbill.DNS.Record> dnsRecords = createDomainNameServer(zoneEntity.getDnsServerEntity(), zoneName).getRecords(dnsRecordType, recordName);
+            List<org.xbill.DNS.Record> dnsRecords = createDomainNameServer(zone.getDnsServer(), zoneName).getRecords(dnsRecordType, recordName);
 
             // Initialize the record converter.
             RecordConverter recordConverter = RecordConverter.newInstance(zoneName);
@@ -238,20 +196,20 @@ public class DNSServiceImpl implements DNSService {
     @Override
     public Zone getZone(final String dnsServerName, final String zoneName) throws DNSServiceException, ResourceNotFoundException {
 
-        ZoneEntity zoneEntity;
+        Zone zone;
         
         try {
             
-            // Find the zone entity.
-            zoneEntity = this.dnsRepository.findZone(dnsServerName, zoneName);
-            if (zoneEntity == null) {
+            // Find the zone.
+            zone = this.dnsRepository.findZone(dnsServerName, zoneName);
+            if (zone == null) {
                 throw new ResourceNotFoundException("The zone (" + zoneName + ") for DNS server (" + dnsServerName + ") is not found.");
             }
         } catch (DNSRepositoryException e) {
             throw new DNSServiceException("Unable to get the zone (" + zoneName + ") for the DNS server (" + dnsServerName + ").", e);
         }
         
-        return convertToZone(zoneEntity);
+        return zone;
     }
        
     /**
@@ -271,9 +229,9 @@ public class DNSServiceImpl implements DNSService {
         
        try {
            
-           // Find the DNS server entity.
-            DNSServerEntity dnsServerEntity = this.dnsRepository.findDnsServer(dnsServerName);
-            if (dnsServerEntity == null) {
+           // Find the DNS server.
+            DNSServer dnsServer = this.dnsRepository.findDnsServer(dnsServerName);
+            if (dnsServer == null) {
                 throw new ResourceNotFoundException("TheDNS server (" + dnsServerName + ") is not found.");
             }
             
@@ -316,9 +274,9 @@ public class DNSServiceImpl implements DNSService {
 
         try {
 
-            // Find the zone entity.
-            ZoneEntity zoneEntity = this.dnsRepository.findZone(dnsServerName, zoneName);
-            if (zoneEntity == null) {
+            // Find the zone.
+            Zone zone = this.dnsRepository.findZone(dnsServerName, zoneName);
+            if (zone == null) {
                 throw new ResourceNotFoundException("The zone (" + zoneName + ") for DNS server (" + dnsServerName + ") is not found.");
             }
             
@@ -343,7 +301,7 @@ public class DNSServiceImpl implements DNSService {
             }
 
             // Process the records.
-            success = createDomainNameServer(zoneEntity.getDnsServerEntity(), zoneName).processRecords(recordOperationMap);
+            success = createDomainNameServer(zone.getDnsServer(), zoneName).processRecords(recordOperationMap);
         } catch (DNSRepositoryException e) {
             throw new DNSServiceException("Unable to process the records for the DNS server (" + dnsServerName + ") and the zone (" + zoneName + ") due to an exception.", e);
         } catch (DomainNameServerException e) {

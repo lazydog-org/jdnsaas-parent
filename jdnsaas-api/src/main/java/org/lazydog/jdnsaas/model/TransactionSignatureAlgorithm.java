@@ -19,16 +19,15 @@
 package org.lazydog.jdnsaas.model;
 
 /**
- * DNS server.
+ * Transaction signature (TSIG) algorithm.
  * 
  * @author  Ron Rickard
  */
-public class DNSServer extends Entity {
+
+public class TransactionSignatureAlgorithm extends Entity {
     
     private static final long serialVersionUID = 1L;
     private String name;
-    private Integer port;
-    private TransactionSignature transactionSignature;
 
     /**
      * Get the name.
@@ -38,25 +37,6 @@ public class DNSServer extends Entity {
     public String getName() {
         return this.name;
     }
-     
-    /**
-     * Get the port.
-     * 
-     * @return  the port.
-     */
-    public Integer getPort() {
-        return this.port;
-    }
-
-    /**
-     * Get the transaction signature.
-     * 
-     * @return  the transaction signature.
-     */
-    public TransactionSignature getTransactionSignature() {
-        return this.transactionSignature;
-    }
-
 
     /**
      * Set the name.
@@ -65,23 +45,5 @@ public class DNSServer extends Entity {
      */
     public void setName(String name) {
         this.name = name;
-    }
-       
-    /**
-     * Set the port.
-     * 
-     * @param  port  the port.
-     */
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    /**
-     * Set the transaction signature.
-     * 
-     * @param  transactionSignature  the transaction signature.
-     */
-    public void setTransactionSignature(TransactionSignature transactionSignature) {
-        this.transactionSignature = transactionSignature;
     }
 }

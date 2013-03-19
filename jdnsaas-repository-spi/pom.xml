@@ -66,6 +66,10 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.lazydog.jdnsaas</groupId>
+            <artifactId>jdnsaas-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.lazydog.repository</groupId>
             <artifactId>repository-api</artifactId>
         </dependency>

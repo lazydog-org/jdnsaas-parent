@@ -53,10 +53,9 @@ final class ZoneResolver {
 
         String absoluteName = name;
 
-        if (!name.endsWith(LABEL_SEPARATOR) && name.endsWith(this.getRelativeZoneName())) {
+        if (!name.endsWith(LABEL_SEPARATOR) && name.endsWith(this.relativeZoneName)) {
             absoluteName = name + LABEL_SEPARATOR;
-        }
-        else if (!name.endsWith(LABEL_SEPARATOR)) {
+        } else if (!name.endsWith(LABEL_SEPARATOR)) {
             absoluteName = name + LABEL_SEPARATOR + this.getAbsoluteZoneName();
         }
         
@@ -169,11 +168,9 @@ final class ZoneResolver {
         
         if (name.endsWith(LABEL_SEPARATOR + this.getAbsoluteZoneName())) {
             relativeName = StringUtils.removeEnd(name, LABEL_SEPARATOR + this.getAbsoluteZoneName());
-        }
-        else if (name.endsWith(LABEL_SEPARATOR + this.getRelativeZoneName())) {
-            relativeName = StringUtils.removeEnd(name, LABEL_SEPARATOR + this.getRelativeZoneName());
-        }
-        else if (name.endsWith(LABEL_SEPARATOR)) {
+        } else if (name.endsWith(LABEL_SEPARATOR + this.relativeZoneName)) {
+            relativeName = StringUtils.removeEnd(name, LABEL_SEPARATOR + this.relativeZoneName);
+        } else if (name.endsWith(LABEL_SEPARATOR)) {
             relativeName = StringUtils.removeEnd(name, LABEL_SEPARATOR);
         }
         

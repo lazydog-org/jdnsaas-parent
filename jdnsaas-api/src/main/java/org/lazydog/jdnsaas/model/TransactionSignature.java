@@ -19,16 +19,25 @@
 package org.lazydog.jdnsaas.model;
 
 /**
- * DNS server.
+ * Transaction signature (TSIG).
  * 
  * @author  Ron Rickard
  */
-public class DNSServer extends Entity {
+public class TransactionSignature extends Entity {
     
     private static final long serialVersionUID = 1L;
+    private TransactionSignatureAlgorithm algorithm;
     private String name;
-    private Integer port;
-    private TransactionSignature transactionSignature;
+    private String secret;
+
+    /**
+     * Get the algorithm.
+     * 
+     * @return  the algorithm.
+     */
+    public TransactionSignatureAlgorithm getAlgorithm() {
+        return this.algorithm;
+    }
 
     /**
      * Get the name.
@@ -40,23 +49,22 @@ public class DNSServer extends Entity {
     }
      
     /**
-     * Get the port.
+     * Get the secret.
      * 
-     * @return  the port.
+     * @return  the secret.
      */
-    public Integer getPort() {
-        return this.port;
+    public String getSecret() {
+        return this.secret;
     }
 
     /**
-     * Get the transaction signature.
+     * Set the algorithm.
      * 
-     * @return  the transaction signature.
+     * @param  algorithm  the algorithm.
      */
-    public TransactionSignature getTransactionSignature() {
-        return this.transactionSignature;
+    public void setAlgorithm(TransactionSignatureAlgorithm algorithm) {
+        this.algorithm = algorithm;
     }
-
 
     /**
      * Set the name.
@@ -66,22 +74,13 @@ public class DNSServer extends Entity {
     public void setName(String name) {
         this.name = name;
     }
-       
+        
     /**
-     * Set the port.
+     * Set the secret.
      * 
-     * @param  port  the port.
+     * @param  secret  the secret.
      */
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    /**
-     * Set the transaction signature.
-     * 
-     * @param  transactionSignature  the transaction signature.
-     */
-    public void setTransactionSignature(TransactionSignature transactionSignature) {
-        this.transactionSignature = transactionSignature;
+    public void setSecret(String secret) {
+        this.secret = secret;
     }
 }
