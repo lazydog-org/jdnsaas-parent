@@ -30,8 +30,7 @@ public enum TransactionSignatureAlgorithm {
     HMAC_SHA256,
     HMAC_SHA384,
     HMAC_SHA512;
-    
-    
+
     /**
      * Get the record type as a String.
      * 

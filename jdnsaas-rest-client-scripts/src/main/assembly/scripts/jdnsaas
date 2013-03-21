@@ -11,7 +11,7 @@ PROGNAME=`/bin/basename $0`
 STATE_OK=0
 STATE_FAIL=1
 
-endpoint=http://localhost:8080/jdnsaas/rest/1.0
+endpoint=http://localhost:8080/jdnsaas/1.0/dns
 media_type="application/json"
 
 print_revision() {
@@ -178,7 +178,7 @@ url=${endpoint}
 
 if [ -n "$all_dns_server_names" -o -n "$dns_server_name" ] ; then
 
-    url=${url}/dnsservers
+    url=${url}/servers
 
     if [ -n "$dns_server_name" ] ; then
 

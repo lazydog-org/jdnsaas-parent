@@ -19,6 +19,7 @@
 package org.lazydog.jdnsaas.bind;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.lazydog.jdnsaas.model.DNSServer;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.Zone;
+import org.lazydog.jdnsaas.model.ZoneType;
 import org.lazydog.jdnsaas.spi.repository.DNSRepository;
 import org.lazydog.jdnsaas.spi.repository.DNSRepositoryException;
 
@@ -205,6 +207,10 @@ public class DNSServiceImpl implements DNSService {
             if (zone == null) {
                 throw new ResourceNotFoundException("The zone (" + zoneName + ") for DNS server (" + dnsServerName + ") is not found.");
             }
+
+            // Set some zone properties.
+            zone.setType(ZoneResolver.newInstance(zoneName).isForwardZone() ? ZoneType.FORWARD : ZoneType.REVERSE);
+            zone.setSupportedRecordTypes(Arrays.asList(RecordType.values(zone.getType())));
         } catch (DNSRepositoryException e) {
             throw new DNSServiceException("Unable to get the zone (" + zoneName + ") for the DNS server (" + dnsServerName + ").", e);
         }
@@ -291,7 +297,7 @@ public class DNSServiceImpl implements DNSService {
 
                 // Get the DNS record from the record.
                 org.xbill.DNS.Record dnsRecord = recordConverter.toDnsRecord(record);
-                
+             
                 // Check if the DNS record exists.
                 if (dnsRecord != null) {
                    

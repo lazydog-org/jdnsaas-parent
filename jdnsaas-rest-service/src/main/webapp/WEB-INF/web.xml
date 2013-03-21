@@ -19,7 +19,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>jersey-servlet</servlet-name>
-        <url-pattern>/rest/*</url-pattern>
+        <url-pattern>/1.0/*</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

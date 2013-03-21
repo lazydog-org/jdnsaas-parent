@@ -35,6 +35,7 @@ public class Zone extends Entity {
     private String name;
     private List<Record> records = new ArrayList<Record>();
     private List<RecordType> supportedRecordTypes = new ArrayList<RecordType>();
+    private ZoneType type;
     
     /**
      * Get the DNS server.
@@ -97,7 +98,16 @@ public class Zone extends Entity {
     public List<RecordType> getSupportedRecordTypes() {
         return this.supportedRecordTypes;
     }
-
+    
+    /**
+     * Get the type.
+     * 
+     * @param  type  the type.
+     */
+    public ZoneType getType() {
+        return this.type;
+    }
+    
     /**
      * Set the DNS server.
      * 
@@ -132,5 +142,14 @@ public class Zone extends Entity {
      */
     public void setSupportedRecordTypes(List<RecordType> supportedRecordTypes) {
         this.supportedRecordTypes = replaceNull(supportedRecordTypes, new ArrayList<RecordType>());
+    }
+    
+    /**
+     * Set the type.
+     * 
+     * @param  type  the type.
+     */
+    public void setType(ZoneType type) {
+        this.type = type;
     }
 }

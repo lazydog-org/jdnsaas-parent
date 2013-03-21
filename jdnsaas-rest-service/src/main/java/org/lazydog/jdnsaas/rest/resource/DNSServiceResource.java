@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.lazydog.jdnsaas.rest;
+package org.lazydog.jdnsaas.rest.resource;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
@@ -39,11 +40,18 @@ import org.lazydog.jdnsaas.ResourceNotFoundException;
 import org.lazydog.jdnsaas.bind.DNSServiceImpl;
 import org.lazydog.jdnsaas.model.DNSServer;
 import org.lazydog.jdnsaas.model.Record;
+import org.lazydog.jdnsaas.model.RecordOperation;
 import org.lazydog.jdnsaas.model.RecordType;
+import org.lazydog.jdnsaas.model.TransactionSignatureAlgorithm;
 import org.lazydog.jdnsaas.model.Zone;
+import org.lazydog.jdnsaas.model.ZoneType;
 import org.lazydog.jdnsaas.rest.model.DNSServerWrapper;
 import org.lazydog.jdnsaas.rest.model.DNSServersWrapper;
+import org.lazydog.jdnsaas.rest.model.RecordOperationsWrapper;
+import org.lazydog.jdnsaas.rest.model.RecordTypesWrapper;
 import org.lazydog.jdnsaas.rest.model.RecordsWrapper;
+import org.lazydog.jdnsaas.rest.model.TransactionSignatureAlgorithmsWrapper;
+import org.lazydog.jdnsaas.rest.model.ZoneTypesWrapper;
 import org.lazydog.jdnsaas.rest.model.ZoneWrapper;
 import org.lazydog.jdnsaas.rest.model.ZonesWrapper;
 
@@ -52,7 +60,7 @@ import org.lazydog.jdnsaas.rest.model.ZonesWrapper;
  * 
  * @author  Ron Rickard
  */
-@Path("1.0")
+@Path("dns")
 public class DNSServiceResource {
       
     private DNSService dnsService;
@@ -157,7 +165,7 @@ public class DNSServiceResource {
      * @return  the DNS server.
      */
     @GET
-    @Path("dnsservers/{dnsServerName}")
+    @Path("servers/{dnsServerName}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDnsServer(@PathParam("dnsServerName") final String dnsServerName) {
         
@@ -182,7 +190,7 @@ System.out.println(e);
      * @return  the DNS servers.
      */
     @GET
-    @Path("dnsservers")
+    @Path("servers")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDnsServerNames() {
         
@@ -211,6 +219,30 @@ System.out.println(e);
     }
  
     /**
+     * Get the record operations.
+     * 
+     * @return  the record operations.
+     */
+    @GET
+    @Path("recordoperations")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRecordOperations() {
+        return buildOkResponse(RecordOperationsWrapper.newInstance(Arrays.asList(RecordOperation.values())));       
+    }
+     
+    /**
+     * Get the record types.
+     * 
+     * @return  the record types.
+     */
+    @GET
+    @Path("recordtypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRecordTypes(@DefaultValue("both") @QueryParam("zoneType") final String zoneType) {
+        return buildOkResponse(RecordTypesWrapper.newInstance(Arrays.asList(RecordType.values(ZoneType.fromString(zoneType)))));       
+    }
+    
+    /**
      * Get the records for the DNS server name and zone name.
      * Optionally, filter the records by the record type and/or record name.
      * 
@@ -222,7 +254,7 @@ System.out.println(e);
      * @return  the records.
      */
     @GET
-    @Path("dnsservers/{dnsServerName}/zones/{zoneName}/records")
+    @Path("servers/{dnsServerName}/zones/{zoneName}/records")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRecords(@PathParam("dnsServerName") final String dnsServerName, @PathParam("zoneName") final String zoneName, @DefaultValue("any") @QueryParam("recordType") final String recordType, @QueryParam("recordName") final String recordName) {
         
@@ -242,6 +274,18 @@ System.out.println(e);
     }
 
     /**
+     * Get the transaction signature algorithms.
+     * 
+     * @return  the transaction signature algorithms.
+     */
+    @GET
+    @Path("tsigalgorithms")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTransactionSignatureAlgorithms() {
+        return buildOkResponse(TransactionSignatureAlgorithmsWrapper.newInstance(Arrays.asList(TransactionSignatureAlgorithm.values())));       
+    }
+    
+    /**
      * Get the zone for the DNS server and zone names.
      * 
      * @param  dnsServerName  the DNS server name.
@@ -250,7 +294,7 @@ System.out.println(e);
      * @return  the zone.
      */
     @GET
-    @Path("dnsservers/{dnsServerName}/zones/{zoneName}")
+    @Path("servers/{dnsServerName}/zones/{zoneName}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getZone(@PathParam("dnsServerName") final String dnsServerName, @PathParam("zoneName") final String zoneName) {
         
@@ -277,7 +321,7 @@ System.out.println(e);
      * @return  the zones.
      */
     @GET
-    @Path("dnsservers/{dnsServerName}/zones")
+    @Path("servers/{dnsServerName}/zones")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getZoneNames(@PathParam("dnsServerName") final String dnsServerName) {
         
@@ -295,6 +339,18 @@ System.out.println(e);
         
         return response;
     }
+         
+    /**
+     * Get the zone types.
+     * 
+     * @return  the zone types.
+     */
+    @GET
+    @Path("zonetypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getZoneTypes() {
+        return buildOkResponse(ZoneTypesWrapper.newInstance(Arrays.asList(ZoneType.values())));       
+    }
     
     /**
      * Process the records.
@@ -309,7 +365,7 @@ System.out.println(e);
      * @throws  ResourceNotFoundException  if the DNS server cannot be found.
      */
     @POST
-    @Path("dnsservers/{dnsServerName}/zones/{zoneName}/records")
+    @Path("servers/{dnsServerName}/zones/{zoneName}/records")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response processRecords(@PathParam("dnsServerName") final String dnsServerName, @PathParam("zoneName") final String zoneName, final RecordsWrapper recordsWrapper) {

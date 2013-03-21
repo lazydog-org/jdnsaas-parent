@@ -18,7 +18,7 @@
  */
 package org.lazydog.jdnsaas.model;
 
-import java.util.Arrays;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -59,38 +59,40 @@ public class RecordTypeTest {
     }
     
     @Test
-    public void testGetForwardTypes() {
-        assertEquals(Arrays.asList(RecordType.AAAA, RecordType.A, RecordType.ANY, RecordType.CNAME, RecordType.MX, RecordType.NS, RecordType.SRV, RecordType.TXT), RecordType.getForwardTypes());
+    public void testValues() {
+        assertArrayEquals(new RecordType[]{RecordType.AAAA, RecordType.A, RecordType.ANY, RecordType.CNAME, RecordType.MX, RecordType.NS, RecordType.PTR, RecordType.SRV, RecordType.TXT}, RecordType.values(ZoneType.BOTH));
+        assertArrayEquals(new RecordType[]{RecordType.AAAA, RecordType.A, RecordType.ANY, RecordType.CNAME, RecordType.MX, RecordType.NS, RecordType.SRV, RecordType.TXT}, RecordType.values(ZoneType.FORWARD));
+        assertArrayEquals(new RecordType[]{RecordType.ANY, RecordType.NS, RecordType.PTR}, RecordType.values(ZoneType.REVERSE));
     }
-    
+
     @Test
-    public void testGetReverseTypes() {
-        assertEquals(Arrays.asList(RecordType.ANY, RecordType.NS, RecordType.PTR), RecordType.getReverseTypes());
-    }
-    
-    @Test
-    public void testIsForwardType() {
-        assertTrue(RecordType.AAAA.isForwardType());
-        assertTrue(RecordType.A.isForwardType());
-        assertTrue(RecordType.ANY.isForwardType());
-        assertTrue(RecordType.CNAME.isForwardType());
-        assertTrue(RecordType.MX.isForwardType());
-        assertTrue(RecordType.NS.isForwardType());
-        assertFalse(RecordType.PTR.isForwardType());
-        assertTrue(RecordType.SRV.isForwardType());
-        assertTrue(RecordType.TXT.isForwardType());
-    }
-        
-    @Test
-    public void testIsReverseType() {
-        assertFalse(RecordType.AAAA.isReverseType());
-        assertFalse(RecordType.A.isReverseType());
-        assertTrue(RecordType.ANY.isReverseType());
-        assertFalse(RecordType.CNAME.isReverseType());
-        assertFalse(RecordType.MX.isReverseType());
-        assertTrue(RecordType.NS.isReverseType());
-        assertTrue(RecordType.PTR.isReverseType());
-        assertFalse(RecordType.SRV.isReverseType());
-        assertFalse(RecordType.TXT.isReverseType());
+    public void testIsForZoneType() {
+        assertTrue(RecordType.AAAA.isForZoneType(ZoneType.BOTH));
+        assertTrue(RecordType.A.isForZoneType(ZoneType.BOTH));
+        assertTrue(RecordType.ANY.isForZoneType(ZoneType.BOTH));
+        assertTrue(RecordType.CNAME.isForZoneType(ZoneType.BOTH));
+        assertTrue(RecordType.MX.isForZoneType(ZoneType.BOTH));
+        assertTrue(RecordType.NS.isForZoneType(ZoneType.BOTH));
+        assertTrue(RecordType.PTR.isForZoneType(ZoneType.BOTH));
+        assertTrue(RecordType.SRV.isForZoneType(ZoneType.BOTH));
+        assertTrue(RecordType.TXT.isForZoneType(ZoneType.BOTH));
+        assertTrue(RecordType.AAAA.isForZoneType(ZoneType.FORWARD));
+        assertTrue(RecordType.A.isForZoneType(ZoneType.FORWARD));
+        assertTrue(RecordType.ANY.isForZoneType(ZoneType.FORWARD));
+        assertTrue(RecordType.CNAME.isForZoneType(ZoneType.FORWARD));
+        assertTrue(RecordType.MX.isForZoneType(ZoneType.FORWARD));
+        assertTrue(RecordType.NS.isForZoneType(ZoneType.FORWARD));
+        assertFalse(RecordType.PTR.isForZoneType(ZoneType.FORWARD));
+        assertTrue(RecordType.SRV.isForZoneType(ZoneType.FORWARD));
+        assertTrue(RecordType.TXT.isForZoneType(ZoneType.FORWARD));
+        assertFalse(RecordType.AAAA.isForZoneType(ZoneType.REVERSE));
+        assertFalse(RecordType.A.isForZoneType(ZoneType.REVERSE));
+        assertTrue(RecordType.ANY.isForZoneType(ZoneType.REVERSE));
+        assertFalse(RecordType.CNAME.isForZoneType(ZoneType.REVERSE));
+        assertFalse(RecordType.MX.isForZoneType(ZoneType.REVERSE));
+        assertTrue(RecordType.NS.isForZoneType(ZoneType.REVERSE));
+        assertTrue(RecordType.PTR.isForZoneType(ZoneType.REVERSE));
+        assertFalse(RecordType.SRV.isForZoneType(ZoneType.REVERSE));
+        assertFalse(RecordType.TXT.isForZoneType(ZoneType.REVERSE));
     }
 }

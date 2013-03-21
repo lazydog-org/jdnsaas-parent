@@ -19,6 +19,7 @@
 package org.lazydog.jdnsaas.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,34 +28,31 @@ import java.util.List;
  * @author  Ron Rickard
  */
 public enum RecordType {
-    AAAA    (true,      false),
-    A       (true,      false),
-    ANY     (true,      true),
-    CNAME   (true,      false),
-    MX      (true,      false),
-    NS      (true,      true),
-    PTR     (false,     true),
-    SRV     (true,      false),
-    TXT     (true,      false);
+    AAAA    (ZoneType.FORWARD),
+    A       (ZoneType.FORWARD),
+    ANY     (ZoneType.BOTH),
+    CNAME   (ZoneType.FORWARD),
+    MX      (ZoneType.FORWARD),
+    NS      (ZoneType.BOTH),
+    PTR     (ZoneType.REVERSE),
+    SRV     (ZoneType.FORWARD),
+    TXT     (ZoneType.FORWARD);
 
-    private boolean forwardType;
-    private boolean reverseType;
+    private ZoneType zoneType;
     
     /**
      * Constructor.
      * 
-     * @param  forwardType  true if this is a forward type, otherwise false.
-     * @param  reverseType  true if this is a reverse type, otherwise false.
+     * @param  zoneType  the zone type.
      */
-    private RecordType(boolean forwardType, boolean reverseType) {
-        this.forwardType = forwardType;
-        this.reverseType = reverseType;
+    private RecordType(ZoneType zoneType) {
+        this.zoneType = zoneType;
     }
 
     /**
-     * Get the record type from the String.
+     * Get the record type from the string.
      * 
-     * @param  asString  the record type as a String.
+     * @param  asString  the record type as a string.
      * 
      * @return  the record type.
      * 
@@ -72,68 +70,37 @@ public enum RecordType {
     }
     
     /**
-     * Get the forward types.
+     * Return an array containing the record types for the zone type.
      * 
-     * @return  the forward types.
+     * @param  zoneType  the zone type.
+     * 
+     * @return  the record types for the zone type.
      */
-    public static List<RecordType> getForwardTypes() {
+    public static RecordType[] values(final ZoneType zoneType) {
         
-        // Initialize the forward types.
-        List<RecordType> forwardTypes = new ArrayList<RecordType>();
+        List<RecordType> recordTypes = new ArrayList<RecordType>();
         
-        // Loop through the record types.
-        for (RecordType type: RecordType.values()) {
-            
-            // Check if the type is a forward type.
-            if (type.isForwardType()) {
-                
-                // Add the type to the list.
-                forwardTypes.add(type);
+        if (zoneType == ZoneType.BOTH) {
+            recordTypes = Arrays.asList(RecordType.values());
+        } else {
+
+            for (RecordType recordType: RecordType.values()) {
+
+                if (recordType.isForZoneType(zoneType)) {
+                    recordTypes.add(recordType);
+                }
             }
         }
         
-        return forwardTypes;
+        return recordTypes.toArray(new RecordType[recordTypes.size()]);
     }
-        
+
     /**
-     * Get the reverse types.
+     * Determine if this record type is for the zone type.
      * 
-     * @return  the reverse types.
+     * @return  true if this record type is for the zone type, otherwise false.
      */
-    public static List<RecordType> getReverseTypes() {
-        
-        // Initialize the forward types.
-        List<RecordType> reverseTypes = new ArrayList<RecordType>();
-        
-        // Loop through the record types.
-        for (RecordType type: RecordType.values()) {
-            
-            // Check if the type is a reverse type.
-            if (type.isReverseType()) {
-                
-                // Add the type to the list.
-                reverseTypes.add(type);
-            }
-        }
-        
-        return reverseTypes;
-    }
-    
-    /**
-     * Determine if this is a forward type.
-     * 
-     * @return  true if this is a forward type, otherwise false.
-     */
-    public boolean isForwardType() {
-        return this.forwardType;
-    }
-    
-    /**
-     * Determine if this is a reverse type.
-     * 
-     * @return  true if this is a reverse type, otherwise false.
-     */
-    public boolean isReverseType() {
-        return this.reverseType;
+    public boolean isForZoneType(final ZoneType zoneType) {
+        return (zoneType == ZoneType.BOTH || this.zoneType == zoneType || this.zoneType == ZoneType.BOTH);
     }
 }

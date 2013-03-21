@@ -131,7 +131,8 @@ final class DomainNameServer {
      */
     @SuppressWarnings("unchecked")
     private List<Record> getRecordsWithZoneTransfer() throws IOException, TextParseException, UnknownHostException, ZoneTransferException {
-        return ZoneTransferIn.newAXFR(new Name(this.zoneResolver.getAbsoluteZoneName()), this.dnsServerName, this.dnsServerPort, null).run();
+        List<Record> records = ZoneTransferIn.newAXFR(new Name(this.zoneResolver.getAbsoluteZoneName()), this.dnsServerName, this.dnsServerPort, null).run();
+        return (records != null) ? records : new ArrayList<Record>();
     }
     
     /**
@@ -146,7 +147,8 @@ final class DomainNameServer {
      * @throws  UnknownHostException  if the DNS server name is invalid.
      */
     private List<Record> getRecordsWithLookup(final int recordType, final String recordName) throws TextParseException, UnknownHostException {
-        return Arrays.asList(createLookup(recordType, recordName).run());
+        Record[] records = createLookup(recordType, recordName).run();
+        return (records != null) ? Arrays.asList(records) : new ArrayList<Record>();
     }
 
     /**
