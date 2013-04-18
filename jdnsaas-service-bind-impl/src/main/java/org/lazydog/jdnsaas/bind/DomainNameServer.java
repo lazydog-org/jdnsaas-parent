@@ -19,6 +19,8 @@
 package org.lazydog.jdnsaas.bind;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,30 +48,44 @@ final class DomainNameServer {
   
     private String dnsServerName;
     private int dnsServerPort;
-    private String transactionSignatureAlgorithmName;
-    private String transactionSignatureName;
-    private String transactionSignatureSecret;
+    private String localAddress;
+    private String tsigKeyAlgorithm;
+    private String tsigKeyName;
+    private String tsigKeyValue;
     private ZoneResolver zoneResolver;
     
     /**
      * Hide the constructor.
      * 
-     * @param  dnsServerName                      the DNS server name.
-     * @param  dnsServerPort                      the DNS server port.
-     * @param  transactionSignatureAlgorithmName  the transaction signature algorithm name.
-     * @param  transactionSignatureName           the transaction signature name.
-     * @param  transactionSignatureSecret         the transaction signature secret.
-     * @param  zoneName                           the zone name.
+     * @param  dnsServerName     the DNS server name.
+     * @param  dnsServerPort     the DNS server port.
+     * @param  localAddress      the local address.
+     * @param  tsigKeyAlgorithm  the transaction signature (TSIG) key algorithm name.
+     * @param  tsigKeyName       the transaction signature (TSIG) key name.
+     * @param  tsigKeyValue      the transaction signature (TSIG) key value.
+     * @param  zoneName          the zone name.
      */
-    private DomainNameServer(final String dnsServerName, final int dnsServerPort, final String transactionSignatureAlgorithmName, final String transactionSignatureName, final String transactionSignatureSecret, final String zoneName) {
+    private DomainNameServer(final String dnsServerName, final int dnsServerPort, final String localAddress, final String tsigKeyAlgorithm, final String tsigKeyName, final String tsigKeyValue, final String zoneName) {
         this.dnsServerName = dnsServerName;
         this.dnsServerPort = dnsServerPort;
-        this.transactionSignatureAlgorithmName = transactionSignatureAlgorithmName;
-        this.transactionSignatureName = transactionSignatureName;
-        this.transactionSignatureSecret = transactionSignatureSecret;
+        this.localAddress = localAddress;
+        this.tsigKeyAlgorithm = tsigKeyAlgorithm;
+        this.tsigKeyName = tsigKeyName;
+        this.tsigKeyValue = tsigKeyValue;
         this.zoneResolver = ZoneResolver.newInstance(zoneName);
     }
 
+    /**
+     * Create the IP socket address.
+     * 
+     * @return  the IP socket address.
+     * 
+     * @throws  UnknownHostException  if the local address is invalid.
+     */
+    private InetSocketAddress createInetSocketAddress() throws UnknownHostException {
+        return (this.localAddress != null) ? new InetSocketAddress(InetAddress.getByName(this.localAddress), 0) : null;
+    }
+    
     /**
      * Create the lookup.
      * 
@@ -86,57 +102,131 @@ final class DomainNameServer {
         // Create the lookup.
         Lookup lookup = new Lookup(recordName, recordType);
         lookup.setCache(null);
-        lookup.setResolver(createResolver(false));
+        lookup.setResolver(this.createResolver());
         lookup.setSearchPath(new Name[] {new Name(this.zoneResolver.getAbsoluteZoneName())});
         
         return lookup;
     }
-    
+
     /**
      * Create the resolver.
-     * 
-     * @param  useDynamicDns  true if Dynamic DNS will be used, otherwise false.
      * 
      * @return  the created resolver.
      * 
      * @throws  UnknownHostException  if the DNS server name is invalid.
      */
-    private Resolver createResolver(final boolean useDynamicDns) throws UnknownHostException {
+    private Resolver createResolver() throws UnknownHostException {
 
         // Create the resolver.
-        Resolver resolver = new SimpleResolver(this.dnsServerName);
+        SimpleResolver resolver = new SimpleResolver(this.dnsServerName);
+        if (this.localAddress != null) {
+            resolver.setLocalAddress(createInetSocketAddress());
+        }
         resolver.setPort(this.dnsServerPort);
         resolver.setTCP(true);
-
-        // Check if Dynamic DNS will be used.
-        if (useDynamicDns) {
-
-            // Set the transaction signature on the resolver.
-            TSIG tsig = new TSIG(this.transactionSignatureAlgorithmName, this.transactionSignatureName, this.transactionSignatureSecret);
-            resolver.setTSIGKey(tsig);
-        } 
+        resolver.setTSIGKey(this.createTSIGKey());
         
         return resolver;
     }
-     
+        
     /**
-     * Get the records using a zone transfer.
+     * Create the TSIG key.
      * 
-     * @return  the records.
-     * 
-     * @throws  IOException            if the zone transfer fails due to an IO problem.
-     * @throws  TextParseException     if the zone name is invalid.
-     * @throws  UnknownHostException   if the DNS server name is invalid.
-     * @throws  ZoneTransferException  if the zone transfer fails.
+     * @return  the TSIG key.
      */
-    @SuppressWarnings("unchecked")
-    private List<Record> getRecordsWithZoneTransfer() throws IOException, TextParseException, UnknownHostException, ZoneTransferException {
-        List<Record> records = ZoneTransferIn.newAXFR(new Name(this.zoneResolver.getAbsoluteZoneName()), this.dnsServerName, this.dnsServerPort, null).run();
-        return (records != null) ? records : new ArrayList<Record>();
+    private TSIG createTSIGKey() {
+        return (this.tsigKeyName != null) ? new TSIG(this.tsigKeyAlgorithm, this.tsigKeyName, this.tsigKeyValue) : null;
+    }
+        
+    /**
+     * Create the zone transfer.
+     * 
+     * @return  the zone transfer.
+     * 
+     * @throws TextParseException    if the zone name is invalid.
+     * @throws UnknownHostException  if the DNS server name is invalid.
+     */
+    private ZoneTransferIn createZoneTransfer() throws TextParseException, UnknownHostException {
+        
+        // Create the zone transfer.
+        ZoneTransferIn zoneTransfer = ZoneTransferIn.newAXFR(new Name(this.zoneResolver.getAbsoluteZoneName()), this.dnsServerName, this.dnsServerPort, this.createTSIGKey());
+        if (this.localAddress != null) {
+            zoneTransfer.setLocalAddress(createInetSocketAddress());
+        }
+        
+        return zoneTransfer;
     }
     
     /**
-     * Get the records using a lookup.
+     * Find the records.
+     * 
+     * @param  recordType  the record type.
+     * 
+     * @return  the records.
+     * 
+     * @throws  DomainNameServiceException  if unable to find the records.
+     */
+    public List<Record> findRecords(final int recordType) throws DomainNameServerException {
+        
+        // Initialize the records.
+        List<Record> records = new ArrayList<Record>();
+        
+        try {
+            
+            // Find all the records with a zone transfer.
+            List<Record> allRecords = this.findRecordsWithZoneTransfer();
+
+            // Check if the desired record type is not all records.
+            if (recordType != Type.ANY) {
+
+                // Loop through all the records.
+                for (Record record : allRecords) {
+
+                    // Check if the record is the desired record type.
+                    if (recordType == record.getType()) {
+
+                        // Add the record to the list.
+                        records.add(record);
+                    }
+                }
+            } else {
+                records = allRecords;
+            }
+        } catch (Exception e) {
+            throw new DomainNameServerException("Unable to find the records for record type, " + recordType + ".", e);
+        }
+        
+        return records;
+    }
+    
+    /**
+     * Find the records.
+     * 
+     * @param  recordType  the record type.
+     * @param  recordName  the record name.
+     * 
+     * @return  the records.
+     * 
+     * @throws  DomainNameServiceException  if unable to find the records.
+     */
+    public List<Record> findRecords(final int recordType, final String recordName) throws DomainNameServerException {
+
+        // Initialize the records.
+        List<Record> records = new ArrayList<Record>();
+        
+        try {
+
+            // Find the records with a lookup.
+            records = this.findRecordsWithLookup(recordType, recordName);
+        } catch (Exception e) {
+            throw new DomainNameServerException("Unable to find the records for record type, " + recordType + ", and record name, " + recordName + ".", e);
+        }
+        
+        return records;
+    }
+     
+    /**
+     * Find the records using a lookup.
      * 
      * @param  recordType  the record type.
      * @param  recordName  the record name.
@@ -146,76 +236,56 @@ final class DomainNameServer {
      * @throws  TextParseException    if the zone name or record name is invalid.
      * @throws  UnknownHostException  if the DNS server name is invalid.
      */
-    private List<Record> getRecordsWithLookup(final int recordType, final String recordName) throws TextParseException, UnknownHostException {
-        Record[] records = createLookup(recordType, recordName).run();
+    private List<Record> findRecordsWithLookup(final int recordType, final String recordName) throws TextParseException, UnknownHostException {
+        Record[] records = this.createLookup(recordType, recordName).run();
         return (records != null) ? Arrays.asList(records) : new ArrayList<Record>();
     }
 
     /**
-     * Get the records.
-     * 
-     * @param  recordType  the record type.
-     * @param  recordName  the record name.
+     * Find the records using a zone transfer.
      * 
      * @return  the records.
      * 
-     * @throws  DomainNameServiceException  if unable to get the records.
+     * @throws  IOException            if the zone transfer fails due to an IO problem.
+     * @throws  TextParseException     if the zone name is invalid.
+     * @throws  UnknownHostException   if the DNS server name is invalid.
+     * @throws  ZoneTransferException  if the zone transfer fails.
      */
-    public List<Record> getRecords(final int recordType, final String recordName) throws DomainNameServerException {
+    @SuppressWarnings("unchecked")
+    private List<Record> findRecordsWithZoneTransfer() throws IOException, TextParseException, UnknownHostException, ZoneTransferException {
+        List<Record> records = this.createZoneTransfer().run();
+        return (records != null) ? records : new ArrayList<Record>();
+    }
 
-        // Initialize the records.
-        List<Record> records = new ArrayList<Record>();
-        
-        try {
-            
-            // Check if the record name does not exist.
-            if (recordName == null) {
-                
-                // Get all the records with a zone transfer.
-                List<Record> allRecords = this.getRecordsWithZoneTransfer();
-                
-                // Check if the desired record type is not all records.
-                if (recordType != Type.ANY) {
-                    
-                    // Loop through all the records.
-                    for (Record record : allRecords) {
-                        
-                        // Check if the record is the desired record type.
-                        if (recordType == record.getType()) {
-                            
-                            // Add the record to the list.
-                            records.add(record);
-                        }
-                    }
-                } else {
-                    records = allRecords;
-                }
-            } else {
-                
-                // Get the records with a lookup.
-                records = this.getRecordsWithLookup(recordType, recordName);
-            }
-        } catch (Exception e) {
-            throw new DomainNameServerException("Unable to get the records for record type, " + recordType + ", and record name, " + recordName + ".", e);
-        }
-        
-        return records;
+    /**
+     * Create a new instance of the domain name server class.
+     * 
+     * @param  dnsServerName     the DNS server name.
+     * @param  dnsServerPort     the DNS server port.
+     * @param  localAddress      the local address.
+     * @param  zoneName          the zone name.
+     * 
+     * @return  a new instance of the domain name server class.
+     */
+    public static DomainNameServer newInstance(final String dnsServerName, final int dnsServerPort, final String localAddress, final String zoneName) {
+        return newInstance(dnsServerName, dnsServerPort, localAddress, null, null, null, zoneName);
     }
     
     /**
      * Create a new instance of the domain name server class.
      * 
-     * @param  dnsServerName                      the DNS server name.
-     * @param  dnsServerPort                      the DNS server port.
-     * @param  transactionSignatureAlgorithmName  the transaction signature algorithm name.
-     * @param  transactionSignatureName           the transaction signature name.
-     * @param  transactionSignatureSecret         the transaction signature secret.
-     * @param  zoneName                           the zone name.
+     * @param  dnsServerName     the DNS server name.
+     * @param  dnsServerPort     the DNS server port.
+     * @param  localAddress      the local address.
+     * @param  tsigKeyAlgorithm  the transaction signature (TSIG) key algorithm name.
+     * @param  tsigKeyName       the transaction signature (TSIG) key name.
+     * @param  tsigKeyValue      the transaction signature (TSIG) key value.
+     * @param  zoneName          the zone name.
      * 
      * @return  a new instance of the domain name server class.
      */
-    public static DomainNameServer newInstance(final String dnsServerName, final int dnsServerPort, final String transactionSignatureAlgorithmName, final String transactionSignatureName, final String transactionSignatureSecret, final String zoneName) {
-        return new DomainNameServer(dnsServerName, dnsServerPort, transactionSignatureAlgorithmName, transactionSignatureName, transactionSignatureSecret, zoneName);
+    public static DomainNameServer newInstance(final String dnsServerName, final int dnsServerPort, final String localAddress, final String tsigKeyAlgorithm, final String tsigKeyName, final String tsigKeyValue, final String zoneName) {
+        return new DomainNameServer(dnsServerName, dnsServerPort, localAddress, tsigKeyAlgorithm, tsigKeyName, tsigKeyValue, zoneName);
     }
     
     /**
@@ -254,7 +324,7 @@ final class DomainNameServer {
             }
             
             // Perform the operations and check if the operations were successful.
-            if (createResolver(true).send(update).getRcode() == Rcode.NOERROR) {
+            if (createResolver().send(update).getRcode() == Rcode.NOERROR) {
                 success = true;
             }
         } catch (Exception e) {

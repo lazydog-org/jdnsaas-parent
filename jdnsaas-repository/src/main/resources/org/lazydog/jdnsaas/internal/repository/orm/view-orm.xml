@@ -6,18 +6,14 @@
                         http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
     version="2.0">
     <package>org.lazydog.jdnsaas.model</package>
-    <entity class="TransactionSignature" access="FIELD">
-        <table name="transaction_signature" schema="jdnsaas"/>
+    <entity class="View" access="FIELD">
+        <table name="dns_view" schema="jdnsaas"/>
         <attributes>
-            <basic name="algorithm">
-                <column name="algorithm" nullable="false"/>
-                <enumerated>STRING</enumerated>
-            </basic>
+            <many-to-one name="dnsServer" fetch="EAGER">
+                <join-column name="dns_server_id" nullable="false"/>
+            </many-to-one>
             <basic name="name">
                 <column name="name" nullable="false"/>
-            </basic>
-            <basic name="secret">
-                <column name="secret" nullable="false"/>
             </basic>
         </attributes>
     </entity>

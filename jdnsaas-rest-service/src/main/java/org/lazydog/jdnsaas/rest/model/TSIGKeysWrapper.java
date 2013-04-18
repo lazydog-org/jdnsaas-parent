@@ -21,48 +21,48 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.lazydog.jdnsaas.model.DNSServer;
+import org.lazydog.jdnsaas.model.TSIGKey;
 
 /**
- * DNS servers wrapper.
+ * Transaction signature (TSIG) keys wrapper.
  * 
  * @author  Ron Rickard
  */
-public class DNSServersWrapper implements Serializable {
+public class TSIGKeysWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;
-    private List<DNSServer> dnsServers = new ArrayList<DNSServer>();
+    private List<TSIGKey> tsigKeys = new ArrayList<TSIGKey>();
     
     /**
-     * Get the DNS servers.
+     * Get the transaction signature (TSIG) keys.
      * 
-     * @return  the DNS servers.
+     * @return  the transaction signature (TSIG) keys.
      */
-    public List<DNSServer> getDnsServers() {
-        return this.dnsServers;
+    public List<TSIGKey> getTsigKeys() {
+        return this.tsigKeys;
     }
         
     /**
-     * Create a new instance of the DNS servers wrapper class.
+     * Create a new instance of the transaction signature (TSIG) keys wrapper class.
      * 
-     * @param  dnsServers  the DNS servers.
+     * @param  tsigKeys  the transaction signature (TSIG) keys.
      * 
-     * @return  a new instance of the DNS servers wrapper class.
+     * @return  a new instance of the transaction signature (TSIG) keys wrapper class.
      */
-    public static DNSServersWrapper newInstance(final List<DNSServer> dnsServers) {
+    public static TSIGKeysWrapper newInstance(final List<TSIGKey> tsigKeys) {
         
-        DNSServersWrapper dnsServersWrapper = new DNSServersWrapper();
-        dnsServersWrapper.setDnsServers(dnsServers);
+        TSIGKeysWrapper tsigKeysWrapper = new TSIGKeysWrapper();
+        tsigKeysWrapper.setTsigKeys(tsigKeys);
         
-        return dnsServersWrapper;
+        return tsigKeysWrapper;
     }
     
     /**
-     * Set the DNS servers.
+     * Set the transaction signature (TSIG) keys.
      * 
-     * @param  dnsServers  the DNS servers.
+     * @param  tsigKeys  the transaction signature (TSIG) keys.
      */
-    public void setDnsServers(final List<DNSServer> dnsServers) {
-        this.dnsServers = dnsServers;
+    public void setTsigKeys(final List<TSIGKey> tsigKeys) {
+        this.tsigKeys = tsigKeys;
     }
 }

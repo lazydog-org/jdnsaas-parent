@@ -42,15 +42,19 @@ import org.lazydog.jdnsaas.model.DNSServer;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordOperation;
 import org.lazydog.jdnsaas.model.RecordType;
-import org.lazydog.jdnsaas.model.TransactionSignatureAlgorithm;
+import org.lazydog.jdnsaas.model.TSIGKey;
+import org.lazydog.jdnsaas.model.TSIGKeyAlgorithm;
+import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.jdnsaas.model.ZoneType;
-import org.lazydog.jdnsaas.rest.model.DNSServerWrapper;
 import org.lazydog.jdnsaas.rest.model.DNSServersWrapper;
 import org.lazydog.jdnsaas.rest.model.RecordOperationsWrapper;
 import org.lazydog.jdnsaas.rest.model.RecordTypesWrapper;
 import org.lazydog.jdnsaas.rest.model.RecordsWrapper;
-import org.lazydog.jdnsaas.rest.model.TransactionSignatureAlgorithmsWrapper;
+import org.lazydog.jdnsaas.rest.model.TSIGKeyAlgorithmsWrapper;
+import org.lazydog.jdnsaas.rest.model.TSIGKeysWrapper;
+import org.lazydog.jdnsaas.rest.model.ViewWrapper;
+import org.lazydog.jdnsaas.rest.model.ViewsWrapper;
 import org.lazydog.jdnsaas.rest.model.ZoneTypesWrapper;
 import org.lazydog.jdnsaas.rest.model.ZoneWrapper;
 import org.lazydog.jdnsaas.rest.model.ZonesWrapper;
@@ -113,21 +117,21 @@ public class DNSServiceResource {
     }
 
     /**
-     * Create the DNS server wrappers.
+     * Create the view wrappers.
      * 
-     * @param  dnsServerNames  the DNS server names.
+     * @param  viewNames  the view names.
      * 
-     * @return  the DNS server wrappers.
+     * @return  the view wrappers.
      */
-    private List<DNSServerWrapper> createDnsServerWrappers(final List<String> dnsServerNames) {
+    private List<ViewWrapper> createViewWrappers(final List<String> viewNames) {
         
-        List<DNSServerWrapper> dnsServerWrappers = new ArrayList<DNSServerWrapper>();
+        List<ViewWrapper> viewWrappers = new ArrayList<ViewWrapper>();
         
-        for (String dnsServerName : dnsServerNames) {
-            dnsServerWrappers.add(DNSServerWrapper.newInstance(dnsServerName, this.getNextPath(dnsServerName)));
+        for (String viewName : viewNames) {
+            viewWrappers.add(ViewWrapper.newInstance(viewName, this.getNextPath(viewName)));
         }
         
-        return dnsServerWrappers;
+        return viewWrappers;
     }
     
     /**
@@ -147,58 +151,22 @@ public class DNSServiceResource {
         
         return zoneWrappers;
     }
-     
-    /**
-     * Get the current path.
-     * 
-     * @return  the current path.
-     */
-    private String getCurrentPath() {
-        return this.uriInfo.getAbsolutePath().toASCIIString();
-    }
 
     /**
-     * Get the DNS server.
-     * 
-     * @param  dnsServerName  the DNS server.
-     * 
-     * @return  the DNS server.
-     */
-    @GET
-    @Path("servers/{dnsServerName}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getDnsServer(@PathParam("dnsServerName") final String dnsServerName) {
-        
-        Response response;
-        
-        try {
-            DNSServer dnsServer = this.dnsService.getDnsServer(dnsServerName);
-            response = buildOkResponse(DNSServerWrapper.newInstance(dnsServer, this.getCurrentPath(), this.getNextPath("zones")));
-        } catch (ResourceNotFoundException e) {
-            response = buildNotFoundResponse();
-        } catch (Exception e) {
-            response = buildInternalServerErrorResponse();
-System.out.println(e);
-        }
-        
-        return response;
-    }
-    
-    /**
-     * Get the DNS servers.
+     * Find the DNS servers.
      * 
      * @return  the DNS servers.
      */
     @GET
     @Path("servers")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDnsServerNames() {
+    public Response findDNSServers() {
         
         Response response;
         
         try {
-            List<String> dnsServerNames = this.dnsService.getDnsServerNames();
-            return buildOkResponse(DNSServersWrapper.newInstance(createDnsServerWrappers(dnsServerNames)));
+            List<DNSServer> dnsServers = this.dnsService.findDNSServers();
+            return buildOkResponse(DNSServersWrapper.newInstance(dnsServers));
         } catch (Exception e) {
             response = buildInternalServerErrorResponse();
 System.out.println(e); 
@@ -206,62 +174,51 @@ System.out.println(e);
         
         return response;
     }
-        
+
     /**
-     * Get the next path.
-     * 
-     * @param  path  the path to add to the current path.
-     * 
-     * @return  the next path.
-     */
-    private String getNextPath(final String path) {
-        return this.uriInfo.getAbsolutePathBuilder().path(path).build().toASCIIString();
-    }
- 
-    /**
-     * Get the record operations.
+     * Find the record operations.
      * 
      * @return  the record operations.
      */
     @GET
     @Path("recordoperations")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getRecordOperations() {
+    public Response findRecordOperations() {
         return buildOkResponse(RecordOperationsWrapper.newInstance(Arrays.asList(RecordOperation.values())));       
     }
      
     /**
-     * Get the record types.
+     * Find the record types.
      * 
      * @return  the record types.
      */
     @GET
     @Path("recordtypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getRecordTypes(@DefaultValue("both") @QueryParam("zoneType") final String zoneType) {
+    public Response findRecordTypes(@DefaultValue("both") @QueryParam("zoneType") final String zoneType) {
         return buildOkResponse(RecordTypesWrapper.newInstance(Arrays.asList(RecordType.values(ZoneType.fromString(zoneType)))));       
     }
     
     /**
-     * Get the records for the DNS server name and zone name.
+     * Find the records for the view name and zone name.
      * Optionally, filter the records by the record type and/or record name.
      * 
-     * @param  dnsServerName  the DNS server name.
-     * @param  zoneName       the zone name.
-     * @param  recordType     the record type.
-     * @param  recordName     the record name.
+     * @param  viewName    the view name.
+     * @param  zoneName    the zone name.
+     * @param  recordType  the record type.
+     * @param  recordName  the record name.
      * 
      * @return  the records.
      */
     @GET
-    @Path("servers/{dnsServerName}/zones/{zoneName}/records")
+    @Path("views/{viewName}/zones/{zoneName}/records")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getRecords(@PathParam("dnsServerName") final String dnsServerName, @PathParam("zoneName") final String zoneName, @DefaultValue("any") @QueryParam("recordType") final String recordType, @QueryParam("recordName") final String recordName) {
+    public Response findRecords(@PathParam("viewName") final String viewName, @PathParam("zoneName") final String zoneName, @DefaultValue("any") @QueryParam("recordType") final String recordType, @QueryParam("recordName") final String recordName) {
         
         Response response;
         
         try {
-            List<Record> records = this.dnsService.getRecords(dnsServerName, zoneName, RecordType.fromString(recordType), recordName);
+            List<Record> records = this.dnsService.findRecords(viewName, zoneName, RecordType.fromString(recordType), recordName);
             response = buildOkResponse(RecordsWrapper.newInstance(records)); 
         } catch (ResourceNotFoundException e) {
             response = buildNotFoundResponse();
@@ -274,34 +231,107 @@ System.out.println(e);
     }
 
     /**
-     * Get the transaction signature algorithms.
+     * Find the transaction signature (TSIG) key algorithms.
      * 
-     * @return  the transaction signature algorithms.
+     * @return  the transaction signature (TSIG) key algorithms.
      */
     @GET
-    @Path("tsigalgorithms")
+    @Path("tsigkeyalgorithms")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getTransactionSignatureAlgorithms() {
-        return buildOkResponse(TransactionSignatureAlgorithmsWrapper.newInstance(Arrays.asList(TransactionSignatureAlgorithm.values())));       
+    public Response findTSIGKeyAlgorithms() {
+        return buildOkResponse(TSIGKeyAlgorithmsWrapper.newInstance(Arrays.asList(TSIGKeyAlgorithm.values())));       
     }
     
     /**
-     * Get the zone for the DNS server and zone names.
+     * Find the transaction signature (TSIG) keys.
      * 
-     * @param  dnsServerName  the DNS server name.
-     * @param  zoneName       the zone name.
-     * 
-     * @return  the zone.
+     * @return  the transaction signature (TSIG) keys.
      */
     @GET
-    @Path("servers/{dnsServerName}/zones/{zoneName}")
+    @Path("tsigkeys")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getZone(@PathParam("dnsServerName") final String dnsServerName, @PathParam("zoneName") final String zoneName) {
+    public Response findTSIGKeys() {
         
         Response response;
         
         try {
-            Zone zone = this.dnsService.getZone(dnsServerName, zoneName);
+            List<TSIGKey> tsigKeys = this.dnsService.findTSIGKeys();
+            return buildOkResponse(TSIGKeysWrapper.newInstance(tsigKeys));
+        } catch (Exception e) {
+            response = buildInternalServerErrorResponse();
+System.out.println(e); 
+        }
+        
+        return response;
+    }
+
+    /**
+     * Find the view.
+     * 
+     * @param  viewName  the view.
+     * 
+     * @return  the view.
+     */
+    @GET
+    @Path("views/{viewName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findView(@PathParam("viewName") final String viewName) {
+        
+        Response response;
+        
+        try {
+            View view = this.dnsService.findView(viewName);
+            response = buildOkResponse(ViewWrapper.newInstance(view, this.getCurrentPath(), this.getNextPath("zones")));
+        } catch (ResourceNotFoundException e) {
+            response = buildNotFoundResponse();
+        } catch (Exception e) {
+            response = buildInternalServerErrorResponse();
+System.out.println(e);
+        }
+        
+        return response;
+    }
+    
+    /**
+     * Find the view names.
+     * 
+     * @return  the view names.
+     */
+    @GET
+    @Path("views")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findViewNames() {
+        
+        Response response;
+        
+        try {
+            List<String> viewNames = this.dnsService.findViewNames();
+            return buildOkResponse(ViewsWrapper.newInstance(createViewWrappers(viewNames)));
+        } catch (Exception e) {
+            response = buildInternalServerErrorResponse();
+System.out.println(e); 
+        }
+        
+        return response;
+    }
+
+    /**
+     * Find the zone.
+     * 
+     * @param  viewName  the view name.
+     * @param  zoneName  the zone name.
+     * 
+     * @return  the zone.
+     */
+    @GET
+    @Path("views/{viewName}/zones/{zoneName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findZone(@PathParam("viewName") final String viewName, @PathParam("zoneName") final String zoneName) {
+        
+        Response response;
+        
+        try {
+            Zone zone = this.dnsService.findZone(viewName, zoneName);
             response = buildOkResponse(ZoneWrapper.newInstance(zone, this.getCurrentPath(), this.getNextPath("records")));
         }  catch (ResourceNotFoundException e) {
             response = buildNotFoundResponse();
@@ -314,21 +344,21 @@ System.out.println(e);
     }
  
     /**
-     * Get the zones for the DNS server name.
+     * Find the zone names.
      * 
-     * @param  dnsServerName  the DNS server name.
+     * @param  viewName  the view name.
      * 
-     * @return  the zones.
+     * @return  the zone names.
      */
     @GET
-    @Path("servers/{dnsServerName}/zones")
+    @Path("views/{viewName}/zones")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getZoneNames(@PathParam("dnsServerName") final String dnsServerName) {
+    public Response findZoneNames(@PathParam("viewName") final String viewName) {
         
         Response response;
         
         try {
-            List<String> zoneNames = this.dnsService.getZoneNames(dnsServerName);
+            List<String> zoneNames = this.dnsService.findZoneNames(viewName);
             response = buildOkResponse(ZonesWrapper.newInstance(createZoneWrappers(zoneNames)));
         } catch (ResourceNotFoundException e) {
             response = buildNotFoundResponse();
@@ -341,39 +371,59 @@ System.out.println(e);
     }
          
     /**
-     * Get the zone types.
+     * Find the zone types.
      * 
      * @return  the zone types.
      */
     @GET
     @Path("zonetypes")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getZoneTypes() {
+    public Response findZoneTypes() {
         return buildOkResponse(ZoneTypesWrapper.newInstance(Arrays.asList(ZoneType.values())));       
     }
-    
+          
+    /**
+     * Get the current path.
+     * 
+     * @return  the current path.
+     */
+    private String getCurrentPath() {
+        return this.uriInfo.getAbsolutePath().toASCIIString();
+    }
+       
+    /**
+     * Get the next path.
+     * 
+     * @param  path  the path to add to the current path.
+     * 
+     * @return  the next path.
+     */
+    private String getNextPath(final String path) {
+        return this.uriInfo.getAbsolutePathBuilder().path(path).build().toASCIIString();
+    }
+ 
     /**
      * Process the records.
      * 
-     * @param  dnsServerName  the DNS server name.
-     * @param  zoneName       the zone name.
-     * @param  records        the records.
+     * @param  viewName  the view name.
+     * @param  zoneName  the zone name.
+     * @param  records   the records.
      * 
      * @return  true if the records are processed successfully, otherwise false.
      * 
      * @throws  DNSServiceException        if unable to process the records due to an exception.
-     * @throws  ResourceNotFoundException  if the DNS server cannot be found.
+     * @throws  ResourceNotFoundException  if the view cannot be found.
      */
     @POST
-    @Path("servers/{dnsServerName}/zones/{zoneName}/records")
+    @Path("views/{viewName}/zones/{zoneName}/records")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response processRecords(@PathParam("dnsServerName") final String dnsServerName, @PathParam("zoneName") final String zoneName, final RecordsWrapper recordsWrapper) {
+    public Response processRecords(@PathParam("viewName") final String viewName, @PathParam("zoneName") final String zoneName, final RecordsWrapper recordsWrapper) {
 
         Response response;
         
         try {
-            boolean success = this.dnsService.processRecords(dnsServerName, zoneName, recordsWrapper.getRecords());
+            boolean success = this.dnsService.processRecords(viewName, zoneName, recordsWrapper.getRecords());
             if (success) {
                 response = buildOkResponse("Processed records successfully.");
             } else {

@@ -42,7 +42,7 @@ public class Entity extends Model {
      * 
      * @param  id  the ID.
      */
-    public void setId(Integer id) {
+    public void setId(final Integer id) {
         this.id = id;
     }
 }

@@ -20,32 +20,24 @@ package org.lazydog.jdnsaas.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Zone.
  * 
  * @author  Ron Rickard
  */
-@XmlRootElement
 public class Zone extends Entity {
     
     private static final long serialVersionUID = 1L;
-    private DNSServer dnsServer;
     private String name;
+    private TSIGKey queryTSIGKey;
     private List<Record> records = new ArrayList<Record>();
     private List<RecordType> supportedRecordTypes = new ArrayList<RecordType>();
+    private TSIGKey transferTSIGKey;
     private ZoneType type;
-    
-    /**
-     * Get the DNS server.
-     * 
-     * @return  the DNS server.
-     */
-    public DNSServer getDnsServer() {
-        return this.dnsServer;
-    }
-    
+    private TSIGKey updateTSIGKey;
+    private View view;
+
     /**
      * Get the name.
      * 
@@ -54,6 +46,15 @@ public class Zone extends Entity {
     public String getName() {
         return this.name;
     }
+         
+    /**
+     * Get the query TSIG key.
+     * 
+     * @return  the query TSIG key.
+     */
+    public TSIGKey getQueryTSIGKey() {
+        return this.queryTSIGKey;
+    } 
     
     /**
      * Get the records.
@@ -100,6 +101,15 @@ public class Zone extends Entity {
     }
     
     /**
+     * Get the transfer TSIG key.
+     * 
+     * @return  the transfer TSIG key.
+     */
+    public TSIGKey getTransferTSIGKey() {
+        return this.transferTSIGKey;
+    }
+    
+    /**
      * Get the type.
      * 
      * @param  type  the type.
@@ -107,31 +117,49 @@ public class Zone extends Entity {
     public ZoneType getType() {
         return this.type;
     }
-    
+      
     /**
-     * Set the DNS server.
+     * Get the update TSIG key.
      * 
-     * @param  dnsServer  the DNS server.
+     * @return  the update TSIG key.
      */
-    public void setDnsServer(DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
+    public TSIGKey getUpdateTSIGKey() {
+        return this.updateTSIGKey;
+    } 
+
+    /**
+     * Get the view.
+     * 
+     * @return  the view.
+     */
+    public View getView() {
+        return this.view;
     }
-    
+
     /**
      * Set the name.
      * 
      * @param  name  the name.
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
-    
+             
+    /**
+     * Set the query TSIG key.
+     * 
+     * @param  queryTSIGKey  the query TSIG key.
+     */
+    public void setQueryTSIGKey(final TSIGKey queryTSIGKey) {
+        this.queryTSIGKey = queryTSIGKey;
+    }
+     
     /**
      * Set the records.
      * 
      * @param  records  the records.
      */
-    public void setRecords(List<Record> records) {
+    public void setRecords(final List<Record> records) {
         this.records = replaceNull(records, new ArrayList<Record>());
     }
     
@@ -140,8 +168,17 @@ public class Zone extends Entity {
      * 
      * @param  supportedRecordTypes  the supported record types.
      */
-    public void setSupportedRecordTypes(List<RecordType> supportedRecordTypes) {
+    public void setSupportedRecordTypes(final List<RecordType> supportedRecordTypes) {
         this.supportedRecordTypes = replaceNull(supportedRecordTypes, new ArrayList<RecordType>());
+    }
+        
+    /**
+     * Set the transfer TSIG key.
+     * 
+     * @param  transferTSIGKey  the transfer TSIG key.
+     */
+    public void setTransferTSIGKey(final TSIGKey transferTSIGKey) {
+        this.transferTSIGKey = transferTSIGKey;
     }
     
     /**
@@ -149,7 +186,25 @@ public class Zone extends Entity {
      * 
      * @param  type  the type.
      */
-    public void setType(ZoneType type) {
+    public void setType(final ZoneType type) {
         this.type = type;
+    }
+             
+    /**
+     * Set the update TSIG key.
+     * 
+     * @param  updateTSIGKey  the update TSIG key.
+     */
+    public void setUpdateTSIGKey(final TSIGKey updateTSIGKey) {
+        this.updateTSIGKey = updateTSIGKey;
+    }
+       
+    /**
+     * Set the view.
+     * 
+     * @param  view  the view.
+     */
+    public void setView(final View view) {
+        this.view = view;
     }
 }

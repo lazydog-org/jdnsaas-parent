@@ -22,6 +22,8 @@ import java.util.List;
 import org.lazydog.jdnsaas.model.DNSServer;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordType;
+import org.lazydog.jdnsaas.model.TSIGKey;
+import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
 
 /**
@@ -32,75 +34,95 @@ import org.lazydog.jdnsaas.model.Zone;
 public interface DNSService {
 
     /**
-     * Get the DNS server.
+     * Find the DNS servers.
      * 
-     * @param  dnsServerName  the DNS server name.
+     * @return  the DNS servers.
      * 
-     * @return  the DNS server.
-     * 
-     * @throws  DNSServiceException        if unable to get the DNS server due to an exception.
-     * @throws  ResourceNotFoundException  if the DNS server is not found.
+     * @throws  DNSServiceException  if unable to find the DNS servers due to an exception.
      */
-    DNSServer getDnsServer(String dnsServerName) throws DNSServiceException, ResourceNotFoundException;
-    
-    /**
-     * Get the DNS server names.
-     * 
-     * @return  the DNS server names.
-     */
-    List<String> getDnsServerNames() throws DNSServiceException;
+    List<DNSServer> findDNSServers() throws DNSServiceException;
 
     /**
-     * Get the records.
+     * Find the records.
      * 
-     * @param  dnsServerName  the DNS server name.
-     * @param  zoneName       the zone name.
-     * @param  recordType     the record type.
-     * @param  recordName     the record name.
+     * @param  viewName    the view name.
+     * @param  zoneName    the zone name.
+     * @param  recordType  the record type.
+     * @param  recordName  the record name.
      * 
      * @return  the records.
      * 
-     * @throws  DNSServiceException        if unable to get the records due to an exception.
+     * @throws  DNSServiceException        if unable to find the records due to an exception.
      * @throws  ResourceNotFoundException  if the zone is not found.
      */
-    List<Record> getRecords(String dnsServerName, String zoneName, RecordType recordType, String recordName) throws DNSServiceException, ResourceNotFoundException;
+    List<Record> findRecords(String viewName, String zoneName, RecordType recordType, String recordName) throws DNSServiceException, ResourceNotFoundException;
+        
+    /**
+     * Find the transaction signature (TSIG) keys.
+     * 
+     * @return  the transaction signature (TSIG) keys.
+     * 
+     * @throws  DNSServiceException  if unable to find the transaction signature (TSIG) keys due to an exception.
+     */
+    List<TSIGKey> findTSIGKeys() throws DNSServiceException;
     
     /**
-     * Get the zone.
+     * Find the view.
      * 
-     * @param  dnsServerName  the DNS server name.
-     * @param  zoneName       the zone name.
+     * @param  viewName  the view name.
+     * 
+     * @return  the view.
+     * 
+     * @throws  DNSServiceException        if unable to find the view due to an exception.
+     * @throws  ResourceNotFoundException  if the view is not found.
+     */
+    View findView(String viewName) throws DNSServiceException, ResourceNotFoundException;
+    
+    /**
+     * Find the view names.
+     * 
+     * @return  the view names.
+     * 
+     * @throws  DNSServiceException  if unable to find the view names due to an exception.
+     */
+    List<String> findViewNames() throws DNSServiceException;
+
+    /**
+     * Find the zone.
+     * 
+     * @param  viewName  the view name.
+     * @param  zoneName  the zone name.
      * 
      * @return  the zone.
      * 
-     * @throws  DNSServiceException        if unable to get the zone due to an exception.
+     * @throws  DNSServiceException        if unable to find the zone due to an exception.
      * @throws  ResourceNotFoundException  if the zone is not found.
      */
-    Zone getZone(String dnsServerName, String zoneName) throws DNSServiceException, ResourceNotFoundException;
+    Zone findZone(String viewName, String zoneName) throws DNSServiceException, ResourceNotFoundException;
         
     /**
-     * Get the zone names.
+     * Find the zone names.
      * 
-     * @param  dnsServerName  the DNS server name.
+     * @param  viewName  the view name.
      * 
      * @return  the zone names.
      * 
-     * @throws  DNSServiceException        if unable to get the zone names due to an exception.
-     * @throws  ResourceNotFoundException  if the DNS server is not found.
+     * @throws  DNSServiceException        if unable to find the zone names due to an exception.
+     * @throws  ResourceNotFoundException  if the view is not found.
      */
-    List<String> getZoneNames(String dnsServerName) throws DNSServiceException, ResourceNotFoundException;
+    List<String> findZoneNames(String viewName) throws DNSServiceException, ResourceNotFoundException;
         
     /**
      * Process the records.
      * 
-     * @param  dnsServerName  the DNS server name.
-     * @param  zoneName       the zone name.
-     * @param  records        the records.
+     * @param  viewName  the view name.
+     * @param  zoneName  the zone name.
+     * @param  records   the records.
      * 
      * @return  true if the records are processed successfully, otherwise false.
      * 
      * @throws  DNSServiceException        if unable to process the records due to an exception.
      * @throws  ResourceNotFoundException  if the zone is not found.
      */
-    boolean processRecords(String dnsServerName, String zoneName, List<Record> records) throws DNSServiceException, ResourceNotFoundException;
+    boolean processRecords(String viewName, String zoneName, List<Record> records) throws DNSServiceException, ResourceNotFoundException;
 }

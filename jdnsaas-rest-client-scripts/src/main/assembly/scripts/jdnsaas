@@ -31,18 +31,18 @@ print_help() {
 Options:
 -e, --endpoint          	The Rest service endpoint 
                         	(default: $endpoint)
--D, --all-dns-server-names	All DNS server names
-				(mutually exclusive with -d)
--d, --dns-server-name		The DNS server name
-				(mutually exclusive with -D)
+-V, --all-view-names		All view names
+				(mutually exclusive with -v)
+-v, --view-name			The view name
+				(mutually exclusive with -V)
 -Z, --all-zones-names		All zone names 
 				(mutually exclusive with -z)
-				(must also specify -d)
+				(must also specify -v)
 -z, --zone-name             	The zone name
 				(mutually exclusive with -Z)
-				(must also specify -d)
+				(must also specify -v)
 -R, --all-records               All records
-				(must also specify -z)
+				(must also specify -z and -v)
 -t, --record-type               The record type
 				(implies -R)
 -n, --record-name               The record name
@@ -70,19 +70,19 @@ while [ "$1" ] ; do
 	    shift 2
 	    ;;
   
-  	-D | --all-dns-server-names)
-	    if [ -n "$dns_server_name" ] ; then
-           	echo "$PROGNAME: Option '$1' and '-d' are mutually exclusive."
+  	-V | --all-view-names)
+	    if [ -n "$view_name" ] ; then
+           	echo "$PROGNAME: Option '$1' and '-v' are mutually exclusive."
 		print_more_information
 		exit $STATE_FAIL
 	    fi 
-	    all_dns_server_names="yes"
+	    all_view_names="yes"
 	    shift 1
 	    ;;
 
-        -d | --dns-server-name)
-	    if [ -n "$all_dns_server_names" ] ; then
-           	echo "$PROGNAME: Option '$1' and '-D' are mutually exclusive."
+        -v | --view-name)
+	    if [ -n "$all_view_names" ] ; then
+           	echo "$PROGNAME: Option '$1' and '-V' are mutually exclusive."
 		print_more_information
 		exit $STATE_FAIL
 	    fi
@@ -91,7 +91,7 @@ while [ "$1" ] ; do
 		print_more_information
 		exit $STATE_FAIL
 	    fi
-	    dns_server_name=$2
+	    view_name=$2
 	    shift 2
 	    ;;
          
@@ -176,13 +176,13 @@ done
 
 url=${endpoint}
 
-if [ -n "$all_dns_server_names" -o -n "$dns_server_name" ] ; then
+if [ -n "$all_view_names" -o -n "$view_name" ] ; then
 
-    url=${url}/servers
+    url=${url}/views
 
-    if [ -n "$dns_server_name" ] ; then
+    if [ -n "$view_name" ] ; then
 
-        url=${url}/${dns_server_name}
+        url=${url}/${view_name}
 
         if [ -n "$all_zone_names" -o -n "$zone_name" ] ; then
 

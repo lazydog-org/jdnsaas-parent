@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
-    <transaction_signature id="1" name="testname" secret="testsecret" algorithm="HMAC_SHA512"/>
-    <dns_server id="1" name="dns1.testdomain" port="53" transaction_signature_id="1"/>
-    <dns_server id="2" name="dns2.testdomain" port="53" transaction_signature_id="1"/>
-    <zone id="1" name="testzone1" dns_server_id="1"/>
-    <zone id="2" name="testzone2" dns_server_id="1"/>
-    <zone id="3" name="testzone2" dns_server_id="2"/>
-    <zone id="4" name="testzone3" dns_server_id="2"/>
+    <tsig_key id="1" name="testtsigkeyname1" value="testtsigkeyvalue1" algorithm="HMAC_MD5"/>
+    <tsig_key id="2" name="testtsigkeyname2" value="testtsigkeyvalue2" algorithm="HMAC_SHA256"/>
+    <tsig_key id="3" name="testtsigkeyname3" value="testtsigkeyvalue3" algorithm="HMAC_SHA512"/>
+    <dns_server id="1" name="testdnsserver1" port="53" local_address="testlocaladdress1"/>
+    <dns_server id="2" name="testdnsserver2" port="53"/>
+    <dns_view id="1" name="testview1" dns_server_id="1"/>
+    <dns_view id="2" name="testview2" dns_server_id="2"/>
+    <dns_zone id="1" name="testzone1" dns_view_id="1" query_tsig_key_id="1" transfer_tsig_key_id="2" update_tsig_key_id="3"/>
+    <dns_zone id="2" name="testzone2" dns_view_id="1" transfer_tsig_key_id="2" update_tsig_key_id="3"/>
+    <dns_zone id="3" name="testzone2" dns_view_id="2" query_tsig_key_id="1" update_tsig_key_id="3"/>
+    <dns_zone id="4" name="testzone3" dns_view_id="2" query_tsig_key_id="1" transfer_tsig_key_id="2"/>
 </dataset>

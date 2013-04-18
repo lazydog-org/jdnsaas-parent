@@ -40,7 +40,7 @@ public class Model implements Serializable {
      * @return  true if the objects are equal; false otherwise.
      */
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(final Object object) {
         return EqualsBuilder.reflectionEquals(this, object);
     }
     

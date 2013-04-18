@@ -19,24 +19,24 @@
 package org.lazydog.jdnsaas.model;
 
 /**
- * DNS server.
+ * Transaction signature (TSIG) key.
  * 
  * @author  Ron Rickard
  */
-public class DNSServer extends Entity {
+public class TSIGKey extends Entity {
     
     private static final long serialVersionUID = 1L;
-    private String localAddress;
+    private TSIGKeyAlgorithm algorithm;
     private String name;
-    private Integer port;
-    
+    private String value;
+
     /**
-     * Get the local address.
+     * Get the algorithm.
      * 
-     * @return  the local address.
+     * @return  the algorithm.
      */
-    public String getLocalAddress() {
-        return this.localAddress;
+    public TSIGKeyAlgorithm getAlgorithm() {
+        return this.algorithm;
     }
 
     /**
@@ -49,23 +49,23 @@ public class DNSServer extends Entity {
     }
      
     /**
-     * Get the port.
+     * Get the value.
      * 
-     * @return  the port.
+     * @return  the value.
      */
-    public Integer getPort() {
-        return this.port;
+    public String getValue() {
+        return this.value;
     }
 
     /**
-     * Set the local address.
+     * Set the algorithm.
      * 
-     * @param  localAddress  the local address.
+     * @param  algorithm  the algorithm.
      */
-    public void setLocalAddress(final String localAddress) {
-        this.localAddress = localAddress;
+    public void setAlgorithm(final TSIGKeyAlgorithm algorithm) {
+        this.algorithm = algorithm;
     }
-    
+
     /**
      * Set the name.
      * 
@@ -74,13 +74,13 @@ public class DNSServer extends Entity {
     public void setName(final String name) {
         this.name = name;
     }
-       
+        
     /**
-     * Set the port.
+     * Set the value.
      * 
-     * @param  port  the port.
+     * @param  value  the value.
      */
-    public void setPort(final Integer port) {
-        this.port = port;
+    public void setValue(final String value) {
+        this.value = value;
     }
 }

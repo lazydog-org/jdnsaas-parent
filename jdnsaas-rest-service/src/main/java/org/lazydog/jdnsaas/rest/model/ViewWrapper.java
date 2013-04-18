@@ -18,14 +18,14 @@
  */
 package org.lazydog.jdnsaas.rest.model;
 
-import org.lazydog.jdnsaas.model.DNSServer;
+import org.lazydog.jdnsaas.model.View;
 
 /**
- * DNS server wrapper.
+ * View wrapper.
  * 
  * @author  Ron Rickard
  */
-public class DNSServerWrapper extends DNSServer {
+public class ViewWrapper extends View {
 
     private static final long serialVersionUID = 1L;
     private String url;
@@ -50,41 +50,40 @@ public class DNSServerWrapper extends DNSServer {
     }
     
     /**
-     * Create a new instance of the DNS server wrapper class.
+     * Create a new instance of the view wrapper class.
      * 
-     * @param  dnsServerName  the DNS server name.
-     * @param  url            the URL.
+     * @param  viewName  the view name.
+     * @param  url       the URL.
      * 
-     * @return  a new instance of the DNS server wrapper class.
+     * @return  a new instance of the view wrapper class.
      */
-    public static DNSServerWrapper newInstance(final String dnsServerName, final String url) {
+    public static ViewWrapper newInstance(final String viewName, final String url) {
 
-        DNSServerWrapper dnsServerResponse = new DNSServerWrapper();
-        dnsServerResponse.setName(dnsServerName);
-        dnsServerResponse.setUrl(url);
+        ViewWrapper viewWrapper = new ViewWrapper();
+        viewWrapper.setName(viewName);
+        viewWrapper.setUrl(url);
         
-        return dnsServerResponse;
+        return viewWrapper;
     }
     
     /**
-     * Create a new instance of the DNS server wrapper class.
+     * Create a new instance of the view wrapper class.
      * 
-     * @param  dnsServer  the DNS server name.
-     * @param  url        the URL.
-     * @param  zonesUrl   the zones URL.
+     * @param  view      the view name.
+     * @param  url       the URL.
+     * @param  zonesUrl  the zones URL.
      * 
-     * @return  a new instance of the DNS server wrapper class.
+     * @return  a new instance of the view wrapper class.
      */
-    public static DNSServerWrapper newInstance(final DNSServer dnsServer, final String url, final String zonesUrl) {
+    public static ViewWrapper newInstance(final View view, final String url, final String zonesUrl) {
         
-        DNSServerWrapper dnsServerResponse = new DNSServerWrapper();
-        dnsServerResponse.setName(dnsServer.getName());
-        dnsServerResponse.setPort(dnsServer.getPort());
-        dnsServerResponse.setTransactionSignature(dnsServer.getTransactionSignature());
-        dnsServerResponse.setUrl(url);
-        dnsServerResponse.setZonesUrl(zonesUrl);
+        ViewWrapper viewWrapper = new ViewWrapper();
+        viewWrapper.setDnsServer(view.getDnsServer());
+        viewWrapper.setName(view.getName());
+        viewWrapper.setUrl(url);
+        viewWrapper.setZonesUrl(zonesUrl);
 
-        return dnsServerResponse;
+        return viewWrapper;
     }
     
     /**

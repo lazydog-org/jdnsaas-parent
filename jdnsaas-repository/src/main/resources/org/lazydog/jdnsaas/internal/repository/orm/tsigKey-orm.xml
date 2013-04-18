@@ -6,17 +6,18 @@
                         http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
     version="2.0">
     <package>org.lazydog.jdnsaas.model</package>
-    <entity class="DNSServer" access="FIELD">
-        <table name="dns_server" schema="jdnsaas"/>
+    <entity class="TSIGKey" access="FIELD">
+        <table name="tsig_key" schema="jdnsaas"/>
         <attributes>
-            <basic name="localAddress">
-                <column name="local_address" nullable="true"/>
+            <basic name="algorithm">
+                <column name="algorithm" nullable="false"/>
+                <enumerated>STRING</enumerated>
             </basic>
             <basic name="name">
                 <column name="name" nullable="false"/>
             </basic>
-            <basic name="port">
-                <column name="port" nullable="false"/>
+            <basic name="value">
+                <column name="value" nullable="false"/>
             </basic>
         </attributes>
     </entity>

@@ -7,16 +7,26 @@
     version="2.0">
     <package>org.lazydog.jdnsaas.model</package>
     <entity class="Zone" access="FIELD">
-        <table name="zone" schema="jdnsaas"/>
+        <table name="dns_zone" schema="jdnsaas"/>
         <attributes>
-            <many-to-one name="dnsServer" fetch="EAGER">
-                <join-column name="dns_server_id" nullable="false"/>
-            </many-to-one>
             <basic name="name">
                 <column name="name" nullable="false"/>
             </basic>
+            <many-to-one name="queryTSIGKey" fetch="EAGER">
+                <join-column name="query_tsig_key_id" nullable="true"/>
+            </many-to-one>
             <transient name="records"/>
             <transient name="supportedRecordTypes"/>
+            <many-to-one name="transferTSIGKey" fetch="EAGER">
+                <join-column name="transfer_tsig_key_id" nullable="true"/>
+            </many-to-one>
+            <transient name="type"/>
+            <many-to-one name="updateTSIGKey" fetch="EAGER">
+                <join-column name="update_tsig_key_id" nullable="true"/>
+            </many-to-one>
+            <many-to-one name="view" fetch="EAGER">
+                <join-column name="dns_view_id" nullable="false"/>
+            </many-to-one>
         </attributes>
     </entity>
 </entity-mappings>

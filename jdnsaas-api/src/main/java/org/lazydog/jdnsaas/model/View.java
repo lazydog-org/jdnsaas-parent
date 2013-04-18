@@ -19,26 +19,25 @@
 package org.lazydog.jdnsaas.model;
 
 /**
- * Transaction signature (TSIG).
+ * View.
  * 
  * @author  Ron Rickard
  */
-public class TransactionSignature extends Entity {
+public class View extends Entity {
     
     private static final long serialVersionUID = 1L;
-    private TransactionSignatureAlgorithm algorithm;
+    private DNSServer dnsServer;
     private String name;
-    private String secret;
-
+   
     /**
-     * Get the algorithm.
+     * Get the DNS server.
      * 
-     * @return  the algorithm.
+     * @return  the DNS server.
      */
-    public TransactionSignatureAlgorithm getAlgorithm() {
-        return this.algorithm;
+    public DNSServer getDnsServer() {
+        return this.dnsServer;
     }
-
+    
     /**
      * Get the name.
      * 
@@ -47,40 +46,22 @@ public class TransactionSignature extends Entity {
     public String getName() {
         return this.name;
     }
-     
+        
     /**
-     * Get the secret.
+     * Set the DNS server.
      * 
-     * @return  the secret.
+     * @param  dnsServer  the DNS server.
      */
-    public String getSecret() {
-        return this.secret;
+    public void setDnsServer(final DNSServer dnsServer) {
+        this.dnsServer = dnsServer;
     }
-
-    /**
-     * Set the algorithm.
-     * 
-     * @param  algorithm  the algorithm.
-     */
-    public void setAlgorithm(TransactionSignatureAlgorithm algorithm) {
-        this.algorithm = algorithm;
-    }
-
+    
     /**
      * Set the name.
      * 
      * @param  name  the name.
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
-    }
-        
-    /**
-     * Set the secret.
-     * 
-     * @param  secret  the secret.
-     */
-    public void setSecret(String secret) {
-        this.secret = secret;
     }
 }

@@ -59,11 +59,11 @@ public class ZoneWrapper extends Zone {
      */
     public static ZoneWrapper newInstance(final String zoneName, final String url) {
         
-        ZoneWrapper zoneResponse = new ZoneWrapper();
-        zoneResponse.setName(zoneName);
-        zoneResponse.setUrl(url);
+        ZoneWrapper zoneWrapper = new ZoneWrapper();
+        zoneWrapper.setName(zoneName);
+        zoneWrapper.setUrl(url);
         
-        return zoneResponse;
+        return zoneWrapper;
     }
     
     /**
@@ -77,13 +77,16 @@ public class ZoneWrapper extends Zone {
      */
     public static ZoneWrapper newInstance(final Zone zone, final String url, final String recordsUrl) {
         
-        ZoneWrapper zoneResponse = new ZoneWrapper();
-        zoneResponse.setName(zone.getName());
-        zoneResponse.setRecordsUrl(recordsUrl);
-        zoneResponse.setSupportedRecordTypes(zone.getSupportedRecordTypes());
-        zoneResponse.setUrl(url);
+        ZoneWrapper zoneWrapper = new ZoneWrapper();
+        zoneWrapper.setName(zone.getName());
+        zoneWrapper.setQueryTSIGKey(zone.getQueryTSIGKey());
+        zoneWrapper.setRecordsUrl(recordsUrl);
+        zoneWrapper.setSupportedRecordTypes(zone.getSupportedRecordTypes());
+        zoneWrapper.setTransferTSIGKey(zone.getTransferTSIGKey());
+        zoneWrapper.setUpdateTSIGKey(zone.getUpdateTSIGKey());
+        zoneWrapper.setUrl(url);
 
-        return zoneResponse;
+        return zoneWrapper;
     }
 
     /**

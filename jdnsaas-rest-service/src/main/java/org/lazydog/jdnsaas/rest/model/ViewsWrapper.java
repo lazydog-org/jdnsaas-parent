@@ -21,48 +21,47 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.lazydog.jdnsaas.model.DNSServer;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
- * DNS servers wrapper.
+ * Views wrapper.
  * 
  * @author  Ron Rickard
  */
-public class DNSServersWrapper implements Serializable {
+public class ViewsWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;
-    private List<DNSServer> dnsServers = new ArrayList<DNSServer>();
+    @JsonProperty("views")
+    private List<ViewWrapper> viewWrappers = new ArrayList<ViewWrapper>();
     
     /**
-     * Get the DNS servers.
+     * Get the view wrappers.
      * 
-     * @return  the DNS servers.
+     * @return  the view wrappers.
      */
-    public List<DNSServer> getDnsServers() {
-        return this.dnsServers;
+    public List<ViewWrapper> getViewWrappers() {
+        return this.viewWrappers;
     }
         
     /**
-     * Create a new instance of the DNS servers wrapper class.
+     * Create a new instance of the views wrapper class.
      * 
-     * @param  dnsServers  the DNS servers.
+     * @param  viewWrappers  the view wrappers.
      * 
-     * @return  a new instance of the DNS servers wrapper class.
+     * @return  a new instance of the view wrapper class.
      */
-    public static DNSServersWrapper newInstance(final List<DNSServer> dnsServers) {
-        
-        DNSServersWrapper dnsServersWrapper = new DNSServersWrapper();
-        dnsServersWrapper.setDnsServers(dnsServers);
-        
-        return dnsServersWrapper;
+    public static ViewsWrapper newInstance(final List<ViewWrapper> viewWrappers) {
+        ViewsWrapper viewsWrapper = new ViewsWrapper();
+        viewsWrapper.setViewWrappers(viewWrappers);
+        return viewsWrapper;
     }
     
     /**
-     * Set the DNS servers.
+     * Set the view wrappers.
      * 
-     * @param  dnsServers  the DNS servers.
+     * @param  viewWrappers  the view wrappers.
      */
-    public void setDnsServers(final List<DNSServer> dnsServers) {
-        this.dnsServers = dnsServers;
+    public void setViewWrappers(final List<ViewWrapper> viewWrappers) {
+        this.viewWrappers = viewWrappers;
     }
 }

@@ -25,14 +25,14 @@ import java.io.Serializable;
  * 
  * @author  Ron Rickard
  */
-public class DNSRepositoryException extends Exception implements Serializable {
+public class JDNSaaSRepositoryException extends Exception implements Serializable {
     
     public static final long serialVersionUID = 1L;
     
     /**
      * Constructs a new exception with no message.
      */
-    public DNSRepositoryException() {
+    public JDNSaaSRepositoryException() {
         super();
     }
 
@@ -41,7 +41,7 @@ public class DNSRepositoryException extends Exception implements Serializable {
      *
      * @param  message  the message.
      */
-    public DNSRepositoryException(final String message) {
+    public JDNSaaSRepositoryException(final String message) {
         super(message);
     }
 
@@ -51,7 +51,7 @@ public class DNSRepositoryException extends Exception implements Serializable {
      * @param  message  the message.
      * @param  cause    the cause.
      */
-    public DNSRepositoryException(final String message, final Throwable cause) {
+    public JDNSaaSRepositoryException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -60,7 +60,7 @@ public class DNSRepositoryException extends Exception implements Serializable {
      *
      * @param  cause  the cause.
      */
-    public DNSRepositoryException(final Throwable cause) {
+    public JDNSaaSRepositoryException(final Throwable cause) {
         super(cause);
     }
 }

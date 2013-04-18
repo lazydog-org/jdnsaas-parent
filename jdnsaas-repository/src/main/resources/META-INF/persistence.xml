@@ -10,7 +10,8 @@
         <non-jta-data-source>java:comp/env/jdbc/jdnsaas</non-jta-data-source>
         <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/dnsServer-orm.xml</mapping-file>
         <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/entity-orm.xml</mapping-file>
-        <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/transactionSignature-orm.xml</mapping-file>
+        <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/tsigKey-orm.xml</mapping-file>
+        <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/view-orm.xml</mapping-file>
         <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/zone-orm.xml</mapping-file>
         <properties>
             <property name="eclipselink.logging.level" value="OFF"/>

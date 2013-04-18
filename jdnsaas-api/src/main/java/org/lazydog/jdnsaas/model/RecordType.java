@@ -45,7 +45,7 @@ public enum RecordType {
      * 
      * @param  zoneType  the zone type.
      */
-    private RecordType(ZoneType zoneType) {
+    private RecordType(final ZoneType zoneType) {
         this.zoneType = zoneType;
     }
 
