@@ -216,12 +216,20 @@ if [ -n "$all_view_names" -o -n "$view_name" ] ; then
 fi
 
 echo $url
+echo ""
 
-curl -i -s \
+curl_output=`curl -s \
 -H "Content-Type: $media_type" \
 -H "Accept: $media_type" \
 -X GET \
-$url
+$url`
 
-echo ""
+json=`echo $curl_output | grep "^{.*}"`
+
+if [ -n "$json" ] ; then
+    echo $json | python -mjson.tool
+else 
+    echo $curl_output
+fi
+
 exit $STATE_OK

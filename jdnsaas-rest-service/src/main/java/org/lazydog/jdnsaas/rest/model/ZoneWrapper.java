@@ -78,11 +78,13 @@ public class ZoneWrapper extends Zone {
     public static ZoneWrapper newInstance(final Zone zone, final String url, final String recordsUrl) {
         
         ZoneWrapper zoneWrapper = new ZoneWrapper();
+        zoneWrapper.setId(zone.getId());
         zoneWrapper.setName(zone.getName());
         zoneWrapper.setQueryTSIGKey(zone.getQueryTSIGKey());
         zoneWrapper.setRecordsUrl(recordsUrl);
         zoneWrapper.setSupportedRecordTypes(zone.getSupportedRecordTypes());
         zoneWrapper.setTransferTSIGKey(zone.getTransferTSIGKey());
+        zoneWrapper.setType(zone.getType());
         zoneWrapper.setUpdateTSIGKey(zone.getUpdateTSIGKey());
         zoneWrapper.setUrl(url);
 

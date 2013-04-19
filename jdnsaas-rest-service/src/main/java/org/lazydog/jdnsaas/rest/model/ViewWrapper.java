@@ -79,6 +79,7 @@ public class ViewWrapper extends View {
         
         ViewWrapper viewWrapper = new ViewWrapper();
         viewWrapper.setDnsServer(view.getDnsServer());
+        viewWrapper.setId(view.getId());
         viewWrapper.setName(view.getName());
         viewWrapper.setUrl(url);
         viewWrapper.setZonesUrl(zonesUrl);
