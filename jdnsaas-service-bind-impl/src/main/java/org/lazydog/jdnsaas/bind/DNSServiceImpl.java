@@ -36,6 +36,8 @@ import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.jdnsaas.model.ZoneType;
 import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepository;
 import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DNS service implementation.
@@ -44,6 +46,7 @@ import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepositoryException;
  */
 public class DNSServiceImpl implements DNSService {
     
+    private final Logger logger = LoggerFactory.getLogger(DNSServiceImpl.class);
     private JDNSaaSRepository jdnsaasRepository;
 
     /**

@@ -31,6 +31,8 @@ import org.lazydog.jdnsaas.model.RecordData;
 import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.SRVRecord;
 import org.lazydog.jdnsaas.model.TXTRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.TextParseException;
@@ -43,6 +45,7 @@ import org.xbill.DNS.Type;
  */
 final class RecordConverter {
     
+    private final Logger logger = LoggerFactory.getLogger(RecordConverter.class);
     private ZoneResolver zoneResolver;
     
     /**

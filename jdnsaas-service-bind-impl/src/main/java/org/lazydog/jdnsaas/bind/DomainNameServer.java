@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Rcode;
@@ -46,6 +48,7 @@ import org.xbill.DNS.ZoneTransferIn;
  */
 final class DomainNameServer {
   
+    private final Logger logger = LoggerFactory.getLogger(DomainNameServer.class);
     private String dnsServerName;
     private int dnsServerPort;
     private String localAddress;

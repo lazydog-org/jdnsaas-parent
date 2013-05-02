@@ -19,6 +19,8 @@
 package org.lazydog.jdnsaas.bind;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Zone resolver.
@@ -27,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 final class ZoneResolver {
     
+    private final Logger logger = LoggerFactory.getLogger(ZoneResolver.class);
     private static final String IPV4_REVERSE_DOMAIN = "in-addr.arpa";
     private static final String IPV6_REVERSE_DOMAIN = "ip6.arpa";
     private static final String LABEL_SEPARATOR = ".";

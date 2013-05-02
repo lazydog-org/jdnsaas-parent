@@ -33,6 +33,8 @@ import org.lazydog.repository.Criteria;
 import org.lazydog.repository.criterion.Comparison;
 import org.lazydog.repository.criterion.Logical;
 import org.lazydog.repository.jpa.AbstractRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Java DNS as a Service (JDNSaaS) repository.
@@ -41,6 +43,8 @@ import org.lazydog.repository.jpa.AbstractRepository;
  */
 public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaSRepository {
 
+    private final Logger logger = LoggerFactory.getLogger(JDNSaaSRepositoryImpl.class);
+    
     /**
      * Hide the constructor.
      * 

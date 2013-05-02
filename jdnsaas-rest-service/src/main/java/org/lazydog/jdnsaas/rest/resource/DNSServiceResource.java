@@ -58,6 +58,8 @@ import org.lazydog.jdnsaas.rest.model.ViewsWrapper;
 import org.lazydog.jdnsaas.rest.model.ZoneTypesWrapper;
 import org.lazydog.jdnsaas.rest.model.ZoneWrapper;
 import org.lazydog.jdnsaas.rest.model.ZonesWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DNS service resource.
@@ -67,6 +69,7 @@ import org.lazydog.jdnsaas.rest.model.ZonesWrapper;
 @Path("dns")
 public class DNSServiceResource {
       
+    private final Logger logger = LoggerFactory.getLogger(DNSServiceResource.class);
     private DNSService dnsService;
     @Context
     private UriInfo uriInfo;
