@@ -23,7 +23,7 @@ package org.lazydog.jdnsaas.model;
  * 
  * @author  Ron Rickard
  */
-public class CNAMERecord extends Record<CNAMERecordData> {
+public class CNAMERecord extends Record<CNAMERecord.Data> {
     
     private static final long serialVersionUID = 1L;
             
@@ -32,5 +32,41 @@ public class CNAMERecord extends Record<CNAMERecordData> {
      */
     public CNAMERecord() {
         this.setType(RecordType.CNAME);
+    }
+    
+    /**
+     * CNAME record data.
+     * 
+     * @author  Ron Rickard
+     */
+    public static class Data extends Record.Data {
+
+        private static final long serialVersionUID = 1L;
+        private String target;
+
+        /**
+         * Initialize the record data.
+         */
+        public Data() {
+            super();
+        }
+        
+        /**
+         * Get the target.
+         * 
+         * @return  the target.
+         */
+        public String getTarget() {
+            return this.target;
+        }
+
+        /**
+         * Set the target.
+         * 
+         * @param  target  the target.
+         */
+        public void setTarget(final String target) {
+            this.target = target;
+        }
     }
 }

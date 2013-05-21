@@ -19,35 +19,36 @@
 package org.lazydog.jdnsaas.model;
 
 /**
- * DNS server.
+ * Resolver.
  * 
  * @author  Ron Rickard
  */
-public class DNSServer extends Entity {
+public class Resolver extends Entity {
     
     private static final long serialVersionUID = 1L;
-    private String localAddress;
-    private String name;
+    private String hostName;
+    private String localHostName;
     private Integer port;
-    
-    /**
-     * Get the local address.
-     * 
-     * @return  the local address.
-     */
-    public String getLocalAddress() {
-        return this.localAddress;
-    }
+    private TSIGKey tsigKey;
 
     /**
-     * Get the name.
+     * Get the host name.
      * 
-     * @return  the name.
+     * @return  the host name.
      */
-    public String getName() {
-        return this.name;
+    public String getHostName() {
+        return this.hostName;
     }
-     
+         
+    /**
+     * Get the local host name.
+     * 
+     * @return  the local host name.
+     */
+    public String getLocalHostName() {
+        return this.localHostName;
+    }
+
     /**
      * Get the port.
      * 
@@ -58,23 +59,32 @@ public class DNSServer extends Entity {
     }
 
     /**
-     * Set the local address.
+     * Get the TSIG key.
      * 
-     * @param  localAddress  the local address.
+     * @return  the TSIG key.
      */
-    public void setLocalAddress(final String localAddress) {
-        this.localAddress = localAddress;
+    public TSIGKey getTSIGKey() {
+        return this.tsigKey;
+    }
+        
+    /**
+     * Set the host name.
+     * 
+     * @param  hostName  the host name.
+     */
+    public void setHostName(final String hostName) {
+        this.hostName = hostName;
     }
     
     /**
-     * Set the name.
+     * Set the local host name.
      * 
-     * @param  name  the name.
+     * @param  localHostName  the local host name.
      */
-    public void setName(final String name) {
-        this.name = name;
+    public void setLocalHostName(final String localHostName) {
+        this.localHostName = localHostName;
     }
-       
+   
     /**
      * Set the port.
      * 
@@ -82,5 +92,14 @@ public class DNSServer extends Entity {
      */
     public void setPort(final Integer port) {
         this.port = port;
+    }
+    
+    /**
+     * Set the TSIG key.
+     * 
+     * @param  tsigKey  the TSIG key.
+     */
+    public void setTSIGKey(final TSIGKey tsigKey) {
+        this.tsigKey = tsigKey;
     }
 }

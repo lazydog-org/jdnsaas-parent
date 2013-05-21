@@ -50,10 +50,8 @@ public class ZoneTypesWrapper implements Serializable {
      * @return  a new instance of the zone types wrapper class.
      */
     public static ZoneTypesWrapper newInstance(final List<ZoneType> zoneTypes) {
-        
         ZoneTypesWrapper zoneTypesWrapper = new ZoneTypesWrapper();
         zoneTypesWrapper.setZoneTypes(zoneTypes);
-        
         return zoneTypesWrapper;
     }
     

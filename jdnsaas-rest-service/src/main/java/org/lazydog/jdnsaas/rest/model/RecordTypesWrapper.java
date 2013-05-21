@@ -50,10 +50,8 @@ public class RecordTypesWrapper implements Serializable {
      * @return  a new instance of the record types wrapper class.
      */
     public static RecordTypesWrapper newInstance(final List<RecordType> recordTypes) {
-        
         RecordTypesWrapper recordTypesWrapper = new RecordTypesWrapper();
         recordTypesWrapper.setRecordTypes(recordTypes);
-        
         return recordTypesWrapper;
     }
     

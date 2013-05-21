@@ -27,9 +27,9 @@ import org.lazydog.jdnsaas.DNSService;
 import org.lazydog.jdnsaas.DNSServiceException;
 import org.lazydog.jdnsaas.ResourceNotFoundException;
 import org.lazydog.jdnsaas.internal.repository.JDNSaaSRepositoryImpl;
-import org.lazydog.jdnsaas.model.DNSServer;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordType;
+import org.lazydog.jdnsaas.model.Resolver;
 import org.lazydog.jdnsaas.model.TSIGKey;
 import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
@@ -66,52 +66,37 @@ public class DNSServiceImpl implements DNSService {
     }
 
     /**
-     * Create the domain name server.
+     * Create the DNS server.
      * 
-     * @param  dnsServer  the DNS server.
-     * @param  tsigKey    the transaction signature (TSIG) key.
+     * @param  resolvers  the resolvers.
+     * @param  tsigKey    the zone-level transaction signature (TSIG) key.
      * @param  zoneName   the zone name.
      * 
      * 
-     * @return  the domain name server.
+     * @return  the DNS server.
      */
-    private static DomainNameServer createDomainNameServer(final DNSServer dnsServer, final TSIGKey tsigKey, final String zoneName) {
-        
-        DomainNameServer domainNameServer;
-        
-        if (tsigKey == null) {
-            domainNameServer = DomainNameServer.newInstance(dnsServer.getName(), dnsServer.getPort(), dnsServer.getLocalAddress(), zoneName);
-        }
-        else {
-            domainNameServer = DomainNameServer.newInstance(dnsServer.getName(), dnsServer.getPort(), dnsServer.getLocalAddress(), tsigKey.getAlgorithm().asString(), tsigKey.getName(), tsigKey.getValue(), zoneName);
-        }
-        
-        return domainNameServer;
-    }
+    private static DNSServer createDNSServer(final List<Resolver> resolvers, final TSIGKey tsigKey, final String zoneName) {
 
-    /**
-     * Find the DNS servers.
-     * 
-     * @return  the DNS servers.
-     * 
-     * @throws  DNSServiceException  if unable to find the DNS servers due to an exception.
-     */
-    @Override
-    public List<DNSServer> findDNSServers() throws DNSServiceException {
-        
-        List<DNSServer> dnsServers;
-        
-        try {
+        // Check if there is a zone-level TSIG key.
+        if (tsigKey != null) {
             
-            // Find the DNS servers.
-            dnsServers = this.jdnsaasRepository.findDNSServers();
-        } catch (JDNSaaSRepositoryException e) {
-            throw new DNSServiceException("unable to find the DNS servers.", e);
+            // Loop through the resolvers.
+            for (Resolver resolver : resolvers) {
+                
+                // Check if there is no TSIG key.
+                if (resolver.getTSIGKey() == null || resolver.getTSIGKey().getName() == null) {
+                    
+                    // Set the zone-level TSIG key.
+                    resolver.setTSIGKey(tsigKey);
+                }
+            }
         }
- 
-        return dnsServers;
+for (Resolver resolver : resolvers) {
+    System.out.println("resolver: " + resolver);
+}
+        return DNSServer.newInstance(resolvers, zoneName);
     }
-       
+  
     /**
      * Find the records.
      * 
@@ -145,9 +130,9 @@ public class DNSServiceImpl implements DNSService {
             // Find the DNS records.
             List<org.xbill.DNS.Record> dnsRecords;
             if (recordName != null) {
-                dnsRecords = createDomainNameServer(zone.getView().getDnsServer(), zone.getQueryTSIGKey(), zoneName).findRecords(dnsRecordType, recordName);
+                dnsRecords = createDNSServer(zone.getView().getResolvers(), zone.getQueryTSIGKey(), zoneName).findRecords(dnsRecordType, recordName);
             } else {
-                dnsRecords = createDomainNameServer(zone.getView().getDnsServer(), zone.getTransferTSIGKey(), zoneName).findRecords(dnsRecordType);
+                dnsRecords = createDNSServer(zone.getView().getResolvers(), zone.getTransferTSIGKey(), zoneName).findRecords(dnsRecordType);
             }
 
             // Initialize the record converter.
@@ -168,7 +153,7 @@ public class DNSServiceImpl implements DNSService {
             } 
         } catch (JDNSaaSRepositoryException e) {
             throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
-        } catch (DomainNameServerException e) {
+        } catch (DNSServerException e) {
             throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
         } catch (RecordConverterException e) {
             throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
@@ -177,6 +162,29 @@ public class DNSServiceImpl implements DNSService {
         return records;
     }
     
+    /**
+     * Find the resolvers.
+     * 
+     * @return  the resolvers.
+     * 
+     * @throws  DNSServiceException  if unable to find the resolvers due to an exception.
+     */
+    @Override
+    public List<Resolver> findResolvers() throws DNSServiceException {
+        
+        List<Resolver> resolvers;
+        
+        try {
+            
+            // Find the resolvers.
+            resolvers = this.jdnsaasRepository.findResolvers();
+        } catch (JDNSaaSRepositoryException e) {
+            throw new DNSServiceException("unable to find the resolvers.", e);
+        }
+ 
+        return resolvers;
+    }
+     
     /**
      * Find the transaction signature (TSIG) keys.
      * 
@@ -277,7 +285,7 @@ public class DNSServiceImpl implements DNSService {
             }
 
             // Set some zone properties.
-            zone.setType(ZoneResolver.newInstance(zoneName).isForwardZone() ? ZoneType.FORWARD : ZoneType.REVERSE);
+            zone.setType(ZoneUtility.newInstance(zoneName).isForwardZone() ? ZoneType.FORWARD : ZoneType.REVERSE);
             zone.setSupportedRecordTypes(Arrays.asList(RecordType.values(zone.getType())));
         } catch (JDNSaaSRepositoryException e) {
             throw new DNSServiceException("Unable to find the zone (" + zoneName + ") for the view (" + viewName + ").", e);
@@ -343,7 +351,7 @@ public class DNSServiceImpl implements DNSService {
      */
     @Override
     public boolean processRecords(final String viewName, final String zoneName, final List<Record> records) throws DNSServiceException, ResourceNotFoundException {
-
+logger.error("enter processRecords()");
         boolean success = false;
 
         try {
@@ -375,10 +383,10 @@ public class DNSServiceImpl implements DNSService {
             }
 
             // Process the records.
-            success = createDomainNameServer(zone.getView().getDnsServer(), zone.getUpdateTSIGKey(), zoneName).processRecords(recordOperationMap);
+            success = createDNSServer(zone.getView().getResolvers(), zone.getUpdateTSIGKey(), zoneName).processRecords(recordOperationMap);
         } catch (JDNSaaSRepositoryException e) {
             throw new DNSServiceException("Unable to process the records for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
-        } catch (DomainNameServerException e) {
+        } catch (DNSServerException e) {
             throw new DNSServiceException("Unable to process the records for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
         } catch (RecordConverterException e) {
             throw new DNSServiceException("Unable to process the records for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);

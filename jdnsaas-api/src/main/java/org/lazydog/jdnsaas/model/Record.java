@@ -19,13 +19,15 @@
 package org.lazydog.jdnsaas.model;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Record.
  * 
  * @author  Ron Rickard
  */
-public abstract class Record<T extends RecordData> extends Model {
+public abstract class Record<T extends Record.Data> extends Model {
         
     private static final long serialVersionUID = 1L;
     public static final int DEFAULT_TIME_TO_LIVE = 300;
@@ -104,7 +106,7 @@ public abstract class Record<T extends RecordData> extends Model {
      * @throws  InstantiationException    if the record class cannot be instantiated.
      * @throws  NullPointerException      if the record class is null.
      */
-    public static <T extends Record<U>,U extends RecordData> T newInstance(final Class<T> recordClass, final String name, final Integer timeToLive, final U data) throws IllegalAccessException, InstantiationException {
+    public static <T extends Record<U>,U extends Data> T newInstance(final Class<T> recordClass, final String name, final Integer timeToLive, final U data) throws IllegalAccessException, InstantiationException {
 
         if (recordClass == null) {
             throw new NullPointerException("The record class cannot be null.");
@@ -138,9 +140,9 @@ public abstract class Record<T extends RecordData> extends Model {
      * @throws  InstantiationException    if the record class or record data class cannot be instantiated.
      * @throws  NullPointerException      if the record class or record data class are null.
      * 
-     * @see  RecordData#newInstance(java.lang.Class, java.lang.Object[]) 
+     * @see  Data#newInstance(java.lang.Class, java.lang.Object[]) 
      */
-    public static <T extends Record<U>,U extends RecordData> T newInstance(final Class<T> recordClass, final String name, final Integer timeToLive, final Object... dataElements) throws IllegalAccessException, InstantiationException {
+    public static <T extends Record<U>,U extends Data> T newInstance(final Class<T> recordClass, final String name, final Integer timeToLive, final Object... dataElements) throws IllegalAccessException, InstantiationException {
 
         if (recordClass == null) {
             throw new NullPointerException("The record class cannot be null.");
@@ -155,7 +157,7 @@ public abstract class Record<T extends RecordData> extends Model {
             Class<U> recordDataClass = record.getRecordDataClass();
 
             // Create a new instance of the record data class.
-            U data = RecordData.newInstance(recordDataClass, dataElements);
+            U data = Data.newInstance(recordDataClass, dataElements);
             
             // Set the data on the record.
             record.setData(data);
@@ -211,5 +213,132 @@ public abstract class Record<T extends RecordData> extends Model {
      */
     protected void setType(final RecordType type) {
         this.type = type;
+    }
+    
+    /**
+     * Record data.
+     * 
+     * @author  Ron Rickard
+     */
+    public static abstract class Data extends Model {
+   
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Create a new instance of the record data class.
+         * 
+         * The data elements vary according to the record data class:
+         * 
+         * <table>
+         *   <thead>
+         *     <tr><th>Class</th><th>Element</th><th>Type</th><th>Property</th>
+         *   </thead>
+         *   <tbody>
+         *     <tr><td>AAAARecordData</td><td>0</td><td>String</td><td>ipv6Address</td>
+         *     <tr><td>ARecordData</td><td>0</td><td>String</td><td>ipAddress</td>
+         *     <tr><td>CNAMERecordData</td><td>0</td><td>String</td><td>target</td>
+         *     <tr><td>MXRecordData</td><td>0</td><td>String</td><td>target</td>
+         *     <tr><td></td><td>1</td><td>Integer</td><td>priority</td>
+         *     <tr><td>NSRecordData</td><td>0</td><td>String</td><td>target</td>
+         *     <tr><td>PTRRecordData</td><td>0</td><td>String</td><td>target</td>
+         *     <tr><td>SRVRecordData</td><td>0</td><td>String</td><td>target</td>
+         *     <tr><td></td><td>1</td><td>Integer</td><td>port</td>
+         *     <tr><td></td><td>2</td><td>Integer</td><td>weight</td>
+         *     <tr><td></td><td>3</td><td>Integer</td><td>priority</td>
+         *     <tr><td>TXTRecordData</td><td> 0</td><td>List<String></td><td>values</td>
+         *   </tbody>
+         * </table>
+         * 
+         * The record data elements can be null in which case the record data object will not have any initialized properties.
+         * 
+         * @param  dataClass     the class of the record data.
+         * @param  dataElements  the record data elements.
+         * 
+         * @return  a new instance of the record data class.
+         * 
+         * @throws  IllegalAccessException    if the record data class is not accessible.
+         * @throws  IllegalArgumentException  if the data elements are invalid for the record data class.
+         * @throws  InstantiationException    if the record data class cannot be instantiated.
+         * @throws  NullPointerException      if the record data class is null.
+         */
+        @SuppressWarnings("unchecked")
+        public static <T extends Data> T newInstance(final Class<T> dataClass, final Object... dataElements) throws IllegalAccessException, InstantiationException {
+
+            if (dataClass == null) {
+                throw new NullPointerException("The record data class cannot be null.");
+            }
+
+            // Instantiate the record data.
+            T data = dataClass.newInstance();
+
+            // Check if there are data elements.
+            if (dataElements != null) {
+
+                IllegalArgumentException illegalArgumentException = new IllegalArgumentException("The data elements, " + Arrays.asList(dataElements) + ", are invalid for the record data class " + dataClass.getSimpleName() + ".");
+
+                // Check if the record data class is the AAAA record data class.    
+                if (AAAARecord.Data.class.equals(dataClass)) {
+                    if (dataElements.length != 1 || !(dataElements[0] instanceof String)) {
+                        throw illegalArgumentException;
+                    }
+                    ((AAAARecord.Data)data).setIpv6Address((String)dataElements[0]);
+
+                // Check if the record data class is the A record data class.
+                } else if (ARecord.Data.class.equals(dataClass)) {
+                    if (dataElements.length != 1 || !(dataElements[0] instanceof String)) {
+                        throw illegalArgumentException;
+                    }
+                    ((ARecord.Data)data).setIpAddress((String)dataElements[0]);
+
+                // Check if the record data class is the CNAME record data class.
+                } else if (CNAMERecord.Data.class.equals(dataClass)) {
+                    if (dataElements.length != 1 || !(dataElements[0] instanceof String)) {
+                        throw illegalArgumentException;
+                    }
+                    ((CNAMERecord.Data)data).setTarget((String)dataElements[0]);
+
+                // Check if the record data class is the MX record data class.
+                } else if (MXRecord.Data.class.equals(dataClass)) {
+                    if (dataElements.length != 2 || !(dataElements[0] instanceof String) || !(dataElements[1] instanceof Integer)) {
+                        throw illegalArgumentException;
+                    }
+                    ((MXRecord.Data)data).setPriority((Integer)dataElements[1]);
+                    ((MXRecord.Data)data).setTarget((String)dataElements[0]);
+
+                // Check if the record data class is the NS record data class.
+                } else if (NSRecord.Data.class.equals(dataClass)) {
+                    if (dataElements.length != 1 || !(dataElements[0] instanceof String)) {
+                        throw illegalArgumentException;
+                    }
+                    ((NSRecord.Data)data).setTarget((String)dataElements[0]);
+
+                // Check if the record data class is the PTR record data class.
+                } else if (PTRRecord.Data.class.equals(dataClass)) {
+                    if (dataElements.length != 1 || !(dataElements[0] instanceof String)) {
+                        throw illegalArgumentException;
+                    }
+                    ((PTRRecord.Data)data).setTarget((String)dataElements[0]);
+
+                // Check if the record data class is the SRV record data class.
+                } else if (SRVRecord.Data.class.equals(dataClass)) {
+                    if (dataElements.length != 4 || !(dataElements[0] instanceof String) || !(dataElements[1] instanceof Integer) || !(dataElements[2] instanceof Integer) || !(dataElements[3] instanceof Integer)) {
+                        throw illegalArgumentException;
+                    }
+                    ((SRVRecord.Data)data).setPort((Integer)dataElements[1]);
+                    ((SRVRecord.Data)data).setPriority((Integer)dataElements[3]);
+                    ((SRVRecord.Data)data).setTarget((String)dataElements[0]);
+                    ((SRVRecord.Data)data).setWeight((Integer)dataElements[2]);
+
+                // Check if the record data class is the TXT record data class.
+                } else if (TXTRecord.Data.class.equals(dataClass)) {
+                    if (dataElements.length != 1 || !(dataElements[0] instanceof List)) {
+                        throw illegalArgumentException;
+                    }
+                    ((TXTRecord.Data)data).setValues((List<String>)dataElements[0]);
+                }
+            }
+
+            return data;
+        }
     }
 }

@@ -19,9 +19,9 @@
 package org.lazydog.jdnsaas;
 
 import java.util.List;
-import org.lazydog.jdnsaas.model.DNSServer;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordType;
+import org.lazydog.jdnsaas.model.Resolver;
 import org.lazydog.jdnsaas.model.TSIGKey;
 import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
@@ -32,15 +32,6 @@ import org.lazydog.jdnsaas.model.Zone;
  * @author  Ron Rickard
  */
 public interface DNSService {
-
-    /**
-     * Find the DNS servers.
-     * 
-     * @return  the DNS servers.
-     * 
-     * @throws  DNSServiceException  if unable to find the DNS servers due to an exception.
-     */
-    List<DNSServer> findDNSServers() throws DNSServiceException;
 
     /**
      * Find the records.
@@ -56,7 +47,16 @@ public interface DNSService {
      * @throws  ResourceNotFoundException  if the zone is not found.
      */
     List<Record> findRecords(String viewName, String zoneName, RecordType recordType, String recordName) throws DNSServiceException, ResourceNotFoundException;
-        
+    
+    /**
+     * Find the resolvers.
+     * 
+     * @return  the resolvers.
+     * 
+     * @throws  DNSServiceException  if unable to find the resolvers due to an exception.
+     */
+    List<Resolver> findResolvers() throws DNSServiceException;
+    
     /**
      * Find the transaction signature (TSIG) keys.
      * 

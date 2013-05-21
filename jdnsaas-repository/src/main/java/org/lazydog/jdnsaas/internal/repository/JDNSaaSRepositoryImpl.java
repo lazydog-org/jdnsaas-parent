@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
-import org.lazydog.jdnsaas.model.DNSServer;
+import org.lazydog.jdnsaas.model.Resolver;
 import org.lazydog.jdnsaas.model.TSIGKey;
 import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
@@ -63,26 +63,26 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
         }
     }
     /**
-     * Find the DNS servers.
+     * Find the resolvers.
      * 
-     * @return  the DNS servers.
+     * @return  the resolvers.
      * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the DNS servers due to an exception.
+     * @throws  JDNSaaSRepositoryException  if unable to find the resolvers due to an exception.
      */
     @Override
-    public List<DNSServer> findDNSServers() throws JDNSaaSRepositoryException {
+    public List<Resolver> findResolvers() throws JDNSaaSRepositoryException {
         
-        List<DNSServer> dnsServers = new ArrayList<DNSServer>();
+        List<Resolver> resolvers = new ArrayList<Resolver>();
         
         try {
             
-            // Find the DNS servers.
-            dnsServers = this.findList(DNSServer.class);
+            // Find the resolvers.
+            resolvers = this.findList(Resolver.class);
         } catch (Exception e) {
-            throw new JDNSaaSRepositoryException("Unable to find the DNS servers.", e);
+            throw new JDNSaaSRepositoryException("Unable to find the resolvers.", e);
         }
         
-        return dnsServers;
+        return resolvers;
     }
     
     /**
@@ -124,7 +124,7 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
         
         try {
             
-            // Set the DNS server criteria.
+            // Set the view criteria.
             Criteria<View> criteria = this.getCriteria(View.class);
             criteria.add(Comparison.eq("name", viewName));
             

@@ -50,10 +50,8 @@ public class TSIGKeyAlgorithmsWrapper implements Serializable {
      * @return  a new instance of the transaction signature (TSIG) key algorithms wrapper class.
      */
     public static TSIGKeyAlgorithmsWrapper newInstance(final List<TSIGKeyAlgorithm> tsigKeyAlgorithms) {
-        
         TSIGKeyAlgorithmsWrapper tsigKeyAlgorithmsWrapper = new TSIGKeyAlgorithmsWrapper();
         tsigKeyAlgorithmsWrapper.setTSIGKeyAlgorithms(tsigKeyAlgorithms);
-        
         return tsigKeyAlgorithmsWrapper;
     }
     

@@ -18,6 +18,8 @@
  */
 package org.lazydog.jdnsaas.model;
 
+import java.util.List;
+
 /**
  * View.
  * 
@@ -26,18 +28,9 @@ package org.lazydog.jdnsaas.model;
 public class View extends Entity {
     
     private static final long serialVersionUID = 1L;
-    private DNSServer dnsServer;
     private String name;
-   
-    /**
-     * Get the DNS server.
-     * 
-     * @return  the DNS server.
-     */
-    public DNSServer getDnsServer() {
-        return this.dnsServer;
-    }
-    
+    private List<Resolver> resolvers;
+
     /**
      * Get the name.
      * 
@@ -46,16 +39,16 @@ public class View extends Entity {
     public String getName() {
         return this.name;
     }
-        
+       
     /**
-     * Set the DNS server.
+     * Get the resolvers.
      * 
-     * @param  dnsServer  the DNS server.
+     * @return  the resolvers.
      */
-    public void setDnsServer(final DNSServer dnsServer) {
-        this.dnsServer = dnsServer;
+    public List<Resolver> getResolvers() {
+        return this.resolvers;
     }
-    
+
     /**
      * Set the name.
      * 
@@ -63,5 +56,14 @@ public class View extends Entity {
      */
     public void setName(final String name) {
         this.name = name;
+    }
+            
+    /**
+     * Set the Resolvers.
+     * 
+     * @param  resolvers  the resolvers.
+     */
+    public void setResolvers(final List<Resolver> resolvers) {
+        this.resolvers = resolvers;
     }
 }

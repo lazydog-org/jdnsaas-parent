@@ -19,7 +19,7 @@
 package org.lazydog.jdnsaas.spi.repository;
 
 import java.util.List;
-import org.lazydog.jdnsaas.model.DNSServer;
+import org.lazydog.jdnsaas.model.Resolver;
 import org.lazydog.jdnsaas.model.TSIGKey;
 import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
@@ -33,13 +33,13 @@ import org.lazydog.repository.Repository;
 public interface JDNSaaSRepository extends Repository {
 
     /**
-     * Find the DNS servers.
+     * Find the resolvers.
      * 
-     * @return  the DNS servers.
+     * @return  the resolvers.
      * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the DNS servers due to an exception.
+     * @throws  JDNSaaSRepositoryException  if unable to find the resolvers due to an exception.
      */
-    List<DNSServer> findDNSServers() throws JDNSaaSRepositoryException;
+    List<Resolver> findResolvers() throws JDNSaaSRepositoryException;
     
     /**
      * Find the transaction signature (TSIG) keys.

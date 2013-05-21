@@ -38,19 +38,19 @@ import org.lazydog.jdnsaas.DNSService;
 import org.lazydog.jdnsaas.DNSServiceException;
 import org.lazydog.jdnsaas.ResourceNotFoundException;
 import org.lazydog.jdnsaas.bind.DNSServiceImpl;
-import org.lazydog.jdnsaas.model.DNSServer;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordOperation;
 import org.lazydog.jdnsaas.model.RecordType;
+import org.lazydog.jdnsaas.model.Resolver;
 import org.lazydog.jdnsaas.model.TSIGKey;
 import org.lazydog.jdnsaas.model.TSIGKeyAlgorithm;
 import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.jdnsaas.model.ZoneType;
-import org.lazydog.jdnsaas.rest.model.DNSServersWrapper;
 import org.lazydog.jdnsaas.rest.model.RecordOperationsWrapper;
 import org.lazydog.jdnsaas.rest.model.RecordTypesWrapper;
 import org.lazydog.jdnsaas.rest.model.RecordsWrapper;
+import org.lazydog.jdnsaas.rest.model.ResolversWrapper;
 import org.lazydog.jdnsaas.rest.model.TSIGKeyAlgorithmsWrapper;
 import org.lazydog.jdnsaas.rest.model.TSIGKeysWrapper;
 import org.lazydog.jdnsaas.rest.model.ViewWrapper;
@@ -156,29 +156,6 @@ public class DNSServiceResource {
     }
 
     /**
-     * Find the DNS servers.
-     * 
-     * @return  the DNS servers.
-     */
-    @GET
-    @Path("servers")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response findDNSServers() {
-        
-        Response response;
-        
-        try {
-            List<DNSServer> dnsServers = this.dnsService.findDNSServers();
-            return buildOkResponse(DNSServersWrapper.newInstance(dnsServers));
-        } catch (Exception e) {
-            response = buildInternalServerErrorResponse();
-System.out.println(e); 
-        }
-        
-        return response;
-    }
-
-    /**
      * Find the record operations.
      * 
      * @return  the record operations.
@@ -228,6 +205,29 @@ System.out.println(e);
         } catch (Exception e) {
             response = buildInternalServerErrorResponse();
 System.out.println(e);
+        }
+        
+        return response;
+    }
+
+    /**
+     * Find the resolvers.
+     * 
+     * @return  the resolvers.
+     */
+    @GET
+    @Path("resolvers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findResolvers() {
+        
+        Response response;
+        
+        try {
+            List<Resolver> resolvers = this.dnsService.findResolvers();
+            return buildOkResponse(ResolversWrapper.newInstance(resolvers));
+        } catch (Exception e) {
+            response = buildInternalServerErrorResponse();
+System.out.println(e); 
         }
         
         return response;
@@ -424,7 +424,7 @@ System.out.println(e);
     public Response processRecords(@PathParam("viewName") final String viewName, @PathParam("zoneName") final String zoneName, final RecordsWrapper recordsWrapper) {
 
         Response response;
-        
+      
         try {
             boolean success = this.dnsService.processRecords(viewName, zoneName, recordsWrapper.getRecords());
             if (success) {

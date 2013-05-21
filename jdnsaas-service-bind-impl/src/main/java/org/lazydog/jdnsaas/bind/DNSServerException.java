@@ -25,14 +25,14 @@ import java.io.Serializable;
  * 
  * @author  Ron Rickard
  */
-public class DomainNameServerException extends Exception implements Serializable {
+public class DNSServerException extends Exception implements Serializable {
     
     public static final long serialVersionUID = 1L;
     
     /**
      * Constructs a new exception with no message.
      */
-    public DomainNameServerException() {
+    public DNSServerException() {
         super();
     }
 
@@ -41,7 +41,7 @@ public class DomainNameServerException extends Exception implements Serializable
      *
      * @param  message  the message.
      */
-    public DomainNameServerException(final String message) {
+    public DNSServerException(final String message) {
         super(message);
     }
 
@@ -51,7 +51,7 @@ public class DomainNameServerException extends Exception implements Serializable
      * @param  message  the message.
      * @param  cause    the cause.
      */
-    public DomainNameServerException(final String message, final Throwable cause) {
+    public DNSServerException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -60,7 +60,7 @@ public class DomainNameServerException extends Exception implements Serializable
      *
      * @param  cause  the cause.
      */
-    public DomainNameServerException(final Throwable cause) {
+    public DNSServerException(final Throwable cause) {
         super(cause);
     }
 }

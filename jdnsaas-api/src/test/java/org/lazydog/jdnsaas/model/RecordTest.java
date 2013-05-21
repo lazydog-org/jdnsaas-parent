@@ -32,13 +32,13 @@ public class RecordTest {
     @Test(expected=NullPointerException.class)
     @SuppressWarnings("unchecked")
     public void testNewInstanceNullRecordClass() throws Exception {
-        Record.<Record,RecordData>newInstance(null, "name", new Integer(0), (Object[])null);
+        Record.<Record,Record.Data>newInstance(null, "name", new Integer(0), (Object[])null);
     }
      
     
     @Test
     public void testNewInstanceAData() throws Exception {
-        ARecordData recordData = new ARecordData();
+        ARecord.Data recordData = new ARecord.Data();
         recordData.setIpAddress("0.0.0.0");
         ARecord expectedRecord = new ARecord();
         expectedRecord.setData(recordData);
@@ -49,7 +49,7 @@ public class RecordTest {
      
     @Test
     public void testNewInstanceADataElements() throws Exception {
-        ARecordData recordData = new ARecordData();
+        ARecord.Data recordData = new ARecord.Data();
         recordData.setIpAddress("0.0.0.0");
         ARecord expectedRecord = new ARecord();
         expectedRecord.setData(recordData);
@@ -64,7 +64,7 @@ public class RecordTest {
         expectedRecord.setData(null);
         expectedRecord.setName("name");
         expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(ARecord.class, "name", new Integer(0), (ARecordData)null));
+        assertEquals(expectedRecord, Record.newInstance(ARecord.class, "name", new Integer(0), (ARecord.Data)null));
     }
     
     @Test
@@ -78,7 +78,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceANullsData() throws Exception {
-        assertEquals(new ARecord(), Record.newInstance(ARecord.class, null, null, (ARecordData)null));
+        assertEquals(new ARecord(), Record.newInstance(ARecord.class, null, null, (ARecord.Data)null));
     }
     
     @Test
@@ -99,7 +99,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceAAAAData() throws Exception {
-        AAAARecordData recordData = new AAAARecordData();
+        AAAARecord.Data recordData = new AAAARecord.Data();
         recordData.setIpv6Address("0000:0000:0000:0000:0000:0000:0000:0000");
         AAAARecord expectedRecord = new AAAARecord();
         expectedRecord.setData(recordData);
@@ -110,7 +110,7 @@ public class RecordTest {
      
     @Test
     public void testNewInstanceAAAADataElements() throws Exception {
-        AAAARecordData recordData = new AAAARecordData();
+        AAAARecord.Data recordData = new AAAARecord.Data();
         recordData.setIpv6Address("0000:0000:0000:0000:0000:0000:0000:0000");
         AAAARecord expectedRecord = new AAAARecord();
         expectedRecord.setData(recordData);
@@ -125,7 +125,7 @@ public class RecordTest {
         expectedRecord.setData(null);
         expectedRecord.setName("name");
         expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(AAAARecord.class, "name", new Integer(0), (AAAARecordData)null));
+        assertEquals(expectedRecord, Record.newInstance(AAAARecord.class, "name", new Integer(0), (AAAARecord.Data)null));
     }
     
     @Test
@@ -139,7 +139,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceAAAANullsData() throws Exception {
-        assertEquals(new AAAARecord(), Record.newInstance(AAAARecord.class, null, null, (AAAARecordData)null));
+        assertEquals(new AAAARecord(), Record.newInstance(AAAARecord.class, null, null, (AAAARecord.Data)null));
     }
     
     @Test
@@ -160,7 +160,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceCNAMEData() throws Exception {
-        CNAMERecordData recordData = new CNAMERecordData();
+        CNAMERecord.Data recordData = new CNAMERecord.Data();
         recordData.setTarget("target");
         CNAMERecord expectedRecord = new CNAMERecord();
         expectedRecord.setData(recordData);
@@ -171,7 +171,7 @@ public class RecordTest {
      
     @Test
     public void testNewInstanceCNAMEDataElements() throws Exception {
-        CNAMERecordData recordData = new CNAMERecordData();
+        CNAMERecord.Data recordData = new CNAMERecord.Data();
         recordData.setTarget("target");
         CNAMERecord expectedRecord = new CNAMERecord();
         expectedRecord.setData(recordData);
@@ -186,7 +186,7 @@ public class RecordTest {
         expectedRecord.setData(null);
         expectedRecord.setName("name");
         expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(CNAMERecord.class, "name", new Integer(0), (CNAMERecordData)null));
+        assertEquals(expectedRecord, Record.newInstance(CNAMERecord.class, "name", new Integer(0), (CNAMERecord.Data)null));
     }
     
     @Test
@@ -200,7 +200,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceCNAMENullsData() throws Exception {
-        assertEquals(new CNAMERecord(), Record.newInstance(CNAMERecord.class, null, null, (CNAMERecordData)null));
+        assertEquals(new CNAMERecord(), Record.newInstance(CNAMERecord.class, null, null, (CNAMERecord.Data)null));
     }
     
     @Test
@@ -221,7 +221,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceMXData() throws Exception {
-        MXRecordData recordData = new MXRecordData();
+        MXRecord.Data recordData = new MXRecord.Data();
         recordData.setPriority(new Integer(0));
         recordData.setTarget("target");
         MXRecord expectedRecord = new MXRecord();
@@ -233,7 +233,7 @@ public class RecordTest {
      
     @Test
     public void testNewInstanceMXDataElements() throws Exception {
-        MXRecordData recordData = new MXRecordData();
+        MXRecord.Data recordData = new MXRecord.Data();
         recordData.setPriority(new Integer(0));
         recordData.setTarget("target");
         MXRecord expectedRecord = new MXRecord();
@@ -249,7 +249,7 @@ public class RecordTest {
         expectedRecord.setData(null);
         expectedRecord.setName("name");
         expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(MXRecord.class, "name", new Integer(0), (MXRecordData)null));
+        assertEquals(expectedRecord, Record.newInstance(MXRecord.class, "name", new Integer(0), (MXRecord.Data)null));
     }
     
     @Test
@@ -263,7 +263,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceMXNullsData() throws Exception {
-        assertEquals(new MXRecord(), Record.newInstance(MXRecord.class, null, null, (MXRecordData)null));
+        assertEquals(new MXRecord(), Record.newInstance(MXRecord.class, null, null, (MXRecord.Data)null));
     }
     
     @Test
@@ -289,7 +289,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceNSData() throws Exception {
-        NSRecordData recordData = new NSRecordData();
+        NSRecord.Data recordData = new NSRecord.Data();
         recordData.setTarget("target");
         NSRecord expectedRecord = new NSRecord();
         expectedRecord.setData(recordData);
@@ -300,7 +300,7 @@ public class RecordTest {
      
     @Test
     public void testNewInstanceNSDataElements() throws Exception {
-        NSRecordData recordData = new NSRecordData();
+        NSRecord.Data recordData = new NSRecord.Data();
         recordData.setTarget("target");
         NSRecord expectedRecord = new NSRecord();
         expectedRecord.setData(recordData);
@@ -315,7 +315,7 @@ public class RecordTest {
         expectedRecord.setData(null);
         expectedRecord.setName("name");
         expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(NSRecord.class, "name", new Integer(0), (NSRecordData)null));
+        assertEquals(expectedRecord, Record.newInstance(NSRecord.class, "name", new Integer(0), (NSRecord.Data)null));
     }
     
     @Test
@@ -329,7 +329,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceNSNullsData() throws Exception {
-        assertEquals(new NSRecord(), Record.newInstance(NSRecord.class, null, null, (NSRecordData)null));
+        assertEquals(new NSRecord(), Record.newInstance(NSRecord.class, null, null, (NSRecord.Data)null));
     }
     
     @Test
@@ -350,7 +350,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstancePTRData() throws Exception {
-        PTRRecordData recordData = new PTRRecordData();
+        PTRRecord.Data recordData = new PTRRecord.Data();
         recordData.setTarget("target");
         PTRRecord expectedRecord = new PTRRecord();
         expectedRecord.setData(recordData);
@@ -361,7 +361,7 @@ public class RecordTest {
      
     @Test
     public void testNewInstancePTRDataElements() throws Exception {
-        PTRRecordData recordData = new PTRRecordData();
+        PTRRecord.Data recordData = new PTRRecord.Data();
         recordData.setTarget("target");
         PTRRecord expectedRecord = new PTRRecord();
         expectedRecord.setData(recordData);
@@ -376,7 +376,7 @@ public class RecordTest {
         expectedRecord.setData(null);
         expectedRecord.setName("name");
         expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(PTRRecord.class, "name", new Integer(0), (PTRRecordData)null));
+        assertEquals(expectedRecord, Record.newInstance(PTRRecord.class, "name", new Integer(0), (PTRRecord.Data)null));
     }
     
     @Test
@@ -390,7 +390,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstancePTRNullsData() throws Exception {
-        assertEquals(new PTRRecord(), Record.newInstance(PTRRecord.class, null, null, (PTRRecordData)null));
+        assertEquals(new PTRRecord(), Record.newInstance(PTRRecord.class, null, null, (PTRRecord.Data)null));
     }
     
     @Test
@@ -411,7 +411,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceSRVData() throws Exception {
-        SRVRecordData recordData = new SRVRecordData();
+        SRVRecord.Data recordData = new SRVRecord.Data();
         recordData.setPort(new Integer(0));
         recordData.setPriority(new Integer(2));
         recordData.setTarget("target");
@@ -425,7 +425,7 @@ public class RecordTest {
      
     @Test
     public void testNewInstanceSRVDataElements() throws Exception {
-        SRVRecordData recordData = new SRVRecordData();
+        SRVRecord.Data recordData = new SRVRecord.Data();
         recordData.setPort(new Integer(0));
         recordData.setPriority(new Integer(2));
         recordData.setTarget("target");
@@ -443,7 +443,7 @@ public class RecordTest {
         expectedRecord.setData(null);
         expectedRecord.setName("name");
         expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(SRVRecord.class, "name", new Integer(0), (SRVRecordData)null));
+        assertEquals(expectedRecord, Record.newInstance(SRVRecord.class, "name", new Integer(0), (SRVRecord.Data)null));
     }
     
     @Test
@@ -457,7 +457,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceSRVNullsData() throws Exception {
-        assertEquals(new SRVRecord(), Record.newInstance(SRVRecord.class, null, null, (SRVRecordData)null));
+        assertEquals(new SRVRecord(), Record.newInstance(SRVRecord.class, null, null, (SRVRecord.Data)null));
     }
     
     @Test
@@ -493,7 +493,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceTXTData() throws Exception {
-        TXTRecordData recordData = new TXTRecordData();
+        TXTRecord.Data recordData = new TXTRecord.Data();
         recordData.setValues(Arrays.asList("value"));
         TXTRecord expectedRecord = new TXTRecord();
         expectedRecord.setData(recordData);
@@ -504,7 +504,7 @@ public class RecordTest {
      
     @Test
     public void testNewInstanceTXTDataElements() throws Exception {
-        TXTRecordData recordData = new TXTRecordData();
+        TXTRecord.Data recordData = new TXTRecord.Data();
         recordData.setValues(Arrays.asList("value"));
         TXTRecord expectedRecord = new TXTRecord();
         expectedRecord.setData(recordData);
@@ -519,7 +519,7 @@ public class RecordTest {
         expectedRecord.setData(null);
         expectedRecord.setName("name");
         expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(TXTRecord.class, "name", new Integer(0), (TXTRecordData)null));
+        assertEquals(expectedRecord, Record.newInstance(TXTRecord.class, "name", new Integer(0), (TXTRecord.Data)null));
     }
     
     @Test
@@ -533,7 +533,7 @@ public class RecordTest {
     
     @Test
     public void testNewInstanceTXTNullsData() throws Exception {
-        assertEquals(new TXTRecord(), Record.newInstance(TXTRecord.class, null, null, (TXTRecordData)null));
+        assertEquals(new TXTRecord(), Record.newInstance(TXTRecord.class, null, null, (TXTRecord.Data)null));
     }
     
     @Test

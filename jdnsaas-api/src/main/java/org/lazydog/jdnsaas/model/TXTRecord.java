@@ -18,12 +18,14 @@
  */
 package org.lazydog.jdnsaas.model;
 
+import java.util.List;
+
 /**
  * TXT record.
  * 
  * @author  Ron Rickard
  */
-public class TXTRecord extends Record<TXTRecordData> {
+public class TXTRecord extends Record<TXTRecord.Data> {
     
     private static final long serialVersionUID = 1L;
     
@@ -32,5 +34,41 @@ public class TXTRecord extends Record<TXTRecordData> {
      */
     public TXTRecord() {
         this.setType(RecordType.TXT);
-    } 
+    }
+    
+    /**
+     * TXT record data.
+     * 
+     * @author  Ron Rickard
+     */
+    public static class Data extends Record.Data {
+
+        private static final long serialVersionUID = 1L;
+        private List<String> values;
+
+        /**
+         * Initialize the record data.
+         */
+        public Data() {
+            super();
+        }
+        
+        /**
+         * Get the values.
+         * 
+         * @return  the values.
+         */    
+        public List<String> getValues() {
+            return values;
+        }
+
+        /**
+         * Set the values.
+         * 
+         * @param  values  the values.
+         */
+        public void setValues(final List<String> values) {
+            this.values = values;
+        }    
+    }
 }

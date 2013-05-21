@@ -8,8 +8,8 @@
     <persistence-unit name="jdnsaas" transaction-type="RESOURCE_LOCAL">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <non-jta-data-source>java:comp/env/jdbc/jdnsaas</non-jta-data-source>
-        <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/dnsServer-orm.xml</mapping-file>
         <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/entity-orm.xml</mapping-file>
+        <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/resolver-orm.xml</mapping-file>
         <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/tsigKey-orm.xml</mapping-file>
         <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/view-orm.xml</mapping-file>
         <mapping-file>org/lazydog/jdnsaas/internal/repository/orm/zone-orm.xml</mapping-file>

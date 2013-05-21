@@ -27,7 +27,6 @@ import org.lazydog.jdnsaas.model.MXRecord;
 import org.lazydog.jdnsaas.model.NSRecord;
 import org.lazydog.jdnsaas.model.PTRRecord;
 import org.lazydog.jdnsaas.model.Record;
-import org.lazydog.jdnsaas.model.RecordData;
 import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.SRVRecord;
 import org.lazydog.jdnsaas.model.TXTRecord;
@@ -46,7 +45,7 @@ import org.xbill.DNS.Type;
 final class RecordConverter {
     
     private final Logger logger = LoggerFactory.getLogger(RecordConverter.class);
-    private ZoneResolver zoneResolver;
+    private ZoneUtility zoneUtility;
     
     /**
      * Hide the constructor.
@@ -54,7 +53,7 @@ final class RecordConverter {
      * @param  zoneName  the zone name.
      */
     private RecordConverter(final String zoneName) {
-        this.zoneResolver = ZoneResolver.newInstance(zoneName);
+        this.zoneUtility = ZoneUtility.newInstance(zoneName);
     }
 
     /**
@@ -68,7 +67,7 @@ final class RecordConverter {
      * @throws  UknownHostException  if the IPv6 address is invalid.
      */
     private org.xbill.DNS.Record createAAAARecord(final AAAARecord aaaaRecord) throws TextParseException, UnknownHostException {
-        return new org.xbill.DNS.AAAARecord(new Name(this.zoneResolver.absolutize(aaaaRecord.getName())), DClass.IN, aaaaRecord.getTimeToLive().longValue(), 
+        return new org.xbill.DNS.AAAARecord(new Name(this.zoneUtility.absolutize(aaaaRecord.getName())), DClass.IN, aaaaRecord.getTimeToLive().longValue(), 
                 InetAddress.getByName(aaaaRecord.getData().getIpv6Address()));
     }
     
@@ -97,7 +96,7 @@ final class RecordConverter {
      * @throws  UknownHostException  if the IP address is invalid.
      */
     private org.xbill.DNS.Record createARecord(final ARecord aRecord) throws TextParseException, UnknownHostException {
-        return new org.xbill.DNS.ARecord(new Name(this.zoneResolver.absolutize(aRecord.getName())), DClass.IN, aRecord.getTimeToLive().longValue(), 
+        return new org.xbill.DNS.ARecord(new Name(this.zoneUtility.absolutize(aRecord.getName())), DClass.IN, aRecord.getTimeToLive().longValue(), 
                 InetAddress.getByName(aRecord.getData().getIpAddress()));
     }
     
@@ -125,8 +124,8 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name or target is invalid.
      */
     private org.xbill.DNS.Record createCNAMERecord(final CNAMERecord cnameRecord) throws TextParseException {
-        return new org.xbill.DNS.CNAMERecord(new Name(this.zoneResolver.absolutize(cnameRecord.getName())), DClass.IN, cnameRecord.getTimeToLive().longValue(), 
-                new Name(this.zoneResolver.absolutize(cnameRecord.getData().getTarget())));
+        return new org.xbill.DNS.CNAMERecord(new Name(this.zoneUtility.absolutize(cnameRecord.getName())), DClass.IN, cnameRecord.getTimeToLive().longValue(), 
+                new Name(this.zoneUtility.absolutize(cnameRecord.getData().getTarget())));
     }
       
     /**
@@ -140,7 +139,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createCNAMERecord(final org.xbill.DNS.CNAMERecord dnsCNAMERecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(CNAMERecord.class, dnsCNAMERecord, this.zoneResolver.relativize(dnsCNAMERecord.getTarget().toString()));
+        return createRecord(CNAMERecord.class, dnsCNAMERecord, this.zoneUtility.relativize(dnsCNAMERecord.getTarget().toString()));
     }
             
     /**
@@ -153,8 +152,8 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name or target is invalid.
      */
     private org.xbill.DNS.Record createMXRecord(final MXRecord mxRecord) throws TextParseException {
-        return new org.xbill.DNS.MXRecord(new Name(this.zoneResolver.absolutize(mxRecord.getName())), DClass.IN, mxRecord.getTimeToLive().longValue(), 
-                mxRecord.getData().getPriority().intValue(), new Name(this.zoneResolver.absolutize(mxRecord.getData().getTarget())));
+        return new org.xbill.DNS.MXRecord(new Name(this.zoneUtility.absolutize(mxRecord.getName())), DClass.IN, mxRecord.getTimeToLive().longValue(), 
+                mxRecord.getData().getPriority().intValue(), new Name(this.zoneUtility.absolutize(mxRecord.getData().getTarget())));
     }
      
     /**
@@ -168,7 +167,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createMXRecord(final org.xbill.DNS.MXRecord dnsMXRecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(MXRecord.class, dnsMXRecord, this.zoneResolver.relativize(dnsMXRecord.getTarget().toString()), dnsMXRecord.getPriority());
+        return createRecord(MXRecord.class, dnsMXRecord, this.zoneUtility.relativize(dnsMXRecord.getTarget().toString()), dnsMXRecord.getPriority());
     }
              
     /**
@@ -181,8 +180,8 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name or target is invalid.
      */
     private org.xbill.DNS.Record createNSRecord(final NSRecord nsRecord) throws TextParseException {
-        return new org.xbill.DNS.NSRecord(new Name(this.zoneResolver.absolutize(nsRecord.getName())), DClass.IN, nsRecord.getTimeToLive().longValue(), 
-                new Name(this.zoneResolver.absolutize(nsRecord.getData().getTarget())));
+        return new org.xbill.DNS.NSRecord(new Name(this.zoneUtility.absolutize(nsRecord.getName())), DClass.IN, nsRecord.getTimeToLive().longValue(), 
+                new Name(this.zoneUtility.absolutize(nsRecord.getData().getTarget())));
     }
                
     /**
@@ -196,7 +195,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createNSRecord(final org.xbill.DNS.NSRecord dnsNSRecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(NSRecord.class, dnsNSRecord, this.zoneResolver.relativize(dnsNSRecord.getTarget().toString()));
+        return createRecord(NSRecord.class, dnsNSRecord, this.zoneUtility.relativize(dnsNSRecord.getTarget().toString()));
     }
                  
     /**
@@ -209,8 +208,8 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name or target is invalid.
      */
     private org.xbill.DNS.Record createPTRRecord(final PTRRecord ptrRecord) throws TextParseException {
-        return new org.xbill.DNS.PTRRecord(new Name(this.zoneResolver.absolutize(this.zoneResolver.getReverseTets(ptrRecord.getName()))), DClass.IN, ptrRecord.getTimeToLive().longValue(), 
-                new Name(this.zoneResolver.absolutize(ptrRecord.getData().getTarget())));
+        return new org.xbill.DNS.PTRRecord(new Name(this.zoneUtility.absolutize(this.zoneUtility.getReverseTets(ptrRecord.getName()))), DClass.IN, ptrRecord.getTimeToLive().longValue(), 
+                new Name(this.zoneUtility.absolutize(ptrRecord.getData().getTarget())));
     }
      
     /**
@@ -224,7 +223,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createPTRRecord(final org.xbill.DNS.PTRRecord dnsPTRRecord) throws IllegalAccessException, InstantiationException {
-        return Record.newInstance(PTRRecord.class, this.zoneResolver.getIpAddress(this.zoneResolver.relativize(dnsPTRRecord.getName().toString())), (int)dnsPTRRecord.getTTL(), this.zoneResolver.relativize(dnsPTRRecord.getTarget().toString()));
+        return Record.newInstance(PTRRecord.class, this.zoneUtility.getIpAddress(this.zoneUtility.relativize(dnsPTRRecord.getName().toString())), (int)dnsPTRRecord.getTTL(), this.zoneUtility.relativize(dnsPTRRecord.getTarget().toString()));
     }
      
     /**
@@ -239,8 +238,8 @@ final class RecordConverter {
      * @throws  IllegalAccessException  if the record class or record data class are not accessible.
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
-    private <T extends Record<U>, U extends RecordData> Record createRecord(final Class<T> recordClass, final org.xbill.DNS.Record dnsRecord, final Object... dataElements) throws IllegalAccessException, InstantiationException {
-        return Record.newInstance(recordClass, this.zoneResolver.relativize(dnsRecord.getName().toString()), (int)dnsRecord.getTTL(), dataElements);
+    private <T extends Record<U>, U extends Record.Data> Record createRecord(final Class<T> recordClass, final org.xbill.DNS.Record dnsRecord, final Object... dataElements) throws IllegalAccessException, InstantiationException {
+        return Record.newInstance(recordClass, this.zoneUtility.relativize(dnsRecord.getName().toString()), (int)dnsRecord.getTTL(), dataElements);
     }
             
     /**
@@ -253,9 +252,9 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name or target is invalid.
      */
     private org.xbill.DNS.Record createSRVRecord(final SRVRecord srvRecord) throws TextParseException {
-        return new org.xbill.DNS.SRVRecord(new Name(this.zoneResolver.absolutize(srvRecord.getName())), DClass.IN, srvRecord.getTimeToLive().longValue(), 
+        return new org.xbill.DNS.SRVRecord(new Name(this.zoneUtility.absolutize(srvRecord.getName())), DClass.IN, srvRecord.getTimeToLive().longValue(), 
                 srvRecord.getData().getPriority().intValue(), srvRecord.getData().getWeight().intValue(), 
-                srvRecord.getData().getPort().intValue(), new Name(this.zoneResolver.absolutize(srvRecord.getData().getTarget())));
+                srvRecord.getData().getPort().intValue(), new Name(this.zoneUtility.absolutize(srvRecord.getData().getTarget())));
     }
     
     /**
@@ -269,7 +268,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createSRVRecord(final org.xbill.DNS.SRVRecord dnsSRVRecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(SRVRecord.class, dnsSRVRecord, this.zoneResolver.relativize(dnsSRVRecord.getTarget().toString()), dnsSRVRecord.getPort(), dnsSRVRecord.getWeight(), dnsSRVRecord.getPriority());
+        return createRecord(SRVRecord.class, dnsSRVRecord, this.zoneUtility.relativize(dnsSRVRecord.getTarget().toString()), dnsSRVRecord.getPort(), dnsSRVRecord.getWeight(), dnsSRVRecord.getPriority());
     }
                       
     /**
@@ -282,7 +281,7 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name is invalid.
      */
     private org.xbill.DNS.Record createTXTRecord(final TXTRecord txtRecord) throws TextParseException {
-        return new org.xbill.DNS.TXTRecord(new Name(this.zoneResolver.absolutize(txtRecord.getName())), DClass.IN, txtRecord.getTimeToLive().longValue(), 
+        return new org.xbill.DNS.TXTRecord(new Name(this.zoneUtility.absolutize(txtRecord.getName())), DClass.IN, txtRecord.getTimeToLive().longValue(), 
                 txtRecord.getData().getValues());
     }
                 

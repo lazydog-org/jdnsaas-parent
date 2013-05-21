@@ -9,22 +9,30 @@ create table tsig_key(
     unique key(name, value, algorithm)
 ) engine = innodb;
 
-create table dns_server(
+create table resolver(
     id                              int unsigned not null auto_increment,
-    name                            varchar(255) not null,
+    host_name                       varchar(255) not null,
     port                            smallint unsigned not null,
-    local_address                   varchar(255),
+    local_host_name                 varchar(255),
+    tsig_key_id                     int unsigned,
     primary key(id),
-    unique key(name, port, local_address)
+    foreign key(tsig_key_id) references tsig_key(id),
+    unique key(host_name, port, local_host_name, tsig_key_id)
 ) engine = innodb;
 
 create table dns_view(
     id                              int unsigned not null auto_increment,
     name                            varchar(255) not null,
-    dns_server_id                   int unsigned not null,
     primary key(id),
-    foreign key(dns_server_id) references dns_server(id),
     unique key(name)
+) engine = innodb;
+
+create table dns_view_resolver(
+    dns_view_id                     int unsigned not null,
+    resolver_id                     int unsigned not null,
+    primary key(dns_view_id,resolver_id),
+    foreign key(dns_view_id) references dns_view(id),
+    foreign key(resolver_id) references resolver(id)
 ) engine = innodb;
 
 create table dns_zone(

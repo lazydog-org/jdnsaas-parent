@@ -78,9 +78,9 @@ public class ViewWrapper extends View {
     public static ViewWrapper newInstance(final View view, final String url, final String zonesUrl) {
         
         ViewWrapper viewWrapper = new ViewWrapper();
-        viewWrapper.setDnsServer(view.getDnsServer());
         viewWrapper.setId(view.getId());
         viewWrapper.setName(view.getName());
+        viewWrapper.setResolvers(view.getResolvers());
         viewWrapper.setUrl(url);
         viewWrapper.setZonesUrl(zonesUrl);
 

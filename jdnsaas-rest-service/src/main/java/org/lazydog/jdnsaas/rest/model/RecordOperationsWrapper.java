@@ -50,10 +50,8 @@ public class RecordOperationsWrapper implements Serializable {
      * @return  a new instance of the record operations wrapper class.
      */
     public static RecordOperationsWrapper newInstance(final List<RecordOperation> recordOperations) {
-        
         RecordOperationsWrapper recordOperationsWrapper = new RecordOperationsWrapper();
         recordOperationsWrapper.setRecordOperations(recordOperations);
-        
         return recordOperationsWrapper;
     }
     

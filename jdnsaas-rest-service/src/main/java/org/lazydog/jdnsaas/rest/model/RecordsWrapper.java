@@ -74,10 +74,8 @@ public class RecordsWrapper implements Serializable {
      * @return  a new instance of the records wrapper class.
      */
     public static RecordsWrapper newInstance(final List<Record> records) {
-        
         RecordsWrapper recordsWrapper = new RecordsWrapper();
         recordsWrapper.setRecords(records);
-        
         return recordsWrapper;
     }
     

@@ -23,7 +23,7 @@ package org.lazydog.jdnsaas.model;
  * 
  * @author  Ron Rickard
  */
-public class ARecord extends Record<ARecordData> {
+public class ARecord extends Record<ARecord.Data> {
     
     private static final long serialVersionUID = 1L;
    
@@ -32,5 +32,41 @@ public class ARecord extends Record<ARecordData> {
      */
     public ARecord() {
         this.setType(RecordType.A);
+    }
+    
+    /**
+     * A record data.
+     * 
+     * @author  Ron Rickard
+     */
+    public static class Data extends Record.Data {
+
+        private static final long serialVersionUID = 1L;
+        private String ipAddress;
+
+        /**
+         * Initialize the record data.
+         */
+        public Data() {
+            super();
+        }
+        
+        /**
+         * Get the IP address.
+         * 
+         * @return  the IP address.
+         */
+        public String getIpAddress() {
+            return this.ipAddress;
+        }
+
+        /**
+         * Set the IP address.
+         * 
+         * @param  ipAddress  the IP address.
+         */
+        public void setIpAddress(final String ipAddress) {
+            this.ipAddress = ipAddress;
+        }
     }
 }

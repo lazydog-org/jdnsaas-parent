@@ -23,13 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Zone resolver.
+ * Zone utility.
  * 
  * @author  Ron Rickard
  */
-final class ZoneResolver {
+final class ZoneUtility {
     
-    private final Logger logger = LoggerFactory.getLogger(ZoneResolver.class);
+    private final Logger logger = LoggerFactory.getLogger(ZoneUtility.class);
     private static final String IPV4_REVERSE_DOMAIN = "in-addr.arpa";
     private static final String IPV6_REVERSE_DOMAIN = "ip6.arpa";
     private static final String LABEL_SEPARATOR = ".";
@@ -40,7 +40,7 @@ final class ZoneResolver {
      * 
      * @param  zoneName  the zone name.
      */
-    private ZoneResolver(final String zoneName) {
+    private ZoneUtility(final String zoneName) {
         this.relativeZoneName = (zoneName.endsWith(LABEL_SEPARATOR)) ? StringUtils.removeEnd(zoneName, LABEL_SEPARATOR) : zoneName;
     }
 
@@ -147,14 +147,14 @@ final class ZoneResolver {
     }
 
     /**
-     * Create a new instance of the zone resolver class.
+     * Create a new instance of the zone utility class.
      * 
      * @param  zoneName  the zone name.
      * 
-     * @return  a new instance of the zone resolver class.
+     * @return  a new instance of the zone utility class.
      */
-    public static ZoneResolver newInstance(final String zoneName) {
-        return new ZoneResolver(zoneName);
+    public static ZoneUtility newInstance(final String zoneName) {
+        return new ZoneUtility(zoneName);
     }
    
     /**

@@ -23,7 +23,7 @@ package org.lazydog.jdnsaas.model;
  * 
  * @author  Ron Rickard
  */
-public class MXRecord extends Record<MXRecordData> {
+public class MXRecord extends Record<MXRecord.Data> {
     
     private static final long serialVersionUID = 1L;
     
@@ -32,5 +32,60 @@ public class MXRecord extends Record<MXRecordData> {
      */
     public MXRecord() {
         this.setType(RecordType.MX);
+    }
+    
+    /**
+     * MX record data.
+     * 
+     * @author  Ron Rickard
+     */
+    public static class Data extends Record.Data {
+
+        private static final long serialVersionUID = 1L;
+        private Integer priority = new Integer(0);
+        private String target;
+
+        /**
+         * Initialize the record data.
+         */
+        public Data() {
+            super();
+        }
+        
+        /**
+         * Get the priority.
+         * 
+         * @return  the priority.
+         */
+        public Integer getPriority() {
+            return this.priority;
+        }
+
+        /**
+         * Get the target.
+         * 
+         * @return  the target.
+         */
+        public String getTarget() {
+            return this.target;
+        }
+
+        /**
+         * Set the priority.
+         * 
+         * @param  priority  the priority.
+         */
+        public void setPriority(final Integer priority) {
+            this.priority = replaceNull(priority, new Integer(0));
+        }
+
+        /**
+         * Set the target.
+         * 
+         * @param  target  the target.
+         */
+        public void setTarget(final String target) {
+            this.target = target;
+        } 
     }
 }

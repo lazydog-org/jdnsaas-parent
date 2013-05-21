@@ -9,9 +9,12 @@
     <entity class="View" access="FIELD">
         <table name="dns_view" schema="jdnsaas"/>
         <attributes>
-            <many-to-one name="dnsServer" fetch="EAGER">
-                <join-column name="dns_server_id" nullable="false"/>
-            </many-to-one>
+            <many-to-many name="resolvers" fetch="EAGER">
+                <join-table name="dns_view_resolver">
+                    <join-column name="dns_view_id" nullable="false"/>
+                    <inverse-join-column name="resolver_id" nullable="false"/>
+                </join-table>
+            </many-to-many>
             <basic name="name">
                 <column name="name" nullable="false"/>
             </basic>

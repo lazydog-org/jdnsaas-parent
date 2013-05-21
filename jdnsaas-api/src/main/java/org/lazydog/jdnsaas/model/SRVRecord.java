@@ -23,7 +23,7 @@ package org.lazydog.jdnsaas.model;
  * 
  * @author  Ron Rickard
  */
-public class SRVRecord extends Record<SRVRecordData> {
+public class SRVRecord extends Record<SRVRecord.Data> {
     
     private static final long serialVersionUID = 1L;
     
@@ -32,5 +32,98 @@ public class SRVRecord extends Record<SRVRecordData> {
      */
     public SRVRecord() {
         this.setType(RecordType.SRV);
+    }
+    
+    /**
+     * SRV record data.
+     * 
+     * @author  Ron Rickard
+     */
+    public static class Data extends Record.Data {
+
+        private static final long serialVersionUID = 1L;
+        private Integer priority = new Integer(0);
+        private Integer port = new Integer(0);
+        private String target;
+        private Integer weight = new Integer(0);
+
+        /**
+         * Initialize the record data.
+         */
+        public Data() {
+            super();
+        }
+        
+        /**
+         * Get the port.
+         * 
+         * @return  the port.
+         */
+        public Integer getPort() {
+            return this.port;
+        }
+
+        /**
+         * Get the priority.
+         * 
+         * @return the priority.
+         */
+        public Integer getPriority() {
+            return this.priority;
+        }
+
+        /**
+         * Get the target.
+         * 
+         * @return  the target.
+         */
+        public String getTarget() {
+            return this.target;
+        }
+
+        /**
+         * Get the weight.
+         * 
+         * @return  the weight.
+         */
+        public Integer getWeight() {
+            return this.weight;
+        }
+
+        /**
+         * Set the port.
+         * 
+         * @param  port  the port.
+         */
+        public void setPort(final Integer port) {
+            this.port = replaceNull(port, new Integer(0));
+        }
+
+        /**
+         * Set the priority.
+         * 
+         * @param  priority  the priority.
+         */
+        public void setPriority(final Integer priority) {
+            this.priority = replaceNull(priority, new Integer(0));
+        }
+
+        /**
+         * Set the target.
+         * 
+         * @param  target  the target.
+         */
+        public void setTarget(final String target) {
+            this.target = target;
+        }
+
+        /**
+         * Set the weight.
+         * 
+         * @param  weight  the weight;
+         */
+        public void setWeight(final Integer weight) {
+            this.weight = replaceNull(weight, new Integer(0));
+        }
     }
 }

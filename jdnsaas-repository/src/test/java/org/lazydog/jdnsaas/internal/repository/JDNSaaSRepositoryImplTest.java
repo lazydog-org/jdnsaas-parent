@@ -31,7 +31,7 @@ import org.dbunit.operation.DatabaseOperation;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import org.lazydog.jdnsaas.model.DNSServer;
+import org.lazydog.jdnsaas.model.Resolver;
 import org.lazydog.jdnsaas.model.TSIGKey;
 import org.lazydog.jdnsaas.model.TSIGKeyAlgorithm;
 import org.lazydog.jdnsaas.model.View;
@@ -91,18 +91,29 @@ public class JDNSaaSRepositoryImplTest {
     }
  
     @Test
-    public void testFindDNSServers() throws Exception {
-        DNSServer dnsServer1 = new DNSServer();
-        dnsServer1.setId(new Integer(1));
-        dnsServer1.setLocalAddress("testlocaladdress1");
-        dnsServer1.setName("testdnsserver1");
-        dnsServer1.setPort(new Integer(53));
-        DNSServer dnsServer2 = new DNSServer();
-        dnsServer2.setId(new Integer(2));
-        dnsServer2.setName("testdnsserver2");
-        dnsServer2.setPort(new Integer(53));
-        List<DNSServer> expectedDNSServers = Arrays.asList(dnsServer1, dnsServer2);
-        assertReflectionEquals(expectedDNSServers, this.jdnsaasRepository.findDNSServers(), ReflectionComparatorMode.LENIENT_ORDER);
+    public void testFindResolvers() throws Exception {
+        TSIGKey tsigKey1 = new TSIGKey();
+        tsigKey1.setAlgorithm(TSIGKeyAlgorithm.HMAC_MD5);
+        tsigKey1.setId(new Integer(1));
+        tsigKey1.setName("tsigkeyname1");
+        tsigKey1.setValue("tsigkeyvalue1");
+        Resolver resolver1 = new Resolver();
+        resolver1.setHostName("hostname1");
+        resolver1.setId(new Integer(1));
+        resolver1.setLocalHostName("localhostname1");
+        resolver1.setPort(new Integer(53));
+        resolver1.setTSIGKey(tsigKey1);
+        Resolver resolver2 = new Resolver();
+        resolver2.setHostName("hostname2");
+        resolver2.setId(new Integer(2));
+        resolver2.setLocalHostName("localhostname2");
+        resolver2.setPort(new Integer(53));
+        Resolver resolver3 = new Resolver();
+        resolver3.setHostName("hostname3");
+        resolver3.setId(new Integer(3));
+        resolver3.setPort(new Integer(53));
+        List<Resolver> expectedResolvers = Arrays.asList(resolver1, resolver2, resolver3);
+        assertReflectionEquals(expectedResolvers, this.jdnsaasRepository.findResolvers(), ReflectionComparatorMode.LENIENT_ORDER);
     }
      
     @Test
@@ -110,48 +121,59 @@ public class JDNSaaSRepositoryImplTest {
         TSIGKey tsigKey1 = new TSIGKey();
         tsigKey1.setAlgorithm(TSIGKeyAlgorithm.HMAC_MD5);
         tsigKey1.setId(new Integer(1));
-        tsigKey1.setName("testtsigkeyname1");
-        tsigKey1.setValue("testtsigkeyvalue1");
+        tsigKey1.setName("tsigkeyname1");
+        tsigKey1.setValue("tsigkeyvalue1");
         TSIGKey tsigKey2 = new TSIGKey();
         tsigKey2.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA256);
         tsigKey2.setId(new Integer(2));
-        tsigKey2.setName("testtsigkeyname2");
-        tsigKey2.setValue("testtsigkeyvalue2");
+        tsigKey2.setName("tsigkeyname2");
+        tsigKey2.setValue("tsigkeyvalue2");
         TSIGKey tsigKey3 = new TSIGKey();
         tsigKey3.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA512);
         tsigKey3.setId(new Integer(3));
-        tsigKey3.setName("testtsigkeyname3");
-        tsigKey3.setValue("testtsigkeyvalue3");
+        tsigKey3.setName("tsigkeyname3");
+        tsigKey3.setValue("tsigkeyvalue3");
         List<TSIGKey> expectedTSIGKeys = Arrays.asList(tsigKey1, tsigKey2, tsigKey3);
         assertReflectionEquals(expectedTSIGKeys, this.jdnsaasRepository.findTSIGKeys(), ReflectionComparatorMode.LENIENT_ORDER);
     }
-    
+
     @Test
     public void testFindView() throws Exception {
-        DNSServer dnsServer = new DNSServer();
-        dnsServer.setId(new Integer(1));
-        dnsServer.setLocalAddress("testlocaladdress1");
-        dnsServer.setName("testdnsserver1");
-        dnsServer.setPort(new Integer(53));
+        TSIGKey tsigKey1 = new TSIGKey();
+        tsigKey1.setAlgorithm(TSIGKeyAlgorithm.HMAC_MD5);
+        tsigKey1.setId(new Integer(1));
+        tsigKey1.setName("tsigkeyname1");
+        tsigKey1.setValue("tsigkeyvalue1");
+        Resolver resolver1 = new Resolver();
+        resolver1.setHostName("hostname1");
+        resolver1.setId(new Integer(1));
+        resolver1.setLocalHostName("localhostname1");
+        resolver1.setPort(new Integer(53));
+        resolver1.setTSIGKey(tsigKey1);
+        Resolver resolver2 = new Resolver();
+        resolver2.setHostName("hostname2");
+        resolver2.setId(new Integer(2));
+        resolver2.setLocalHostName("localhostname2");
+        resolver2.setPort(new Integer(53));
+        Resolver resolver3 = new Resolver();
+        resolver3.setHostName("hostname3");
+        resolver3.setId(new Integer(3));
+        resolver3.setPort(new Integer(53));
         View expectedView = new View();
-        expectedView.setDnsServer(dnsServer);
         expectedView.setId(1);
-        expectedView.setName("testview1");
-        assertReflectionEquals(expectedView, this.jdnsaasRepository.findView("testview1"));
-        dnsServer = new DNSServer();
-        dnsServer.setId(new Integer(2));
-        dnsServer.setName("testdnsserver2");
-        dnsServer.setPort(new Integer(53));
+        expectedView.setName("view1");
+        expectedView.setResolvers(Arrays.asList(resolver1, resolver2, resolver3));
+        assertReflectionEquals(expectedView, this.jdnsaasRepository.findView("view1"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedView = new View();
-        expectedView.setDnsServer(dnsServer);
         expectedView.setId(2);
-        expectedView.setName("testview2");
-        assertReflectionEquals(expectedView, this.jdnsaasRepository.findView("testview2"));
+        expectedView.setName("view2");
+        expectedView.setResolvers(Arrays.asList(resolver1));
+        assertReflectionEquals(expectedView, this.jdnsaasRepository.findView("view2"), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     @Test
     public void testFindViewNames() throws Exception {
-        List<String> expectedViewNames = new ArrayList<String>(Arrays.asList("testview1", "testview2"));
+        List<String> expectedViewNames = new ArrayList<String>(Arrays.asList("view1", "view2"));
         assertReflectionEquals(expectedViewNames, this.jdnsaasRepository.findViewNames(), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
@@ -160,72 +182,78 @@ public class JDNSaaSRepositoryImplTest {
         TSIGKey queryTSIGKey = new TSIGKey();
         queryTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_MD5);
         queryTSIGKey.setId(new Integer(1));
-        queryTSIGKey.setName("testtsigkeyname1");
-        queryTSIGKey.setValue("testtsigkeyvalue1");
+        queryTSIGKey.setName("tsigkeyname1");
+        queryTSIGKey.setValue("tsigkeyvalue1");
         TSIGKey transferTSIGKey = new TSIGKey();
         transferTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA256);
         transferTSIGKey.setId(new Integer(2));
-        transferTSIGKey.setName("testtsigkeyname2");
-        transferTSIGKey.setValue("testtsigkeyvalue2");
+        transferTSIGKey.setName("tsigkeyname2");
+        transferTSIGKey.setValue("tsigkeyvalue2");
         TSIGKey updateTSIGKey = new TSIGKey();
         updateTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA512);
         updateTSIGKey.setId(new Integer(3));
-        updateTSIGKey.setName("testtsigkeyname3");
-        updateTSIGKey.setValue("testtsigkeyvalue3");
-        DNSServer dnsServer = new DNSServer();
-        dnsServer.setId(new Integer(1));
-        dnsServer.setLocalAddress("testlocaladdress1");
-        dnsServer.setName("testdnsserver1");
-        dnsServer.setPort(new Integer(53));
+        updateTSIGKey.setName("tsigkeyname3");
+        updateTSIGKey.setValue("tsigkeyvalue3");
+        Resolver resolver1 = new Resolver();
+        resolver1.setHostName("hostname1");
+        resolver1.setId(new Integer(1));
+        resolver1.setLocalHostName("localhostname1");
+        resolver1.setPort(new Integer(53));
+        resolver1.setTSIGKey(queryTSIGKey);
+        Resolver resolver2 = new Resolver();
+        resolver2.setHostName("hostname2");
+        resolver2.setId(new Integer(2));
+        resolver2.setLocalHostName("localhostname2");
+        resolver2.setPort(new Integer(53));
+        Resolver resolver3 = new Resolver();
+        resolver3.setHostName("hostname3");
+        resolver3.setId(new Integer(3));
+        resolver3.setPort(new Integer(53));
         View view = new View();
-        view.setDnsServer(dnsServer);
         view.setId(1);
-        view.setName("testview1");
+        view.setName("view1");
+        view.setResolvers(Arrays.asList(resolver1, resolver2, resolver3));
         Zone expectedZone = new Zone();
         expectedZone.setId(new Integer(1));
-        expectedZone.setName("testzone1");
+        expectedZone.setName("zone1");
         expectedZone.setQueryTSIGKey(queryTSIGKey);
         expectedZone.setTransferTSIGKey(transferTSIGKey);
         expectedZone.setUpdateTSIGKey(updateTSIGKey);
         expectedZone.setView(view);
-        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("testview1", "testzone1"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("view1", "zone1"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedZone = new Zone();
         expectedZone.setId(new Integer(2));
-        expectedZone.setName("testzone2");
+        expectedZone.setName("zone2");
         expectedZone.setTransferTSIGKey(transferTSIGKey);
         expectedZone.setUpdateTSIGKey(updateTSIGKey);
         expectedZone.setView(view);
-        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("testview1", "testzone2"), ReflectionComparatorMode.LENIENT_ORDER);
-        dnsServer = new DNSServer();
-        dnsServer.setId(new Integer(2));
-        dnsServer.setName("testdnsserver2");
-        dnsServer.setPort(new Integer(53));
+        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("view1", "zone2"), ReflectionComparatorMode.LENIENT_ORDER);
         view = new View();
-        view.setDnsServer(dnsServer);
         view.setId(2);
-        view.setName("testview2");
+        view.setName("view2");
+        view.setResolvers(Arrays.asList(resolver1));
         expectedZone = new Zone();
         expectedZone.setId(new Integer(3));
-        expectedZone.setName("testzone2");
+        expectedZone.setName("zone2");
         expectedZone.setQueryTSIGKey(queryTSIGKey);
         expectedZone.setUpdateTSIGKey(updateTSIGKey);
         expectedZone.setView(view);
-        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("testview2", "testzone2"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("view2", "zone2"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedZone = new Zone();
         expectedZone.setId(new Integer(4));
-        expectedZone.setName("testzone3");
+        expectedZone.setName("zone3");
         expectedZone.setQueryTSIGKey(queryTSIGKey);
         expectedZone.setTransferTSIGKey(transferTSIGKey);
         expectedZone.setView(view);
-        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("testview2", "testzone3"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("view2", "zone3"), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     @Test
     public void testFindZoneNames() throws Exception {
-        List<String> expectedZoneNames = new ArrayList<String>(Arrays.asList("testzone1", "testzone2"));
-        assertReflectionEquals(expectedZoneNames, this.jdnsaasRepository.findZoneNames("testview1"), ReflectionComparatorMode.LENIENT_ORDER);
-        expectedZoneNames = new ArrayList<String>(Arrays.asList("testzone2", "testzone3"));
-        assertReflectionEquals(expectedZoneNames, this.jdnsaasRepository.findZoneNames("testview2"), ReflectionComparatorMode.LENIENT_ORDER);
+        List<String> expectedZoneNames = new ArrayList<String>(Arrays.asList("zone1", "zone2"));
+        assertReflectionEquals(expectedZoneNames, this.jdnsaasRepository.findZoneNames("view1"), ReflectionComparatorMode.LENIENT_ORDER);
+        expectedZoneNames = new ArrayList<String>(Arrays.asList("zone2", "zone3"));
+        assertReflectionEquals(expectedZoneNames, this.jdnsaasRepository.findZoneNames("view2"), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     private IDatabaseConnection getDatabaseConnection() throws Exception {

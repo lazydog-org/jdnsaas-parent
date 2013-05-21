@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
-    <tsig_key id="1" name="testtsigkeyname1" value="testtsigkeyvalue1" algorithm="HMAC_MD5"/>
-    <tsig_key id="2" name="testtsigkeyname2" value="testtsigkeyvalue2" algorithm="HMAC_SHA256"/>
-    <tsig_key id="3" name="testtsigkeyname3" value="testtsigkeyvalue3" algorithm="HMAC_SHA512"/>
-    <dns_server id="1" name="testdnsserver1" port="53" local_address="testlocaladdress1"/>
-    <dns_server id="2" name="testdnsserver2" port="53"/>
-    <dns_view id="1" name="testview1" dns_server_id="1"/>
-    <dns_view id="2" name="testview2" dns_server_id="2"/>
-    <dns_zone id="1" name="testzone1" dns_view_id="1" query_tsig_key_id="1" transfer_tsig_key_id="2" update_tsig_key_id="3"/>
-    <dns_zone id="2" name="testzone2" dns_view_id="1" transfer_tsig_key_id="2" update_tsig_key_id="3"/>
-    <dns_zone id="3" name="testzone2" dns_view_id="2" query_tsig_key_id="1" update_tsig_key_id="3"/>
-    <dns_zone id="4" name="testzone3" dns_view_id="2" query_tsig_key_id="1" transfer_tsig_key_id="2"/>
+    <tsig_key id="1" name="tsigkeyname1" value="tsigkeyvalue1" algorithm="HMAC_MD5"/>
+    <tsig_key id="2" name="tsigkeyname2" value="tsigkeyvalue2" algorithm="HMAC_SHA256"/>
+    <tsig_key id="3" name="tsigkeyname3" value="tsigkeyvalue3" algorithm="HMAC_SHA512"/>
+    <resolver id="1" host_name="hostname1" port="53" local_host_name="localhostname1" tsig_key_id="1"/>
+    <resolver id="2" host_name="hostname2" port="53" local_host_name="localhostname2"/>
+    <resolver id="3" host_name="hostname3" port="53"/>
+    <dns_view id="1" name="view1"/>
+    <dns_view id="2" name="view2"/>
+    <dns_view_resolver dns_view_id="1" resolver_id="1"/>
+    <dns_view_resolver dns_view_id="1" resolver_id="2"/>
+    <dns_view_resolver dns_view_id="1" resolver_id="3"/>
+    <dns_view_resolver dns_view_id="2" resolver_id="1"/>
+    <dns_zone id="1" name="zone1" dns_view_id="1" query_tsig_key_id="1" transfer_tsig_key_id="2" update_tsig_key_id="3"/>
+    <dns_zone id="2" name="zone2" dns_view_id="1" transfer_tsig_key_id="2" update_tsig_key_id="3"/>
+    <dns_zone id="3" name="zone2" dns_view_id="2" query_tsig_key_id="1" update_tsig_key_id="3"/>
+    <dns_zone id="4" name="zone3" dns_view_id="2" query_tsig_key_id="1" transfer_tsig_key_id="2"/>
 </dataset>
