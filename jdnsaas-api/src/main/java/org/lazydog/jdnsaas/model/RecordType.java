@@ -35,6 +35,7 @@ public enum RecordType {
     MX      (ZoneType.FORWARD),
     NS      (ZoneType.BOTH),
     PTR     (ZoneType.REVERSE),
+    SOA     (ZoneType.BOTH),
     SRV     (ZoneType.FORWARD),
     TXT     (ZoneType.FORWARD);
 

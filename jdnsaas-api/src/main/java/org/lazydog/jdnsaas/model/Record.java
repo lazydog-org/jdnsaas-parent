@@ -319,6 +319,19 @@ public abstract class Record<T extends Record.Data> extends Model {
                     }
                     ((PTRRecord.Data)data).setTarget((String)dataElements[0]);
 
+                // Check if the record data class is the SOA record data class.
+                } else if (SOARecord.Data.class.equals(dataClass)) {
+                    if (dataElements.length != 7 || !(dataElements[0] instanceof Integer) || !(dataElements[1] instanceof Integer) || !(dataElements[2] instanceof Integer) || !(dataElements[3] instanceof Integer) || !(dataElements[4] instanceof Long) || !(dataElements[5] instanceof String) || !(dataElements[6] instanceof String)) {
+                        throw illegalArgumentException;
+                    }
+                    ((SOARecord.Data)data).setEmailAddress((String)dataElements[5]);
+                    ((SOARecord.Data)data).setExpireInterval((Integer)dataElements[1]);
+                    ((SOARecord.Data)data).setMasterNameServer((String)dataElements[6]);
+                    ((SOARecord.Data)data).setMinimumTimeToLive((Integer)dataElements[0]);
+                    ((SOARecord.Data)data).setRefreshInterval((Integer)dataElements[3]);
+                    ((SOARecord.Data)data).setRetryInterval((Integer)dataElements[2]);
+                    ((SOARecord.Data)data).setSerialNumber((Long)dataElements[4]);
+                    
                 // Check if the record data class is the SRV record data class.
                 } else if (SRVRecord.Data.class.equals(dataClass)) {
                     if (dataElements.length != 4 || !(dataElements[0] instanceof String) || !(dataElements[1] instanceof Integer) || !(dataElements[2] instanceof Integer) || !(dataElements[3] instanceof Integer)) {

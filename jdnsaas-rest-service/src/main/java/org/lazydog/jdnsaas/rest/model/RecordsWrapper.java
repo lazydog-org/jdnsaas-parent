@@ -33,6 +33,7 @@ import org.lazydog.jdnsaas.model.MXRecord;
 import org.lazydog.jdnsaas.model.NSRecord;
 import org.lazydog.jdnsaas.model.PTRRecord;
 import org.lazydog.jdnsaas.model.Record;
+import org.lazydog.jdnsaas.model.SOARecord;
 import org.lazydog.jdnsaas.model.SRVRecord;
 import org.lazydog.jdnsaas.model.TXTRecord;
 
@@ -52,6 +53,7 @@ public class RecordsWrapper implements Serializable {
         @Type(value = MXRecord.class,    name = "MX"),
         @Type(value = NSRecord.class,    name = "NS"),
         @Type(value = PTRRecord.class,   name = "PTR"),
+        @Type(value = SOARecord.class,   name = "SOA"),
         @Type(value = SRVRecord.class,   name = "SRV"),
         @Type(value = TXTRecord.class,   name = "TXT")
     })

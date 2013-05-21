@@ -91,9 +91,7 @@ public class DNSServiceImpl implements DNSService {
                 }
             }
         }
-for (Resolver resolver : resolvers) {
-    System.out.println("resolver: " + resolver);
-}
+
         return DNSServer.newInstance(resolvers, zoneName);
     }
   

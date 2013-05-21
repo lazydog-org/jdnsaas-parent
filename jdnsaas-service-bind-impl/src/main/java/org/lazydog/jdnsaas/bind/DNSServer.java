@@ -196,8 +196,8 @@ final class DNSServer {
         } catch (Exception e) {
             throw new DNSServerException("Unable to find the records for record type, " + recordType + ".", e);
         }
-        
-        return records;
+
+        return removeDuplicateSOARecord(records, recordType);
     }
     
     /**
@@ -223,9 +223,9 @@ final class DNSServer {
             throw new DNSServerException("Unable to find the records for record type, " + recordType + ", and record name, " + recordName + ".", e);
         }
         
-        return records;
+        return removeDuplicateSOARecord(records, recordType);
     }
-     
+
     /**
      * Find the records using a lookup.
      * 
@@ -330,5 +330,25 @@ final class DNSServer {
         }
       
         return success;
+    }
+         
+    /**
+     * Remove the duplicate SOA record.
+     * 
+     * @param  records     the records.
+     * @param  recordType  the record type.
+     * 
+     * @return  the records with the duplicate SOA record removed.
+     */
+    private static List<Record> removeDuplicateSOARecord(List<Record> records, final int recordType) {
+        
+        // Check if the record type is any or SOA.
+        if (recordType == Type.ANY || recordType == Type.SOA) {
+            
+            // Remove the last record in the records since it is the duplicate SOA record.
+            records.remove(records.size() - 1);
+        }
+        
+        return records;
     }
 }

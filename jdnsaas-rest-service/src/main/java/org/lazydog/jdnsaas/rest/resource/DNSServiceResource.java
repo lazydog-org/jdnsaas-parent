@@ -204,7 +204,7 @@ public class DNSServiceResource {
             response = buildNotFoundResponse();
         } catch (Exception e) {
             response = buildInternalServerErrorResponse();
-System.out.println(e);
+e.printStackTrace();
         }
         
         return response;
@@ -227,7 +227,7 @@ System.out.println(e);
             return buildOkResponse(ResolversWrapper.newInstance(resolvers));
         } catch (Exception e) {
             response = buildInternalServerErrorResponse();
-System.out.println(e); 
+e.printStackTrace();
         }
         
         return response;
@@ -262,7 +262,7 @@ System.out.println(e);
             return buildOkResponse(TSIGKeysWrapper.newInstance(tsigKeys));
         } catch (Exception e) {
             response = buildInternalServerErrorResponse();
-System.out.println(e); 
+e.printStackTrace();
         }
         
         return response;
@@ -289,7 +289,7 @@ System.out.println(e);
             response = buildNotFoundResponse();
         } catch (Exception e) {
             response = buildInternalServerErrorResponse();
-System.out.println(e);
+e.printStackTrace();
         }
         
         return response;
@@ -312,7 +312,7 @@ System.out.println(e);
             return buildOkResponse(ViewsWrapper.newInstance(createViewWrappers(viewNames)));
         } catch (Exception e) {
             response = buildInternalServerErrorResponse();
-System.out.println(e); 
+e.printStackTrace(); 
         }
         
         return response;
@@ -340,7 +340,7 @@ System.out.println(e);
             response = buildNotFoundResponse();
         } catch (Exception e) {
             response = buildInternalServerErrorResponse();
-System.out.println(e);
+e.printStackTrace();
         }
         
         return response;
@@ -367,7 +367,7 @@ System.out.println(e);
             response = buildNotFoundResponse();
         } catch (Exception e) {
             response = buildInternalServerErrorResponse();
-System.out.println(e);
+e.printStackTrace();
         }
         
         return response;
@@ -436,7 +436,7 @@ System.out.println(e);
             response = buildNotFoundResponse();
         } catch (Exception e) {
             response = buildInternalServerErrorResponse();
-System.out.println(e);
+e.printStackTrace();
         }
 
         return response;

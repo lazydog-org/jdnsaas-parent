@@ -28,6 +28,7 @@ import org.lazydog.jdnsaas.model.NSRecord;
 import org.lazydog.jdnsaas.model.PTRRecord;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordType;
+import org.lazydog.jdnsaas.model.SOARecord;
 import org.lazydog.jdnsaas.model.SRVRecord;
 import org.lazydog.jdnsaas.model.TXTRecord;
 import org.slf4j.Logger;
@@ -241,7 +242,37 @@ final class RecordConverter {
     private <T extends Record<U>, U extends Record.Data> Record createRecord(final Class<T> recordClass, final org.xbill.DNS.Record dnsRecord, final Object... dataElements) throws IllegalAccessException, InstantiationException {
         return Record.newInstance(recordClass, this.zoneUtility.relativize(dnsRecord.getName().toString()), (int)dnsRecord.getTTL(), dataElements);
     }
-            
+               
+    /**
+     * Create the DNS SOA record from the SOA record.
+     * 
+     * @param  soaRecord  the SOA record.
+     * 
+     * @return  the DNS SOA record.
+     * 
+     * @throws  TextParseException  if the record name, master name server, or email address is invalid.
+     */
+    private org.xbill.DNS.Record createSOARecord(final SOARecord soaRecord) throws TextParseException {
+        return new org.xbill.DNS.SOARecord(new Name(this.zoneUtility.absolutize(soaRecord.getName())), DClass.IN, soaRecord.getTimeToLive().longValue(),
+                new Name(this.zoneUtility.absolutize(soaRecord.getData().getMasterNameServer())), new Name(soaRecord.getData().getEmailAddress()),
+                soaRecord.getData().getSerialNumber().longValue(), soaRecord.getData().getRefreshInterval().longValue(), soaRecord.getData().getRetryInterval().longValue(),
+                soaRecord.getData().getExpireInterval().longValue(), soaRecord.getData().getMinimumTimeToLive().longValue());
+    }
+    
+    /**
+     * Create the SOA record from the DNS SOA record.
+     * 
+     * @param  dnsSOARecord  the DNS SOA record.
+     * 
+     * @return  the SOA record.
+     * 
+     * @throws  IllegalAccessException  if the record class or record data class are not accessible.
+     * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
+     */
+    private Record createSOARecord(final org.xbill.DNS.SOARecord dnsSOARecord) throws IllegalAccessException, InstantiationException {
+        return createRecord(SOARecord.class, dnsSOARecord, (int)dnsSOARecord.getMinimum(), (int)dnsSOARecord.getExpire(), (int)dnsSOARecord.getRetry(), (int)dnsSOARecord.getRefresh(), dnsSOARecord.getSerial(), dnsSOARecord.getAdmin().toString(), this.zoneUtility.relativize(dnsSOARecord.getHost().toString()));
+    }
+               
     /**
      * Create the DNS SRV record from the SRV record.
      * 
@@ -337,6 +368,9 @@ final class RecordConverter {
                 case Type.PTR:
                     record = createPTRRecord((org.xbill.DNS.PTRRecord)dnsRecord);
                     break;
+                case Type.SOA:
+                    record = createSOARecord((org.xbill.DNS.SOARecord)dnsRecord);
+                    break;
                 case Type.SRV:
                     record = createSRVRecord((org.xbill.DNS.SRVRecord)dnsRecord);
                     break;
@@ -409,6 +443,9 @@ final class RecordConverter {
                     break;
                 case PTR:
                     dnsRecord = createPTRRecord((PTRRecord)record);
+                    break;
+                case SOA:
+                    dnsRecord = createSOARecord((SOARecord)record);
                     break;
                 case SRV:
                     dnsRecord = createSRVRecord((SRVRecord)record);

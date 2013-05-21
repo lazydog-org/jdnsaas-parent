@@ -47,6 +47,8 @@ public class RecordTypeTest {
         assertEquals(RecordType.NS, RecordType.fromString("NS"));
         assertEquals(RecordType.PTR, RecordType.fromString("ptr"));
         assertEquals(RecordType.PTR, RecordType.fromString("PTR"));
+        assertEquals(RecordType.SOA, RecordType.fromString("soa"));
+        assertEquals(RecordType.SOA, RecordType.fromString("SOA"));
         assertEquals(RecordType.SRV, RecordType.fromString("srv"));
         assertEquals(RecordType.SRV, RecordType.fromString("SRV"));
         assertEquals(RecordType.TXT, RecordType.fromString("txt"));
@@ -60,9 +62,9 @@ public class RecordTypeTest {
     
     @Test
     public void testValues() {
-        assertArrayEquals(new RecordType[]{RecordType.AAAA, RecordType.A, RecordType.ANY, RecordType.CNAME, RecordType.MX, RecordType.NS, RecordType.PTR, RecordType.SRV, RecordType.TXT}, RecordType.values(ZoneType.BOTH));
-        assertArrayEquals(new RecordType[]{RecordType.AAAA, RecordType.A, RecordType.ANY, RecordType.CNAME, RecordType.MX, RecordType.NS, RecordType.SRV, RecordType.TXT}, RecordType.values(ZoneType.FORWARD));
-        assertArrayEquals(new RecordType[]{RecordType.ANY, RecordType.NS, RecordType.PTR}, RecordType.values(ZoneType.REVERSE));
+        assertArrayEquals(new RecordType[]{RecordType.AAAA, RecordType.A, RecordType.ANY, RecordType.CNAME, RecordType.MX, RecordType.NS, RecordType.PTR, RecordType.SOA, RecordType.SRV, RecordType.TXT}, RecordType.values(ZoneType.BOTH));
+        assertArrayEquals(new RecordType[]{RecordType.AAAA, RecordType.A, RecordType.ANY, RecordType.CNAME, RecordType.MX, RecordType.NS, RecordType.SOA, RecordType.SRV, RecordType.TXT}, RecordType.values(ZoneType.FORWARD));
+        assertArrayEquals(new RecordType[]{RecordType.ANY, RecordType.NS, RecordType.PTR, RecordType.SOA}, RecordType.values(ZoneType.REVERSE));
     }
 
     @Test
@@ -74,6 +76,7 @@ public class RecordTypeTest {
         assertTrue(RecordType.MX.isForZoneType(ZoneType.BOTH));
         assertTrue(RecordType.NS.isForZoneType(ZoneType.BOTH));
         assertTrue(RecordType.PTR.isForZoneType(ZoneType.BOTH));
+        assertTrue(RecordType.SOA.isForZoneType(ZoneType.BOTH));
         assertTrue(RecordType.SRV.isForZoneType(ZoneType.BOTH));
         assertTrue(RecordType.TXT.isForZoneType(ZoneType.BOTH));
         assertTrue(RecordType.AAAA.isForZoneType(ZoneType.FORWARD));
@@ -83,6 +86,7 @@ public class RecordTypeTest {
         assertTrue(RecordType.MX.isForZoneType(ZoneType.FORWARD));
         assertTrue(RecordType.NS.isForZoneType(ZoneType.FORWARD));
         assertFalse(RecordType.PTR.isForZoneType(ZoneType.FORWARD));
+        assertTrue(RecordType.SOA.isForZoneType(ZoneType.FORWARD));
         assertTrue(RecordType.SRV.isForZoneType(ZoneType.FORWARD));
         assertTrue(RecordType.TXT.isForZoneType(ZoneType.FORWARD));
         assertFalse(RecordType.AAAA.isForZoneType(ZoneType.REVERSE));
@@ -92,6 +96,7 @@ public class RecordTypeTest {
         assertFalse(RecordType.MX.isForZoneType(ZoneType.REVERSE));
         assertTrue(RecordType.NS.isForZoneType(ZoneType.REVERSE));
         assertTrue(RecordType.PTR.isForZoneType(ZoneType.REVERSE));
+        assertTrue(RecordType.SOA.isForZoneType(ZoneType.REVERSE));
         assertFalse(RecordType.SRV.isForZoneType(ZoneType.REVERSE));
         assertFalse(RecordType.TXT.isForZoneType(ZoneType.REVERSE));
     }
