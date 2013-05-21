@@ -349,7 +349,7 @@ public class DNSServiceImpl implements DNSService {
      */
     @Override
     public boolean processRecords(final String viewName, final String zoneName, final List<Record> records) throws DNSServiceException, ResourceNotFoundException {
-logger.error("enter processRecords()");
+
         boolean success = false;
 
         try {
