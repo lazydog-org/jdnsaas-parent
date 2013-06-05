@@ -49,7 +49,7 @@ import org.xbill.DNS.ZoneTransferIn;
  */
 final class DNSServer {
   
-    private final Logger logger = LoggerFactory.getLogger(DNSServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(DNSServer.class);
     private List<Resolver> resolvers;
     private ZoneUtility zoneUtility;
     
@@ -95,7 +95,7 @@ final class DNSServer {
         Lookup lookup = new Lookup(recordName, recordType);
         lookup.setCache(null);
         lookup.setResolver(this.createExtendedResolver());
-        lookup.setSearchPath(new Name[] {new Name(this.zoneUtility.getAbsoluteZoneName())});
+        lookup.setSearchPath(new Name[] {Name.fromString(this.zoneUtility.getAbsoluteZoneName())});
         
         return lookup;
     }
@@ -152,7 +152,7 @@ final class DNSServer {
     private ZoneTransferIn createZoneTransfer(Resolver resolver) throws TextParseException, UnknownHostException {
         
         // Create the zone transfer.
-        ZoneTransferIn zoneTransfer = ZoneTransferIn.newAXFR(new Name(this.zoneUtility.getAbsoluteZoneName()), resolver.getHostName(), resolver.getPort(), createTSIGKey(resolver));
+        ZoneTransferIn zoneTransfer = ZoneTransferIn.newAXFR(Name.fromString(this.zoneUtility.getAbsoluteZoneName()), resolver.getHostName(), resolver.getPort(), createTSIGKey(resolver));
         zoneTransfer.setLocalAddress(createInetSocketAddress(resolver.getLocalHostName(), 0));
         
         return zoneTransfer;
@@ -300,7 +300,8 @@ final class DNSServer {
         try {
 
             // Create the update.
-            Update update = new Update(new Name(this.zoneUtility.getAbsoluteZoneName()));
+            Update update = new Update(Name.fromString(this.zoneUtility.getAbsoluteZoneName()));
+            logger.debug("Processing records...");
 
             // Loop through the record operation map.
             for (Map.Entry<Record,String> entry : recordOperationMap.entrySet()) {
@@ -308,6 +309,7 @@ final class DNSServer {
                 // Get the record and operation.
                 Record record = entry.getKey();
                 String operation = entry.getValue();
+                logger.debug("{}: {}", operation, record);
                 
                 if ("ADD".equals(operation.toUpperCase())) {
                     update.add(record);
@@ -323,7 +325,7 @@ final class DNSServer {
             if (errorCode == Rcode.NOERROR) {
                 success = true;
             } else {
-                logger.error("Unable to process the records due to " + Rcode.string(errorCode));
+                logger.error("Unable to process the records due to {}", Rcode.string(errorCode));
             }
         } catch (Exception e) {
             throw new DNSServerException("Unable to process the records due to an exception.", e);

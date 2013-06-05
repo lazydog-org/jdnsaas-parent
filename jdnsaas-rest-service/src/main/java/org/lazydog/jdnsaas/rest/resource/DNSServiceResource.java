@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
 @Path("dns")
 public class DNSServiceResource {
       
-    private final Logger logger = LoggerFactory.getLogger(DNSServiceResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(DNSServiceResource.class);
     private DNSService dnsService;
     @Context
     private UriInfo uriInfo;

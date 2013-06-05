@@ -29,7 +29,8 @@ import org.slf4j.LoggerFactory;
  */
 final class ZoneUtility {
     
-    private final Logger logger = LoggerFactory.getLogger(ZoneUtility.class);
+    private static final Logger logger = LoggerFactory.getLogger(ZoneUtility.class);
+    private static final String APEX = "@";
     private static final String IPV4_REVERSE_DOMAIN = "in-addr.arpa";
     private static final String IPV6_REVERSE_DOMAIN = "ip6.arpa";
     private static final String LABEL_SEPARATOR = ".";
@@ -56,7 +57,9 @@ final class ZoneUtility {
 
         String absoluteName = name;
 
-        if (!name.endsWith(LABEL_SEPARATOR) && name.endsWith(this.relativeZoneName)) {
+        if (name.equals(APEX)) {
+            absoluteName = this.getAbsoluteZoneName();
+        } else if (!name.endsWith(LABEL_SEPARATOR) && name.endsWith(this.relativeZoneName)) {
             absoluteName = name + LABEL_SEPARATOR;
         } else if (!name.endsWith(LABEL_SEPARATOR)) {
             absoluteName = name + LABEL_SEPARATOR + this.getAbsoluteZoneName();
@@ -173,6 +176,8 @@ final class ZoneUtility {
             relativeName = StringUtils.removeEnd(name, LABEL_SEPARATOR + this.getAbsoluteZoneName());
         } else if (name.endsWith(LABEL_SEPARATOR + this.relativeZoneName)) {
             relativeName = StringUtils.removeEnd(name, LABEL_SEPARATOR + this.relativeZoneName);
+        } else if (name.equals(this.getAbsoluteZoneName()) || name.equals(this.relativeZoneName)) {
+            relativeName = APEX;
         } else if (name.endsWith(LABEL_SEPARATOR)) {
             relativeName = StringUtils.removeEnd(name, LABEL_SEPARATOR);
         }

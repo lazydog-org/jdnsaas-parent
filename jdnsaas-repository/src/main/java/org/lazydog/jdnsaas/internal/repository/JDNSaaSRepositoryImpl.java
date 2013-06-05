@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaSRepository {
 
-    private final Logger logger = LoggerFactory.getLogger(JDNSaaSRepositoryImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(JDNSaaSRepositoryImpl.class);
     
     /**
      * Hide the constructor.

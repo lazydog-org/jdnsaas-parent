@@ -45,7 +45,7 @@ import org.xbill.DNS.Type;
  */
 final class RecordConverter {
     
-    private final Logger logger = LoggerFactory.getLogger(RecordConverter.class);
+    private static final Logger logger = LoggerFactory.getLogger(RecordConverter.class);
     private ZoneUtility zoneUtility;
     
     /**
@@ -68,7 +68,7 @@ final class RecordConverter {
      * @throws  UknownHostException  if the IPv6 address is invalid.
      */
     private org.xbill.DNS.Record createAAAARecord(final AAAARecord aaaaRecord) throws TextParseException, UnknownHostException {
-        return new org.xbill.DNS.AAAARecord(new Name(this.zoneUtility.absolutize(aaaaRecord.getName())), DClass.IN, aaaaRecord.getTimeToLive().longValue(), 
+        return new org.xbill.DNS.AAAARecord(Name.fromString(this.zoneUtility.absolutize(aaaaRecord.getName())), DClass.IN, aaaaRecord.getTimeToLive().longValue(), 
                 InetAddress.getByName(aaaaRecord.getData().getIpv6Address()));
     }
     
@@ -97,7 +97,7 @@ final class RecordConverter {
      * @throws  UknownHostException  if the IP address is invalid.
      */
     private org.xbill.DNS.Record createARecord(final ARecord aRecord) throws TextParseException, UnknownHostException {
-        return new org.xbill.DNS.ARecord(new Name(this.zoneUtility.absolutize(aRecord.getName())), DClass.IN, aRecord.getTimeToLive().longValue(), 
+        return new org.xbill.DNS.ARecord(Name.fromString(this.zoneUtility.absolutize(aRecord.getName())), DClass.IN, aRecord.getTimeToLive().longValue(), 
                 InetAddress.getByName(aRecord.getData().getIpAddress()));
     }
     
@@ -125,8 +125,8 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name or target is invalid.
      */
     private org.xbill.DNS.Record createCNAMERecord(final CNAMERecord cnameRecord) throws TextParseException {
-        return new org.xbill.DNS.CNAMERecord(new Name(this.zoneUtility.absolutize(cnameRecord.getName())), DClass.IN, cnameRecord.getTimeToLive().longValue(), 
-                new Name(this.zoneUtility.absolutize(cnameRecord.getData().getTarget())));
+        return new org.xbill.DNS.CNAMERecord(Name.fromString(this.zoneUtility.absolutize(cnameRecord.getName())), DClass.IN, cnameRecord.getTimeToLive().longValue(), 
+                Name.fromString(this.zoneUtility.absolutize(cnameRecord.getData().getTarget())));
     }
       
     /**
@@ -153,8 +153,8 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name or target is invalid.
      */
     private org.xbill.DNS.Record createMXRecord(final MXRecord mxRecord) throws TextParseException {
-        return new org.xbill.DNS.MXRecord(new Name(this.zoneUtility.absolutize(mxRecord.getName())), DClass.IN, mxRecord.getTimeToLive().longValue(), 
-                mxRecord.getData().getPriority().intValue(), new Name(this.zoneUtility.absolutize(mxRecord.getData().getTarget())));
+        return new org.xbill.DNS.MXRecord(Name.fromString(this.zoneUtility.absolutize(mxRecord.getName())), DClass.IN, mxRecord.getTimeToLive().longValue(), 
+                mxRecord.getData().getPriority().intValue(), Name.fromString(this.zoneUtility.absolutize(mxRecord.getData().getTarget())));
     }
      
     /**
@@ -181,8 +181,8 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name or target is invalid.
      */
     private org.xbill.DNS.Record createNSRecord(final NSRecord nsRecord) throws TextParseException {
-        return new org.xbill.DNS.NSRecord(new Name(this.zoneUtility.absolutize(nsRecord.getName())), DClass.IN, nsRecord.getTimeToLive().longValue(), 
-                new Name(this.zoneUtility.absolutize(nsRecord.getData().getTarget())));
+        return new org.xbill.DNS.NSRecord(Name.fromString(this.zoneUtility.absolutize(nsRecord.getName())), DClass.IN, nsRecord.getTimeToLive().longValue(), 
+                Name.fromString(this.zoneUtility.absolutize(nsRecord.getData().getTarget())));
     }
                
     /**
@@ -209,8 +209,8 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name or target is invalid.
      */
     private org.xbill.DNS.Record createPTRRecord(final PTRRecord ptrRecord) throws TextParseException {
-        return new org.xbill.DNS.PTRRecord(new Name(this.zoneUtility.absolutize(this.zoneUtility.getReverseTets(ptrRecord.getName()))), DClass.IN, ptrRecord.getTimeToLive().longValue(), 
-                new Name(this.zoneUtility.absolutize(ptrRecord.getData().getTarget())));
+        return new org.xbill.DNS.PTRRecord(Name.fromString(this.zoneUtility.absolutize(this.zoneUtility.getReverseTets(ptrRecord.getName()))), DClass.IN, ptrRecord.getTimeToLive().longValue(), 
+                Name.fromString(this.zoneUtility.absolutize(ptrRecord.getData().getTarget())));
     }
      
     /**
@@ -253,8 +253,8 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name, master name server, or email address is invalid.
      */
     private org.xbill.DNS.Record createSOARecord(final SOARecord soaRecord) throws TextParseException {
-        return new org.xbill.DNS.SOARecord(new Name(this.zoneUtility.absolutize(soaRecord.getName())), DClass.IN, soaRecord.getTimeToLive().longValue(),
-                new Name(this.zoneUtility.absolutize(soaRecord.getData().getMasterNameServer())), new Name(soaRecord.getData().getEmailAddress()),
+        return new org.xbill.DNS.SOARecord(Name.fromString(this.zoneUtility.absolutize(soaRecord.getName())), DClass.IN, soaRecord.getTimeToLive().longValue(),
+                Name.fromString(this.zoneUtility.absolutize(soaRecord.getData().getMasterNameServer())), Name.fromString(soaRecord.getData().getEmailAddress()),
                 soaRecord.getData().getSerialNumber().longValue(), soaRecord.getData().getRefreshInterval().longValue(), soaRecord.getData().getRetryInterval().longValue(),
                 soaRecord.getData().getExpireInterval().longValue(), soaRecord.getData().getMinimumTimeToLive().longValue());
     }
@@ -283,9 +283,9 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name or target is invalid.
      */
     private org.xbill.DNS.Record createSRVRecord(final SRVRecord srvRecord) throws TextParseException {
-        return new org.xbill.DNS.SRVRecord(new Name(this.zoneUtility.absolutize(srvRecord.getName())), DClass.IN, srvRecord.getTimeToLive().longValue(), 
+        return new org.xbill.DNS.SRVRecord(Name.fromString(this.zoneUtility.absolutize(srvRecord.getName())), DClass.IN, srvRecord.getTimeToLive().longValue(), 
                 srvRecord.getData().getPriority().intValue(), srvRecord.getData().getWeight().intValue(), 
-                srvRecord.getData().getPort().intValue(), new Name(this.zoneUtility.absolutize(srvRecord.getData().getTarget())));
+                srvRecord.getData().getPort().intValue(), Name.fromString(this.zoneUtility.absolutize(srvRecord.getData().getTarget())));
     }
     
     /**
@@ -312,7 +312,7 @@ final class RecordConverter {
      * @throws  TextParseException  if the record name is invalid.
      */
     private org.xbill.DNS.Record createTXTRecord(final TXTRecord txtRecord) throws TextParseException {
-        return new org.xbill.DNS.TXTRecord(new Name(this.zoneUtility.absolutize(txtRecord.getName())), DClass.IN, txtRecord.getTimeToLive().longValue(), 
+        return new org.xbill.DNS.TXTRecord(Name.fromString(this.zoneUtility.absolutize(txtRecord.getName())), DClass.IN, txtRecord.getTimeToLive().longValue(), 
                 txtRecord.getData().getValues());
     }
                 
@@ -341,7 +341,7 @@ final class RecordConverter {
      * @throws  RecordConverterException  if the DNS record cannot be converted to a record.
      */
     public Record fromDnsRecord(final org.xbill.DNS.Record dnsRecord) throws RecordConverterException {
-        
+
         // Initialize the record.
         Record record = null;
         
@@ -381,7 +381,8 @@ final class RecordConverter {
         } catch (Exception e) {
             throw new RecordConverterException("The DNS record, " + dnsRecord + ", cannot be converted to a record.", e);
         }
-                
+        
+        logger.debug("Converted from {}\n to {}\n", dnsRecord, record);      
         return record;       
     }
     
@@ -458,6 +459,7 @@ final class RecordConverter {
             throw new RecordConverterException("The record, " + record + ", cannot be converted to a DNS record.", e);
         }
                 
+        logger.debug("Converted to {}\n from {}\n", dnsRecord, record); 
         return dnsRecord;
     }
 }
