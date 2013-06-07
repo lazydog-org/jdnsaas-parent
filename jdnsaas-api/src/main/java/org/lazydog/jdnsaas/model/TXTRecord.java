@@ -38,21 +38,12 @@ public class TXTRecord extends Record<TXTRecord.Data> {
     
     /**
      * TXT record data.
-     * 
-     * @author  Ron Rickard
      */
     public static class Data extends Record.Data {
 
         private static final long serialVersionUID = 1L;
         private List<String> values;
 
-        /**
-         * Initialize the record data.
-         */
-        public Data() {
-            super();
-        }
-        
         /**
          * Get the values.
          * 

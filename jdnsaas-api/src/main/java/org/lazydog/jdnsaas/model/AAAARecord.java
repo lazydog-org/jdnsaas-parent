@@ -36,21 +36,12 @@ public class AAAARecord extends Record<AAAARecord.Data> {
     
     /**
      * AAAA record data.
-     * 
-     * @author  Ron Rickard
      */
     public static class Data extends Record.Data {
 
         private static final long serialVersionUID = 1L;
         private String ipv6Address;
 
-        /**
-         * Initialize the record data.
-         */
-        public Data() {
-            super();
-        }
-        
         /**
          * Get the IPv6 address.
          * 

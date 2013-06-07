@@ -36,8 +36,6 @@ public class SRVRecord extends Record<SRVRecord.Data> {
     
     /**
      * SRV record data.
-     * 
-     * @author  Ron Rickard
      */
     public static class Data extends Record.Data {
 
@@ -47,13 +45,6 @@ public class SRVRecord extends Record<SRVRecord.Data> {
         private String target;
         private Integer weight = new Integer(0);
 
-        /**
-         * Initialize the record data.
-         */
-        public Data() {
-            super();
-        }
-        
         /**
          * Get the port.
          * 

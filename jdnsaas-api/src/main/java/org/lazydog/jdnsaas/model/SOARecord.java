@@ -36,8 +36,6 @@ public class SOARecord extends Record<SOARecord.Data> {
     
     /**
      * SOA record data.
-     * 
-     * @author  Ron Rickard
      */
     public static class Data extends Record.Data {
 
@@ -50,13 +48,6 @@ public class SOARecord extends Record<SOARecord.Data> {
         private Integer retryInterval = new Integer(0);
         private Long serialNumber = new Long(0);
 
-        /**
-         * Initialize the record data.
-         */
-        public Data() {
-            super();
-        }
-        
         /**
          * Get the email address.
          * 

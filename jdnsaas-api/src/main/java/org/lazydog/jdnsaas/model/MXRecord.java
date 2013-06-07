@@ -36,8 +36,6 @@ public class MXRecord extends Record<MXRecord.Data> {
     
     /**
      * MX record data.
-     * 
-     * @author  Ron Rickard
      */
     public static class Data extends Record.Data {
 
@@ -45,13 +43,6 @@ public class MXRecord extends Record<MXRecord.Data> {
         private Integer priority = new Integer(0);
         private String target;
 
-        /**
-         * Initialize the record data.
-         */
-        public Data() {
-            super();
-        }
-        
         /**
          * Get the priority.
          * 

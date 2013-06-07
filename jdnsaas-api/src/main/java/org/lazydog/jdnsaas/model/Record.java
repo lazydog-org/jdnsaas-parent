@@ -217,8 +217,6 @@ public abstract class Record<T extends Record.Data> extends Model {
     
     /**
      * Record data.
-     * 
-     * @author  Ron Rickard
      */
     public static abstract class Data extends Model {
    
