@@ -227,7 +227,7 @@ $url`
 json=`echo $curl_output | grep "^{.*}"`
 
 if [ -n "$json" ] ; then
-    echo $json | python -mjson.tool
+    echo $json | python -m json.tool
 else 
     echo $curl_output
 fi

@@ -18,6 +18,7 @@
  */
 package org.lazydog.jdnsaas.rest.provider;
 
+import java.text.SimpleDateFormat;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
@@ -49,6 +50,9 @@ public class ContextProvider implements ContextResolver<ObjectMapper> {
         // Initialize the object mapper.
         ObjectMapper objectMapper = new ObjectMapper();
 
+        // Set the date format.
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
+        
         // Do not include null values in the JSON.
         objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
         objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);

@@ -29,11 +29,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 import org.lazydog.jdnsaas.DNSService;
 import org.lazydog.jdnsaas.DNSServiceException;
 import org.lazydog.jdnsaas.ResourceNotFoundException;
@@ -67,56 +64,17 @@ import org.slf4j.LoggerFactory;
  * @author  Ron Rickard
  */
 @Path("dns")
-public class DNSServiceResource {
+public class DNSServiceResource extends AbstractResource {
       
     private static final Logger logger = LoggerFactory.getLogger(DNSServiceResource.class);
     private DNSService dnsService;
-    @Context
-    private UriInfo uriInfo;
+    
    
     /**
      * Initialize the DNS service resource.
      */
     public DNSServiceResource() throws DNSServiceException {
         dnsService = DNSServiceImpl.newInstance();
-    }
-    
-    /**
-     * Build the bad request response.
-     * 
-     * @return  the bad request response.
-     */
-    private static Response buildBadRequestResponse() {
-        return Response.status(Status.BAD_REQUEST).build();
-    }
-    
-    /**
-     * Build the internal server error response.
-     * 
-     * @return  the internal server error response.
-     */
-    private static Response buildInternalServerErrorResponse() {
-        return Response.status(Status.INTERNAL_SERVER_ERROR).build();    
-    }
-    
-    /**
-     * Build the not found response.
-     * 
-     * @return  the not found response.
-     */
-    private static Response buildNotFoundResponse() {
-        return Response.status(Status.NOT_FOUND).build();
-    }
-    
-    /**
-     * Build the ok response.
-     * 
-     * @param  object  the object.
-     * 
-     * @return  the ok response.
-     */
-    private static Response buildOkResponse(final Object object) {
-        return Response.ok(object).build();
     }
 
     /**
@@ -131,7 +89,7 @@ public class DNSServiceResource {
         List<ViewWrapper> viewWrappers = new ArrayList<ViewWrapper>();
         
         for (String viewName : viewNames) {
-            viewWrappers.add(ViewWrapper.newInstance(viewName, this.getNextPath(viewName)));
+            viewWrappers.add(ViewWrapper.newInstance(viewName, this.getNextUri(viewName)));
         }
         
         return viewWrappers;
@@ -149,7 +107,7 @@ public class DNSServiceResource {
         List<ZoneWrapper> zoneWrappers = new ArrayList<ZoneWrapper>();
         
         for (String zoneName : zoneNames) {
-            zoneWrappers.add(ZoneWrapper.newInstance(zoneName, this.getNextPath(zoneName)));
+            zoneWrappers.add(ZoneWrapper.newInstance(zoneName, this.getNextUri(zoneName)));
         }
         
         return zoneWrappers;
@@ -201,9 +159,9 @@ public class DNSServiceResource {
             List<Record> records = this.dnsService.findRecords(viewName, zoneName, RecordType.fromString(recordType), recordName);
             response = buildOkResponse(RecordsWrapper.newInstance(records)); 
         } catch (ResourceNotFoundException e) {
-            response = buildNotFoundResponse();
+            response = buildNotFoundResponse(e.getMessage(), null);
         } catch (Exception e) {
-            response = buildInternalServerErrorResponse();
+            response = buildInternalServerErrorResponse(e.getMessage(), null);
 e.printStackTrace();
         }
         
@@ -226,7 +184,7 @@ e.printStackTrace();
             List<Resolver> resolvers = this.dnsService.findResolvers();
             return buildOkResponse(ResolversWrapper.newInstance(resolvers));
         } catch (Exception e) {
-            response = buildInternalServerErrorResponse();
+            response = buildInternalServerErrorResponse(e.getMessage(), null);
 e.printStackTrace();
         }
         
@@ -261,7 +219,7 @@ e.printStackTrace();
             List<TSIGKey> tsigKeys = this.dnsService.findTSIGKeys();
             return buildOkResponse(TSIGKeysWrapper.newInstance(tsigKeys));
         } catch (Exception e) {
-            response = buildInternalServerErrorResponse();
+            response = buildInternalServerErrorResponse(e.getMessage(), null);
 e.printStackTrace();
         }
         
@@ -284,11 +242,11 @@ e.printStackTrace();
         
         try {
             View view = this.dnsService.findView(viewName);
-            response = buildOkResponse(ViewWrapper.newInstance(view, this.getCurrentPath(), this.getNextPath("zones")));
+            response = buildOkResponse(ViewWrapper.newInstance(view, this.getRequestUri(), this.getNextUri("zones")));
         } catch (ResourceNotFoundException e) {
-            response = buildNotFoundResponse();
+            response = buildNotFoundResponse(e.getMessage(), null);
         } catch (Exception e) {
-            response = buildInternalServerErrorResponse();
+            response = buildInternalServerErrorResponse(e.getMessage(), null);
 e.printStackTrace();
         }
         
@@ -311,7 +269,7 @@ e.printStackTrace();
             List<String> viewNames = this.dnsService.findViewNames();
             return buildOkResponse(ViewsWrapper.newInstance(createViewWrappers(viewNames)));
         } catch (Exception e) {
-            response = buildInternalServerErrorResponse();
+            response = buildInternalServerErrorResponse(e.getMessage(), null);
 e.printStackTrace(); 
         }
         
@@ -335,11 +293,11 @@ e.printStackTrace();
         
         try {
             Zone zone = this.dnsService.findZone(viewName, zoneName);
-            response = buildOkResponse(ZoneWrapper.newInstance(zone, this.getCurrentPath(), this.getNextPath("records")));
+            response = buildOkResponse(ZoneWrapper.newInstance(zone, this.getRequestUri(), this.getNextUri("records")));
         }  catch (ResourceNotFoundException e) {
-            response = buildNotFoundResponse();
+            response = buildNotFoundResponse(e.getMessage(), null);
         } catch (Exception e) {
-            response = buildInternalServerErrorResponse();
+            response = buildInternalServerErrorResponse(e.getMessage(), null);
 e.printStackTrace();
         }
         
@@ -364,9 +322,9 @@ e.printStackTrace();
             List<String> zoneNames = this.dnsService.findZoneNames(viewName);
             response = buildOkResponse(ZonesWrapper.newInstance(createZoneWrappers(zoneNames)));
         } catch (ResourceNotFoundException e) {
-            response = buildNotFoundResponse();
+            response = buildNotFoundResponse(e.getMessage(), null);
         } catch (Exception e) {
-            response = buildInternalServerErrorResponse();
+            response = buildInternalServerErrorResponse(e.getMessage(), null);
 e.printStackTrace();
         }
         
@@ -384,27 +342,7 @@ e.printStackTrace();
     public Response findZoneTypes() {
         return buildOkResponse(ZoneTypesWrapper.newInstance(Arrays.asList(ZoneType.values())));       
     }
-          
-    /**
-     * Get the current path.
-     * 
-     * @return  the current path.
-     */
-    private String getCurrentPath() {
-        return this.uriInfo.getAbsolutePath().toASCIIString();
-    }
-       
-    /**
-     * Get the next path.
-     * 
-     * @param  path  the path to add to the current path.
-     * 
-     * @return  the next path.
-     */
-    private String getNextPath(final String path) {
-        return this.uriInfo.getAbsolutePathBuilder().path(path).build().toASCIIString();
-    }
- 
+
     /**
      * Process the records.
      * 
@@ -430,12 +368,12 @@ e.printStackTrace();
             if (success) {
                 response = buildOkResponse("Processed records successfully.");
             } else {
-                response = buildBadRequestResponse();
+                response = buildBadRequestResponse("Records not processed.", recordsWrapper);
             }
         } catch (ResourceNotFoundException e) {
-            response = buildNotFoundResponse();
+            response = buildNotFoundResponse(e.getMessage(), recordsWrapper);
         } catch (Exception e) {
-            response = buildInternalServerErrorResponse();
+            response = buildInternalServerErrorResponse(e.getMessage(), recordsWrapper);
 e.printStackTrace();
         }
 
