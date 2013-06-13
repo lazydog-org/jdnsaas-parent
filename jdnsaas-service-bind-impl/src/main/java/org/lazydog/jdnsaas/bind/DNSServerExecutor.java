@@ -43,13 +43,13 @@ import org.xbill.DNS.ZoneTransferException;
 import org.xbill.DNS.ZoneTransferIn;
 
 /**
- * DNS server.
+ * DNS server executor.
  * 
  * @author  Ron Rickard
  */
-final class DNSServer {
+final class DNSServerExecutor {
   
-    private static final Logger logger = LoggerFactory.getLogger(DNSServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(DNSServerExecutor.class);
     private List<Resolver> resolvers;
     private ZoneUtility zoneUtility;
     
@@ -59,7 +59,7 @@ final class DNSServer {
      * @param  resolvers  the resolvers.
      * @param  zoneName   the zone name.
      */
-    private DNSServer(final List<Resolver> resolvers, final String zoneName) {
+    private DNSServerExecutor(final List<Resolver> resolvers, final String zoneName) {
         this.resolvers = resolvers;
         this.zoneUtility = ZoneUtility.newInstance(zoneName);
     }
@@ -165,9 +165,9 @@ final class DNSServer {
      * 
      * @return  the records.
      * 
-     * @throws  DNSServerException  if unable to find the records.
+     * @throws  DNSServerExecutorException  if unable to find the records.
      */
-    public List<Record> findRecords(final int recordType) throws DNSServerException {
+    public List<Record> findRecords(final int recordType) throws DNSServerExecutorException {
         
         // Initialize the records.
         List<Record> records = new ArrayList<Record>();
@@ -194,7 +194,7 @@ final class DNSServer {
                 records = allRecords;
             }
         } catch (Exception e) {
-            throw new DNSServerException("Unable to find the records for record type, " + recordType + ".", e);
+            throw new DNSServerExecutorException("Unable to find the records for record type, " + recordType + ".", e);
         }
 
         return removeDuplicateSOARecord(records, recordType);
@@ -208,9 +208,9 @@ final class DNSServer {
      * 
      * @return  the records.
      * 
-     * @throws  DNSServerException  if unable to find the records.
+     * @throws  DNSServerExecutorException  if unable to find the records.
      */
-    public List<Record> findRecords(final int recordType, final String recordName) throws DNSServerException {
+    public List<Record> findRecords(final int recordType, final String recordName) throws DNSServerExecutorException {
 
         // Initialize the records.
         List<Record> records = new ArrayList<Record>();
@@ -220,7 +220,7 @@ final class DNSServer {
             // Find the records with a lookup.
             records = this.findRecordsWithLookup(recordType, recordName);
         } catch (Exception e) {
-            throw new DNSServerException("Unable to find the records for record type, " + recordType + ", and record name, " + recordName + ".", e);
+            throw new DNSServerExecutorException("Unable to find the records for record type, " + recordType + ", and record name, " + recordName + ".", e);
         }
         
         return removeDuplicateSOARecord(records, recordType);
@@ -272,27 +272,27 @@ final class DNSServer {
     }
 
     /**
-     * Create a new instance of the domain name server class.
+     * Create a new instance of the DNS server executor class.
      * 
      * @param  resolvers  the resolvers.
      * @param  zoneName   the zone name.
      * 
-     * @return  a new instance of the domain name server class.
+     * @return  a new instance of the DNS server executor class.
      */
-    public static DNSServer newInstance(final List<Resolver> resolvers, final String zoneName) {
-        return new DNSServer(resolvers, zoneName);
+    public static DNSServerExecutor newInstance(final List<Resolver> resolvers, final String zoneName) {
+        return new DNSServerExecutor(resolvers, zoneName);
     }
     
     /**
-     * Process the records.
+     * Process the record operations.
      * 
      * @param  recordOperationMap  the record operation map.
      * 
-     * @return  true if the records are processed successfully, otherwise false.
+     * @return  true if the record operations are processed successfully, otherwise false.
      * 
-     * @throws  DNSServerException  if unable to process the records due to an exception.
+     * @throws  DNSServerExecutorException  if unable to process the record operations due to an exception.
      */
-    public boolean processRecords(final Map<Record,String> recordOperationMap) throws DNSServerException {
+    public boolean processRecordOperations(final Map<Record,String> recordOperationMap) throws DNSServerExecutorException {
         
         // Initialize success to false.
         boolean success = false;
@@ -301,7 +301,7 @@ final class DNSServer {
 
             // Create the update.
             Update update = new Update(Name.fromString(this.zoneUtility.getAbsoluteZoneName()));
-            logger.debug("Processing records...");
+            logger.debug("Processing record operations...");
 
             // Loop through the record operation map.
             for (Map.Entry<Record,String> entry : recordOperationMap.entrySet()) {
@@ -309,7 +309,7 @@ final class DNSServer {
                 // Get the record and operation.
                 Record record = entry.getKey();
                 String operation = entry.getValue();
-                logger.debug("{}: {}", operation, record);
+                logger.debug("    {}: {}", operation, record);
                 
                 if ("ADD".equals(operation.toUpperCase())) {
                     update.add(record);
@@ -325,10 +325,10 @@ final class DNSServer {
             if (errorCode == Rcode.NOERROR) {
                 success = true;
             } else {
-                logger.error("Unable to process the records due to {}", Rcode.string(errorCode));
+                logger.error("Unable to process the record operations due to {}", Rcode.string(errorCode));
             }
         } catch (Exception e) {
-            throw new DNSServerException("Unable to process the records due to an exception.", e);
+            throw new DNSServerExecutorException("Unable to process the record operations due to an exception.", e);
         }
       
         return success;

@@ -21,18 +21,18 @@ package org.lazydog.jdnsaas.bind;
 import java.io.Serializable;
 
 /**
- * Domain name server exception.
+ * DNS server executor exception.
  * 
  * @author  Ron Rickard
  */
-public class DNSServerException extends Exception implements Serializable {
+public class DNSServerExecutorException extends Exception implements Serializable {
     
     public static final long serialVersionUID = 1L;
     
     /**
      * Constructs a new exception with no message.
      */
-    public DNSServerException() {
+    public DNSServerExecutorException() {
         super();
     }
 
@@ -41,7 +41,7 @@ public class DNSServerException extends Exception implements Serializable {
      *
      * @param  message  the message.
      */
-    public DNSServerException(final String message) {
+    public DNSServerExecutorException(final String message) {
         super(message);
     }
 
@@ -51,7 +51,7 @@ public class DNSServerException extends Exception implements Serializable {
      * @param  message  the message.
      * @param  cause    the cause.
      */
-    public DNSServerException(final String message, final Throwable cause) {
+    public DNSServerExecutorException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
@@ -60,7 +60,7 @@ public class DNSServerException extends Exception implements Serializable {
      *
      * @param  cause  the cause.
      */
-    public DNSServerException(final Throwable cause) {
+    public DNSServerExecutorException(final Throwable cause) {
         super(cause);
     }
 }

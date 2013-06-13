@@ -344,13 +344,13 @@ e.printStackTrace();
     }
 
     /**
-     * Process the records.
+     * Process the record operations.
      * 
      * @param  viewName  the view name.
      * @param  zoneName  the zone name.
      * @param  records   the records.
      * 
-     * @return  true if the records are processed successfully, otherwise false.
+     * @return  true if the record operations are processed successfully, otherwise false.
      * 
      * @throws  DNSServiceException        if unable to process the records due to an exception.
      * @throws  ResourceNotFoundException  if the view cannot be found.
@@ -359,12 +359,12 @@ e.printStackTrace();
     @Path("views/{viewName}/zones/{zoneName}/records")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response processRecords(@PathParam("viewName") final String viewName, @PathParam("zoneName") final String zoneName, final RecordsWrapper recordsWrapper) {
+    public Response processRecordOperations(@PathParam("viewName") final String viewName, @PathParam("zoneName") final String zoneName, final RecordsWrapper recordsWrapper) {
 
         Response response;
       
         try {
-            boolean success = this.dnsService.processRecords(viewName, zoneName, recordsWrapper.getRecords());
+            boolean success = this.dnsService.processRecordOperations(viewName, zoneName, recordsWrapper.getRecords());
             if (success) {
                 response = buildOkResponse("Processed records successfully.");
             } else {

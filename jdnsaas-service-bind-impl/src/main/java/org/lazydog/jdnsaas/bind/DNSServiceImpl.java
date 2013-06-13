@@ -66,16 +66,16 @@ public class DNSServiceImpl implements DNSService {
     }
 
     /**
-     * Create the DNS server.
+     * Create the DNS server executor.
      * 
      * @param  resolvers  the resolvers.
      * @param  tsigKey    the zone-level transaction signature (TSIG) key.
      * @param  zoneName   the zone name.
      * 
      * 
-     * @return  the DNS server.
+     * @return  the DNS server executor.
      */
-    private static DNSServer createDNSServer(final List<Resolver> resolvers, final TSIGKey tsigKey, final String zoneName) {
+    private static DNSServerExecutor createDNSServerExecutor(final List<Resolver> resolvers, final TSIGKey tsigKey, final String zoneName) {
 
         // Check if there is a zone-level TSIG key.
         if (tsigKey != null) {
@@ -92,7 +92,7 @@ public class DNSServiceImpl implements DNSService {
             }
         }
 
-        return DNSServer.newInstance(resolvers, zoneName);
+        return DNSServerExecutor.newInstance(resolvers, zoneName);
     }
   
     /**
@@ -128,9 +128,9 @@ public class DNSServiceImpl implements DNSService {
             // Find the DNS records.
             List<org.xbill.DNS.Record> dnsRecords;
             if (recordName != null) {
-                dnsRecords = createDNSServer(zone.getView().getResolvers(), zone.getQueryTSIGKey(), zoneName).findRecords(dnsRecordType, recordName);
+                dnsRecords = createDNSServerExecutor(zone.getView().getResolvers(), zone.getQueryTSIGKey(), zoneName).findRecords(dnsRecordType, recordName);
             } else {
-                dnsRecords = createDNSServer(zone.getView().getResolvers(), zone.getTransferTSIGKey(), zoneName).findRecords(dnsRecordType);
+                dnsRecords = createDNSServerExecutor(zone.getView().getResolvers(), zone.getTransferTSIGKey(), zoneName).findRecords(dnsRecordType);
             }
 
             // Initialize the record converter.
@@ -151,7 +151,7 @@ public class DNSServiceImpl implements DNSService {
             } 
         } catch (JDNSaaSRepositoryException e) {
             throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
-        } catch (DNSServerException e) {
+        } catch (DNSServerExecutorException e) {
             throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
         } catch (RecordConverterException e) {
             throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
@@ -336,19 +336,19 @@ public class DNSServiceImpl implements DNSService {
     }
     
     /**
-     * Process the records.
+     * Process the record operations.
      * 
      * @param  viewName  the view name.
      * @param  zoneName  the zone name.
      * @param  records   the records.
      * 
-     * @return  true if the records are processed successfully, otherwise false.
+     * @return  true if the record operations are processed successfully, otherwise false.
      * 
-     * @throws  DNSServiceException        if unable to process the records due to an exception.
+     * @throws  DNSServiceException        if unable to process the record operations due to an exception.
      * @throws  ResourceNotFoundException  if the zone is not found.
      */
     @Override
-    public boolean processRecords(final String viewName, final String zoneName, final List<Record> records) throws DNSServiceException, ResourceNotFoundException {
+    public boolean processRecordOperations(final String viewName, final String zoneName, final List<Record> records) throws DNSServiceException, ResourceNotFoundException {
 
         boolean success = false;
 
@@ -381,13 +381,13 @@ public class DNSServiceImpl implements DNSService {
             }
 
             // Process the records.
-            success = createDNSServer(zone.getView().getResolvers(), zone.getUpdateTSIGKey(), zoneName).processRecords(recordOperationMap);
+            success = createDNSServerExecutor(zone.getView().getResolvers(), zone.getUpdateTSIGKey(), zoneName).processRecordOperations(recordOperationMap);
         } catch (JDNSaaSRepositoryException e) {
-            throw new DNSServiceException("Unable to process the records for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
-        } catch (DNSServerException e) {
-            throw new DNSServiceException("Unable to process the records for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
+            throw new DNSServiceException("Unable to process the record operations for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
+        } catch (DNSServerExecutorException e) {
+            throw new DNSServiceException("Unable to process the record operations for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
         } catch (RecordConverterException e) {
-            throw new DNSServiceException("Unable to process the records for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
+            throw new DNSServiceException("Unable to process the record operations for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
         }
         
         return success;

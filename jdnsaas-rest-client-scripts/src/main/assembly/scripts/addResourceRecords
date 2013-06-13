@@ -8,7 +8,7 @@ default_endpoint=http://localhost:8080/jdnsaas/1.0/dns
 
 url=$default_endpoint/views/internal/zones/zone.test/records
 
-payload='{"records":[{"operation":"ADD","name":"@","timeToLive":86400,"type":"A","data":{"ipAddress":"172.16.0.201"}}]}'
+payload='{"records":[{"operation":"ADD","name":"test","timeToLive":86400,"type":"A","data":{"ipAddress":"172.16.0.201"}}]}'
 
 echo $url
 

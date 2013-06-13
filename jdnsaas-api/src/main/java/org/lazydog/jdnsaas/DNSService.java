@@ -113,16 +113,16 @@ public interface DNSService {
     List<String> findZoneNames(String viewName) throws DNSServiceException, ResourceNotFoundException;
         
     /**
-     * Process the records.
+     * Process the record operations.
      * 
      * @param  viewName  the view name.
      * @param  zoneName  the zone name.
      * @param  records   the records.
      * 
-     * @return  true if the records are processed successfully, otherwise false.
+     * @return  true if the record operations are processed successfully, otherwise false.
      * 
-     * @throws  DNSServiceException        if unable to process the records due to an exception.
+     * @throws  DNSServiceException        if unable to process the record operations due to an exception.
      * @throws  ResourceNotFoundException  if the zone is not found.
      */
-    boolean processRecords(String viewName, String zoneName, List<Record> records) throws DNSServiceException, ResourceNotFoundException;
+    boolean processRecordOperations(String viewName, String zoneName, List<Record> records) throws DNSServiceException, ResourceNotFoundException;
 }
