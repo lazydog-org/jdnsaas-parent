@@ -21,6 +21,9 @@ package org.lazydog.jdnsaas.rest.resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -34,7 +37,6 @@ import javax.ws.rs.core.Response;
 import org.lazydog.jdnsaas.DNSService;
 import org.lazydog.jdnsaas.DNSServiceException;
 import org.lazydog.jdnsaas.ResourceNotFoundException;
-import org.lazydog.jdnsaas.bind.DNSServiceImpl;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordOperation;
 import org.lazydog.jdnsaas.model.RecordType;
@@ -64,18 +66,11 @@ import org.slf4j.LoggerFactory;
  * @author  Ron Rickard
  */
 @Path("dns")
+@RequestScoped
 public class DNSServiceResource extends AbstractResource {
       
-    private static final Logger logger = LoggerFactory.getLogger(DNSServiceResource.class);
-    private DNSService dnsService;
-    
-   
-    /**
-     * Initialize the DNS service resource.
-     */
-    public DNSServiceResource() throws DNSServiceException {
-        dnsService = DNSServiceImpl.newInstance();
-    }
+    private static Logger logger = LoggerFactory.getLogger(DNSServiceResource.class);
+    @Inject private DNSService dnsService;
 
     /**
      * Create the view wrappers.

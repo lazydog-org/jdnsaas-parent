@@ -18,37 +18,13 @@
  */
 package org.lazydog.jdnsaas.model;
 
-import java.util.List;
-
 /**
- * View.
+ * Identity equalator.
  * 
  * @author  Ron Rickard
  */
-public class View extends Entity implements IdentityEqualator<View> {
+public interface IdentityEqualator<T> {
     
-    private static final long serialVersionUID = 1L;
-    private String name;
-    private List<Resolver> resolvers;
-
-    /**
-     * Get the name.
-     * 
-     * @return  the name.
-     */
-    public String getName() {
-        return this.name;
-    }
-       
-    /**
-     * Get the resolvers.
-     * 
-     * @return  the resolvers.
-     */
-    public List<Resolver> getResolvers() {
-        return this.resolvers;
-    }
-
     /**
      * Compare this object's identity to the specified object's identity.
      * 
@@ -56,26 +32,5 @@ public class View extends Entity implements IdentityEqualator<View> {
      * 
      * @return  true if the objects' identities are equal; false otherwise.
      */
-    @Override
-    public boolean identityEquals(View object) {
-        return (object != null) ? this.getName().equals(object.getName()) : false;
-    }
-    
-    /**
-     * Set the name.
-     * 
-     * @param  name  the name.
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
-            
-    /**
-     * Set the Resolvers.
-     * 
-     * @param  resolvers  the resolvers.
-     */
-    public void setResolvers(final List<Resolver> resolvers) {
-        this.resolvers = resolvers;
-    }
+    boolean identityEquals(final T object);
 }

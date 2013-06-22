@@ -43,7 +43,7 @@ import org.xbill.DNS.Type;
  * 
  * @author  Ron Rickard
  */
-final class RecordConverter {
+public final class RecordConverter {
     
     private static final Logger logger = LoggerFactory.getLogger(RecordConverter.class);
     private ZoneUtility zoneUtility;
@@ -83,7 +83,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createAAAARecord(final org.xbill.DNS.AAAARecord dnsAAAARecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(AAAARecord.class, dnsAAAARecord, dnsAAAARecord.getAddress().getHostAddress());
+        return this.createRecord(AAAARecord.class, dnsAAAARecord, dnsAAAARecord.getAddress().getHostAddress());
     }
 
     /**
@@ -112,7 +112,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createARecord(final org.xbill.DNS.ARecord dnsARecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(ARecord.class, dnsARecord, dnsARecord.getAddress().getHostAddress());
+        return this.createRecord(ARecord.class, dnsARecord, dnsARecord.getAddress().getHostAddress());
     }
       
     /**
@@ -140,7 +140,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createCNAMERecord(final org.xbill.DNS.CNAMERecord dnsCNAMERecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(CNAMERecord.class, dnsCNAMERecord, this.zoneUtility.relativize(dnsCNAMERecord.getTarget().toString()));
+        return this.createRecord(CNAMERecord.class, dnsCNAMERecord, this.zoneUtility.relativize(dnsCNAMERecord.getTarget().toString()));
     }
             
     /**
@@ -168,7 +168,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createMXRecord(final org.xbill.DNS.MXRecord dnsMXRecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(MXRecord.class, dnsMXRecord, this.zoneUtility.relativize(dnsMXRecord.getTarget().toString()), dnsMXRecord.getPriority());
+        return this.createRecord(MXRecord.class, dnsMXRecord, this.zoneUtility.relativize(dnsMXRecord.getTarget().toString()), dnsMXRecord.getPriority());
     }
              
     /**
@@ -196,7 +196,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createNSRecord(final org.xbill.DNS.NSRecord dnsNSRecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(NSRecord.class, dnsNSRecord, this.zoneUtility.relativize(dnsNSRecord.getTarget().toString()));
+        return this.createRecord(NSRecord.class, dnsNSRecord, this.zoneUtility.relativize(dnsNSRecord.getTarget().toString()));
     }
                  
     /**
@@ -270,7 +270,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createSOARecord(final org.xbill.DNS.SOARecord dnsSOARecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(SOARecord.class, dnsSOARecord, (int)dnsSOARecord.getMinimum(), (int)dnsSOARecord.getExpire(), (int)dnsSOARecord.getRetry(), (int)dnsSOARecord.getRefresh(), dnsSOARecord.getSerial(), dnsSOARecord.getAdmin().toString(), this.zoneUtility.relativize(dnsSOARecord.getHost().toString()));
+        return this.createRecord(SOARecord.class, dnsSOARecord, (int)dnsSOARecord.getMinimum(), (int)dnsSOARecord.getExpire(), (int)dnsSOARecord.getRetry(), (int)dnsSOARecord.getRefresh(), dnsSOARecord.getSerial(), dnsSOARecord.getAdmin().toString(), this.zoneUtility.relativize(dnsSOARecord.getHost().toString()));
     }
                
     /**
@@ -299,7 +299,7 @@ final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createSRVRecord(final org.xbill.DNS.SRVRecord dnsSRVRecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(SRVRecord.class, dnsSRVRecord, this.zoneUtility.relativize(dnsSRVRecord.getTarget().toString()), dnsSRVRecord.getPort(), dnsSRVRecord.getWeight(), dnsSRVRecord.getPriority());
+        return this.createRecord(SRVRecord.class, dnsSRVRecord, this.zoneUtility.relativize(dnsSRVRecord.getTarget().toString()), dnsSRVRecord.getPort(), dnsSRVRecord.getWeight(), dnsSRVRecord.getPriority());
     }
                       
     /**
@@ -328,7 +328,7 @@ final class RecordConverter {
      */
     @SuppressWarnings("unchecked")
     private Record createTXTRecord(final org.xbill.DNS.TXTRecord dnsTXTRecord) throws IllegalAccessException, InstantiationException {
-        return createRecord(TXTRecord.class, dnsTXTRecord, dnsTXTRecord.getStrings());
+        return this.createRecord(TXTRecord.class, dnsTXTRecord, dnsTXTRecord.getStrings());
     } 
     
     /**
@@ -351,31 +351,31 @@ final class RecordConverter {
             switch (dnsRecord.getType()) {
 
                 case Type.AAAA:
-                    record = createAAAARecord((org.xbill.DNS.AAAARecord)dnsRecord);
+                    record = this.createAAAARecord((org.xbill.DNS.AAAARecord)dnsRecord);
                     break;
                 case Type.A:
-                    record = createARecord((org.xbill.DNS.ARecord)dnsRecord);
+                    record = this.createARecord((org.xbill.DNS.ARecord)dnsRecord);
                     break;
                 case Type.CNAME:
-                    record = createCNAMERecord((org.xbill.DNS.CNAMERecord)dnsRecord);
+                    record = this.createCNAMERecord((org.xbill.DNS.CNAMERecord)dnsRecord);
                     break;
                 case Type.MX:
-                    record = createMXRecord((org.xbill.DNS.MXRecord)dnsRecord);
+                    record = this.createMXRecord((org.xbill.DNS.MXRecord)dnsRecord);
                     break;
                 case Type.NS:
-                    record = createNSRecord((org.xbill.DNS.NSRecord)dnsRecord);
+                    record = this.createNSRecord((org.xbill.DNS.NSRecord)dnsRecord);
                     break;
                 case Type.PTR:
-                    record = createPTRRecord((org.xbill.DNS.PTRRecord)dnsRecord);
+                    record = this.createPTRRecord((org.xbill.DNS.PTRRecord)dnsRecord);
                     break;
                 case Type.SOA:
-                    record = createSOARecord((org.xbill.DNS.SOARecord)dnsRecord);
+                    record = this.createSOARecord((org.xbill.DNS.SOARecord)dnsRecord);
                     break;
                 case Type.SRV:
-                    record = createSRVRecord((org.xbill.DNS.SRVRecord)dnsRecord);
+                    record = this.createSRVRecord((org.xbill.DNS.SRVRecord)dnsRecord);
                     break;
                 case Type.TXT:
-                    record = createTXTRecord((org.xbill.DNS.TXTRecord)dnsRecord);
+                    record = this.createTXTRecord((org.xbill.DNS.TXTRecord)dnsRecord);
                     break;
             }
         } catch (Exception e) {
@@ -428,31 +428,31 @@ final class RecordConverter {
             switch (record.getType()) {
 
                 case AAAA:
-                    dnsRecord = createAAAARecord((AAAARecord)record);
+                    dnsRecord = this.createAAAARecord((AAAARecord)record);
                     break;
                 case A:
-                    dnsRecord = createARecord((ARecord)record);
+                    dnsRecord = this.createARecord((ARecord)record);
                     break;
                 case CNAME:
-                    dnsRecord = createCNAMERecord((CNAMERecord)record);
+                    dnsRecord = this.createCNAMERecord((CNAMERecord)record);
                     break;
                 case MX:
-                    dnsRecord = createMXRecord((MXRecord)record);
+                    dnsRecord = this.createMXRecord((MXRecord)record);
                     break;
                 case NS:
-                    dnsRecord = createNSRecord((NSRecord)record);
+                    dnsRecord = this.createNSRecord((NSRecord)record);
                     break;
                 case PTR:
-                    dnsRecord = createPTRRecord((PTRRecord)record);
+                    dnsRecord = this.createPTRRecord((PTRRecord)record);
                     break;
                 case SOA:
-                    dnsRecord = createSOARecord((SOARecord)record);
+                    dnsRecord = this.createSOARecord((SOARecord)record);
                     break;
                 case SRV:
-                    dnsRecord = createSRVRecord((SRVRecord)record);
+                    dnsRecord = this.createSRVRecord((SRVRecord)record);
                     break;
                 case TXT:
-                    dnsRecord = createTXTRecord((TXTRecord)record);
+                    dnsRecord = this.createTXTRecord((TXTRecord)record);
                     break;
             }
         } catch (Exception e) {

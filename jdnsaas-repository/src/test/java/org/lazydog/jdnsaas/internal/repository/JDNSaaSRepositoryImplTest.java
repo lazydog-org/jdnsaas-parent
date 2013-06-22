@@ -58,8 +58,10 @@ public class JDNSaaSRepositoryImplTest {
         // Create the JDNSaaS database.
         DriverManager.getConnection("jdbc:derby:memory:./target/jdnsaas;create=true");
         
-        // Get the JDNSaaS repository.
-        jdnsaasRepository = JDNSaaSRepositoryImpl.newInstance("jdnsaasTest");
+        // Create the JDNSaaS repository.
+        jdnsaasRepository = new JDNSaaSRepositoryImpl();
+        ((JDNSaaSRepositoryImpl)jdnsaasRepository).setPersistenceUnitName("jdnsaasTest");
+        ((JDNSaaSRepositoryImpl)jdnsaasRepository).startup();
     }
 
     @AfterClass
@@ -98,18 +100,18 @@ public class JDNSaaSRepositoryImplTest {
         tsigKey1.setName("tsigkeyname1");
         tsigKey1.setValue("tsigkeyvalue1");
         Resolver resolver1 = new Resolver();
-        resolver1.setHostName("hostname1");
+        resolver1.setAddress("10.0.0.1");
         resolver1.setId(new Integer(1));
-        resolver1.setLocalHostName("localhostname1");
+        resolver1.setLocalAddress("172.16.0.1");
         resolver1.setPort(new Integer(53));
         resolver1.setTSIGKey(tsigKey1);
         Resolver resolver2 = new Resolver();
-        resolver2.setHostName("hostname2");
+        resolver2.setAddress("10.0.0.2");
         resolver2.setId(new Integer(2));
-        resolver2.setLocalHostName("localhostname2");
+        resolver2.setLocalAddress("172.16.0.2");
         resolver2.setPort(new Integer(53));
         Resolver resolver3 = new Resolver();
-        resolver3.setHostName("hostname3");
+        resolver3.setAddress("10.0.0.3");
         resolver3.setId(new Integer(3));
         resolver3.setPort(new Integer(53));
         List<Resolver> expectedResolvers = Arrays.asList(resolver1, resolver2, resolver3);
@@ -145,18 +147,18 @@ public class JDNSaaSRepositoryImplTest {
         tsigKey1.setName("tsigkeyname1");
         tsigKey1.setValue("tsigkeyvalue1");
         Resolver resolver1 = new Resolver();
-        resolver1.setHostName("hostname1");
+        resolver1.setAddress("10.0.0.1");
         resolver1.setId(new Integer(1));
-        resolver1.setLocalHostName("localhostname1");
+        resolver1.setLocalAddress("172.16.0.1");
         resolver1.setPort(new Integer(53));
         resolver1.setTSIGKey(tsigKey1);
         Resolver resolver2 = new Resolver();
-        resolver2.setHostName("hostname2");
+        resolver2.setAddress("10.0.0.2");
         resolver2.setId(new Integer(2));
-        resolver2.setLocalHostName("localhostname2");
+        resolver2.setLocalAddress("172.16.0.2");
         resolver2.setPort(new Integer(53));
         Resolver resolver3 = new Resolver();
-        resolver3.setHostName("hostname3");
+        resolver3.setAddress("10.0.0.3");
         resolver3.setId(new Integer(3));
         resolver3.setPort(new Integer(53));
         View expectedView = new View();
@@ -195,18 +197,18 @@ public class JDNSaaSRepositoryImplTest {
         updateTSIGKey.setName("tsigkeyname3");
         updateTSIGKey.setValue("tsigkeyvalue3");
         Resolver resolver1 = new Resolver();
-        resolver1.setHostName("hostname1");
+        resolver1.setAddress("10.0.0.1");
         resolver1.setId(new Integer(1));
-        resolver1.setLocalHostName("localhostname1");
+        resolver1.setLocalAddress("172.16.0.1");
         resolver1.setPort(new Integer(53));
         resolver1.setTSIGKey(queryTSIGKey);
         Resolver resolver2 = new Resolver();
-        resolver2.setHostName("hostname2");
+        resolver2.setAddress("10.0.0.2");
         resolver2.setId(new Integer(2));
-        resolver2.setLocalHostName("localhostname2");
+        resolver2.setLocalAddress("172.16.0.2");
         resolver2.setPort(new Integer(53));
         Resolver resolver3 = new Resolver();
-        resolver3.setHostName("hostname3");
+        resolver3.setAddress("10.0.0.3");
         resolver3.setId(new Integer(3));
         resolver3.setPort(new Integer(53));
         View view = new View();
@@ -254,6 +256,75 @@ public class JDNSaaSRepositoryImplTest {
         assertReflectionEquals(expectedZoneNames, this.jdnsaasRepository.findZoneNames("view1"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedZoneNames = new ArrayList<String>(Arrays.asList("zone2", "zone3"));
         assertReflectionEquals(expectedZoneNames, this.jdnsaasRepository.findZoneNames("view2"), ReflectionComparatorMode.LENIENT_ORDER);
+    }
+
+    @Test
+    public void testFindZones() throws Exception {
+        TSIGKey queryTSIGKey = new TSIGKey();
+        queryTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_MD5);
+        queryTSIGKey.setId(new Integer(1));
+        queryTSIGKey.setName("tsigkeyname1");
+        queryTSIGKey.setValue("tsigkeyvalue1");
+        TSIGKey transferTSIGKey = new TSIGKey();
+        transferTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA256);
+        transferTSIGKey.setId(new Integer(2));
+        transferTSIGKey.setName("tsigkeyname2");
+        transferTSIGKey.setValue("tsigkeyvalue2");
+        TSIGKey updateTSIGKey = new TSIGKey();
+        updateTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA512);
+        updateTSIGKey.setId(new Integer(3));
+        updateTSIGKey.setName("tsigkeyname3");
+        updateTSIGKey.setValue("tsigkeyvalue3");
+        Resolver resolver1 = new Resolver();
+        resolver1.setAddress("10.0.0.1");
+        resolver1.setId(new Integer(1));
+        resolver1.setLocalAddress("172.16.0.1");
+        resolver1.setPort(new Integer(53));
+        resolver1.setTSIGKey(queryTSIGKey);
+        Resolver resolver2 = new Resolver();
+        resolver2.setAddress("10.0.0.2");
+        resolver2.setId(new Integer(2));
+        resolver2.setLocalAddress("172.16.0.2");
+        resolver2.setPort(new Integer(53));
+        Resolver resolver3 = new Resolver();
+        resolver3.setAddress("10.0.0.3");
+        resolver3.setId(new Integer(3));
+        resolver3.setPort(new Integer(53));
+        View view = new View();
+        view.setId(1);
+        view.setName("view1");
+        view.setResolvers(Arrays.asList(resolver1, resolver2, resolver3));
+        Zone zone1 = new Zone();
+        zone1.setId(new Integer(1));
+        zone1.setName("zone1");
+        zone1.setQueryTSIGKey(queryTSIGKey);
+        zone1.setTransferTSIGKey(transferTSIGKey);
+        zone1.setUpdateTSIGKey(updateTSIGKey);
+        zone1.setView(view);
+        Zone zone2 = new Zone();
+        zone2.setId(new Integer(2));
+        zone2.setName("zone2");
+        zone2.setTransferTSIGKey(transferTSIGKey);
+        zone2.setUpdateTSIGKey(updateTSIGKey);
+        zone2.setView(view);
+        view = new View();
+        view.setId(2);
+        view.setName("view2");
+        view.setResolvers(Arrays.asList(resolver1));
+        Zone zone3 = new Zone();
+        zone3.setId(new Integer(3));
+        zone3.setName("zone2");
+        zone3.setQueryTSIGKey(queryTSIGKey);
+        zone3.setUpdateTSIGKey(updateTSIGKey);
+        zone3.setView(view);
+        Zone zone4 = new Zone();
+        zone4.setId(new Integer(4));
+        zone4.setName("zone3");
+        zone4.setQueryTSIGKey(queryTSIGKey);
+        zone4.setTransferTSIGKey(transferTSIGKey);
+        zone4.setView(view);
+        List<Zone> expectedZones = Arrays.asList(zone1, zone2, zone3, zone4);
+        assertReflectionEquals(expectedZones, this.jdnsaasRepository.findZones(), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     private IDatabaseConnection getDatabaseConnection() throws Exception {

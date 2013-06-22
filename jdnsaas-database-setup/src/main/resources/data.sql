@@ -6,9 +6,9 @@ values
     ('ddns', '5ifB05a6nUMByf7BqJn5S/wcy8gUaJIidU3TWMX3FkZ/ypLIWnwyCybp6qgn+CbxRNLZz8Xr2QoDTTWEeAJfqw==', 'HMAC_SHA512');
 
 insert into resolver
-    (host_name, port)
+    (address, port)
 values
-    ('ns.zone.test', 53);
+    ('192.168.0.7', 53);
 
 insert into dns_view
     (name)

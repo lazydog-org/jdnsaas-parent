@@ -21,6 +21,9 @@ package org.lazydog.jdnsaas.internal.repository;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 import org.lazydog.jdnsaas.model.Resolver;
@@ -29,6 +32,7 @@ import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepository;
 import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepositoryException;
+import org.lazydog.jdnsaas.spi.repository.PersistenceUnitName;
 import org.lazydog.repository.Criteria;
 import org.lazydog.repository.criterion.Comparison;
 import org.lazydog.repository.criterion.Logical;
@@ -41,27 +45,12 @@ import org.slf4j.LoggerFactory;
  * 
  * @author  Ron Rickard
  */
+@ApplicationScoped
 public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaSRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(JDNSaaSRepositoryImpl.class);
-    
-    /**
-     * Hide the constructor.
-     * 
-     * @param  persistenceUnitName  the persistence unit name.
-     * 
-     * @throws JDNSaaSRepositoryException  if unable to initialize the JDNSaaS repository due to an exception.
-     */
-    private JDNSaaSRepositoryImpl(final String persistenceUnitName) throws JDNSaaSRepositoryException {
-        
-        try {
-            
-            // Set the entity manager.
-            this.setEntityManager(Persistence.createEntityManagerFactory(persistenceUnitName).createEntityManager());
-        } catch (Exception e) {
-            throw new JDNSaaSRepositoryException("Unable to initialize the JDNSaaS repository with persistence unit " + persistenceUnitName + ".", e);
-        }
-    }
+    private String persistenceUnitName;
+
     /**
      * Find the resolvers.
      * 
@@ -227,6 +216,29 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
         
         return zoneNames;
     }
+        
+    /**
+     * Find the zones.
+     * 
+     * @return  the zones.
+     * 
+     * @throws  JDNSaaSRepositoryException  if unable to find the zones due to an exception.
+     */
+    @Override
+    public List<Zone> findZones() throws JDNSaaSRepositoryException {
+        
+        List<Zone> zones = new ArrayList<Zone>();
+        
+        try {
+
+            // Find the zones.
+            zones = this.findList(Zone.class);
+        } catch (Exception e) {
+            throw new JDNSaaSRepositoryException("Unable to find the zones.", e);
+        }
+        
+        return zones;
+    }
     
     /**
      * Get the connection.
@@ -247,17 +259,34 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
     protected EntityManager getEntityManager() {
         return super.getEntityManager();
     }
-
+    
     /**
-     * Create a new instance of the DNS repository class.
+     * Set the persistence unit name.
      * 
      * @param  persistenceUnitName  the persistence unit name.
-     * 
-     * @return  a new instance of the DNS repository class.
-     * 
-     * @throws JDNSaaSRepositoryException  if unable to create a new instance of the JDNSaaS repository class due to an exception.
      */
-    public static JDNSaaSRepository newInstance(final String persistenceUnitName) throws JDNSaaSRepositoryException {
-        return new JDNSaaSRepositoryImpl(persistenceUnitName);
+    @Inject 
+    public void setPersistenceUnitName(@PersistenceUnitName final String persistenceUnitName) {
+        this.persistenceUnitName = persistenceUnitName;
+        logger.info("Set the persistence unit name to {}.", persistenceUnitName);
+    }
+    
+    /**
+     * Startup the JDNSaaS repository.
+     * 
+     * @throws  JDNSaaSRepositoryException  if unable to startup the JDNSaaS repository due to an exception.
+     */
+    @PostConstruct
+    public void startup() throws JDNSaaSRepositoryException {
+        
+        logger.info("Startup the JDNSaaS repository.");
+        
+        try {
+            
+            // Set the entity manager.
+            this.setEntityManager(Persistence.createEntityManagerFactory(this.persistenceUnitName).createEntityManager());
+        } catch (Exception e) {
+            throw new JDNSaaSRepositoryException("Unable to startup the JDNSaaS repository with the persistence unit " + persistenceUnitName + ".", e);
+        }
     }
 }

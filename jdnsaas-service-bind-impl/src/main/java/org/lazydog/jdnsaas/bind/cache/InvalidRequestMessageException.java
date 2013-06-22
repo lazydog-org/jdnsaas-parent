@@ -16,24 +16,26 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.lazydog.jdnsaas.bind;
+package org.lazydog.jdnsaas.bind.cache;
 
 import java.io.Serializable;
 
 /**
- * Record converter exception.
+ * Invalid request message exception.
  * 
  * @author  Ron Rickard
  */
-public class RecordConverterException extends RuntimeException implements Serializable {
+public class InvalidRequestMessageException extends Exception implements Serializable {
     
     public static final long serialVersionUID = 1L;
+    private byte[] requestMessage;
     
     /**
      * Constructs a new exception with no message.
      */
-    public RecordConverterException() {
+    public InvalidRequestMessageException(final byte[] requestMessage) {
         super();
+        this.requestMessage = requestMessage;
     }
 
     /**
@@ -41,8 +43,9 @@ public class RecordConverterException extends RuntimeException implements Serial
      *
      * @param  message  the message.
      */
-    public RecordConverterException(final String message) {
+    public InvalidRequestMessageException(final String message, final byte[] requestMessage) {
         super(message);
+        this.requestMessage = requestMessage;
     }
 
     /**
@@ -51,8 +54,9 @@ public class RecordConverterException extends RuntimeException implements Serial
      * @param  message  the message.
      * @param  cause    the cause.
      */
-    public RecordConverterException(final String message, final Throwable cause) {
+    public InvalidRequestMessageException(final String message, final Throwable cause, final byte[] requestMessage) {
         super(message, cause);
+        this.requestMessage = requestMessage;
     }
 
     /**
@@ -60,7 +64,17 @@ public class RecordConverterException extends RuntimeException implements Serial
      *
      * @param  cause  the cause.
      */
-    public RecordConverterException(final Throwable cause) {
+    public InvalidRequestMessageException(final Throwable cause, final byte[] requestMessage) {
         super(cause);
+        this.requestMessage = requestMessage;
+    }
+    
+    /**
+     * Get the request message.
+     * 
+     * @return  the request message.
+     */
+    public byte[] getRequestMessage() {
+        return this.requestMessage;
     }
 }

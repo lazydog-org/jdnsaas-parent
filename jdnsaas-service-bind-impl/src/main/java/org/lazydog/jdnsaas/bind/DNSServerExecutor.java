@@ -67,15 +67,15 @@ final class DNSServerExecutor {
     /**
      * Create the IP socket address.
      * 
-     * @param  hostName  the host name.
-     * @param  port      the port.
+     * @param  address  the address.
+     * @param  port     the port.
      * 
      * @return  the IP socket address.
      * 
-     * @throws  UnknownHostException  if the host name is invalid.
+     * @throws  UnknownHostException  if the address is invalid.
      */
-    private static InetSocketAddress createInetSocketAddress(String hostName, int port) throws UnknownHostException {
-        return (hostName != null) ? new InetSocketAddress(InetAddress.getByName(hostName), port) : null;
+    private static InetSocketAddress createInetSocketAddress(String address, int port) throws UnknownHostException {
+        return (address != null) ? new InetSocketAddress(InetAddress.getByName(address), port) : null;
     }
     
     /**
@@ -116,8 +116,8 @@ final class DNSServerExecutor {
 
             // Create the simple resolver.
             SimpleResolver simpleResolver = new SimpleResolver();
-            simpleResolver.setAddress(createInetSocketAddress(resolver.getHostName(), resolver.getPort()));
-            simpleResolver.setLocalAddress(createInetSocketAddress(resolver.getLocalHostName(), 0));
+            simpleResolver.setAddress(createInetSocketAddress(resolver.getAddress(), resolver.getPort()));
+            simpleResolver.setLocalAddress(createInetSocketAddress(resolver.getLocalAddress(), 0));
             simpleResolver.setTCP(true);
             simpleResolver.setTSIGKey(createTSIGKey(resolver));
             
@@ -152,8 +152,8 @@ final class DNSServerExecutor {
     private ZoneTransferIn createZoneTransfer(Resolver resolver) throws TextParseException, UnknownHostException {
         
         // Create the zone transfer.
-        ZoneTransferIn zoneTransfer = ZoneTransferIn.newAXFR(Name.fromString(this.zoneUtility.getAbsoluteZoneName()), resolver.getHostName(), resolver.getPort(), createTSIGKey(resolver));
-        zoneTransfer.setLocalAddress(createInetSocketAddress(resolver.getLocalHostName(), 0));
+        ZoneTransferIn zoneTransfer = ZoneTransferIn.newAXFR(Name.fromString(this.zoneUtility.getAbsoluteZoneName()), resolver.getAddress(), resolver.getPort(), createTSIGKey(resolver));
+        zoneTransfer.setLocalAddress(createInetSocketAddress(resolver.getLocalAddress(), 0));
         
         return zoneTransfer;
     }

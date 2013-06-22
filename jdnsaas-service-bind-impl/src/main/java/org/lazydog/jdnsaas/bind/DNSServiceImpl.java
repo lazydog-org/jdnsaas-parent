@@ -23,10 +23,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import org.lazydog.jdnsaas.DNSService;
 import org.lazydog.jdnsaas.DNSServiceException;
 import org.lazydog.jdnsaas.ResourceNotFoundException;
-import org.lazydog.jdnsaas.internal.repository.JDNSaaSRepositoryImpl;
+import org.lazydog.jdnsaas.bind.cache.ZoneCache;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.Resolver;
@@ -44,26 +46,12 @@ import org.slf4j.LoggerFactory;
  * 
  * @author  Ron Rickard
  */
+@ApplicationScoped 
 public class DNSServiceImpl implements DNSService {
     
     private static final Logger logger = LoggerFactory.getLogger(DNSServiceImpl.class);
-    private JDNSaaSRepository jdnsaasRepository;
-
-    /**
-     * Hide the constructor.
-     * 
-     * @throws  DNSServiceException  if unable to initialize the DNS service due to an exception.
-     */
-    private DNSServiceImpl() throws DNSServiceException {
-        
-        try {
-            
-            // Initialize the JDNSaaS repository.
-            this.jdnsaasRepository = JDNSaaSRepositoryImpl.newInstance("jdnsaas");
-        } catch (JDNSaaSRepositoryException e) {
-            throw new DNSServiceException("Unable to initialize the DNS service.", e);
-        }
-    }
+    @Inject private JDNSaaSRepository jdnsaasRepository;
+    @Inject private ZoneCache zoneCache;
 
     /**
      * Create the DNS server executor.
@@ -152,8 +140,6 @@ public class DNSServiceImpl implements DNSService {
         } catch (JDNSaaSRepositoryException e) {
             throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
         } catch (DNSServerExecutorException e) {
-            throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
-        } catch (RecordConverterException e) {
             throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
         }
         
@@ -323,7 +309,7 @@ public class DNSServiceImpl implements DNSService {
 
         return zoneNames;
     }
-    
+
     /**
      * Create a new instance of the DNS service class.
      * 
@@ -385,8 +371,6 @@ public class DNSServiceImpl implements DNSService {
         } catch (JDNSaaSRepositoryException e) {
             throw new DNSServiceException("Unable to process the record operations for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
         } catch (DNSServerExecutorException e) {
-            throw new DNSServiceException("Unable to process the record operations for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
-        } catch (RecordConverterException e) {
             throw new DNSServiceException("Unable to process the record operations for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
         }
         

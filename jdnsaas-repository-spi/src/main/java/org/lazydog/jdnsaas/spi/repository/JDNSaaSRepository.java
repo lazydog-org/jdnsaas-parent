@@ -81,7 +81,7 @@ public interface JDNSaaSRepository extends Repository {
      * @throws  JDNSaaSRepositoryException  if unable to find the zone due to an exception.
      */
     Zone findZone(String viewName, String zoneName) throws JDNSaaSRepositoryException;
-    
+
     /**
      * Find the zone names.
      * 
@@ -92,4 +92,13 @@ public interface JDNSaaSRepository extends Repository {
      * @throws  JDNSaaSRepositoryException  if unable to find the zone names due to an exception.
      */
     List<String> findZoneNames(String viewName) throws JDNSaaSRepositoryException;
+    
+    /**
+     * Find the zones.
+     * 
+     * @return  the zones.
+     * 
+     * @throws  JDNSaaSRepositoryException  if unable to find the zones due to an exception.
+     */
+    List<Zone> findZones() throws JDNSaaSRepositoryException;
 }

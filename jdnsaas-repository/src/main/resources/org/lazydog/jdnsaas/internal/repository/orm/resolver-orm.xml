@@ -9,11 +9,11 @@
     <entity class="Resolver" access="FIELD">
         <table name="resolver" schema="jdnsaas"/>
         <attributes>
-            <basic name="hostName">
-                <column name="host_name" nullable="false"/>
+            <basic name="address">
+                <column name="address" nullable="false"/>
             </basic>
-            <basic name="localHostName">
-                <column name="local_host_name" nullable="true"/>
+            <basic name="localAddress">
+                <column name="local_address" nullable="true"/>
             </basic>
             <basic name="port">
                 <column name="port" nullable="false"/>

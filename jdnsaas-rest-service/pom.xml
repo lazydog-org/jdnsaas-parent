@@ -96,6 +96,26 @@
             <artifactId>eclipselink</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.el</groupId>
+                    <artifactId>el-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.weld.servlet</groupId>
+            <artifactId>weld-servlet-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.el</groupId>
+                    <artifactId>el-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.lazydog.jdnsaas</groupId>
             <artifactId>jdnsaas-api</artifactId>
         </dependency>

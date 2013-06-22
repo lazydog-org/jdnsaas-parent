@@ -26,27 +26,27 @@ package org.lazydog.jdnsaas.model;
 public class Resolver extends Entity {
     
     private static final long serialVersionUID = 1L;
-    private String hostName;
-    private String localHostName;
+    private String address;
+    private String localAddress;
     private Integer port;
     private TSIGKey tsigKey;
 
     /**
-     * Get the host name.
+     * Get the address.
      * 
-     * @return  the host name.
+     * @return  the address.
      */
-    public String getHostName() {
-        return this.hostName;
+    public String getAddress() {
+        return this.address;
     }
          
     /**
-     * Get the local host name.
+     * Get the local address.
      * 
-     * @return  the local host name.
+     * @return  the local address.
      */
-    public String getLocalHostName() {
-        return this.localHostName;
+    public String getLocalAddress() {
+        return this.localAddress;
     }
 
     /**
@@ -68,21 +68,21 @@ public class Resolver extends Entity {
     }
         
     /**
-     * Set the host name.
+     * Set the address.
      * 
-     * @param  hostName  the host name.
+     * @param  address  the address.
      */
-    public void setHostName(final String hostName) {
-        this.hostName = hostName;
+    public void setAddress(final String address) {
+        this.address = address;
     }
     
     /**
-     * Set the local host name.
+     * Set the local address.
      * 
-     * @param  localHostName  the local host name.
+     * @param  localAddress  the local address.
      */
-    public void setLocalHostName(final String localHostName) {
-        this.localHostName = localHostName;
+    public void setLocalAddress(final String localAddress) {
+        this.localAddress = localAddress;
     }
    
     /**

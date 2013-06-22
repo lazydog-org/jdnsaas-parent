@@ -57,6 +57,7 @@
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         <com.sun.jersey.version>1.17</com.sun.jersey.version>
+        <org.slf4j.version>1.7.5</org.slf4j.version>
     </properties>
     <scm>
         <connection>scm:git:git@github.com:lazydog-org/jdnsaas-parent.git</connection>
@@ -198,6 +199,21 @@
                 <version>2.4.0</version>
             </dependency>
             <dependency>
+                <groupId>org.jboss.weld</groupId>
+                <artifactId>weld-core</artifactId>
+                <version>2.0.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld.servlet</groupId>
+                <artifactId>weld-servlet</artifactId>
+                <version>2.0.1.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld.servlet</groupId>
+                <artifactId>weld-servlet-core</artifactId>
+                <version>2.0.1.Final</version>
+            </dependency>
+            <dependency>
                 <groupId>org.lazydog.jdnsaas</groupId>
                 <artifactId>jdnsaas-api</artifactId>
                 <version>${project.version}</version>
@@ -230,12 +246,12 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.5</version>
+                <version>${org.slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>1.7.5</version>
+                <version>${org.slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.unitils</groupId>

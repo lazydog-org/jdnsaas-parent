@@ -11,13 +11,13 @@ create table tsig_key(
 
 create table resolver(
     id                              int unsigned not null auto_increment,
-    host_name                       varchar(255) not null,
+    address                         varchar(255) not null,
     port                            smallint unsigned not null,
-    local_host_name                 varchar(255),
+    local_address                   varchar(255),
     tsig_key_id                     int unsigned,
     primary key(id),
     foreign key(tsig_key_id) references tsig_key(id),
-    unique key(host_name, port, local_host_name, tsig_key_id)
+    unique key(address, port, local_address, tsig_key_id)
 ) engine = innodb;
 
 create table dns_view(
