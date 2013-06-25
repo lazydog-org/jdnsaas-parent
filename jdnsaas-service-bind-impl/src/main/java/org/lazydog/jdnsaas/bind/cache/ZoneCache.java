@@ -26,12 +26,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.lazydog.jdnsaas.NotifyMessageMonitorAddress;
 import org.lazydog.jdnsaas.NotifyMessageMonitorPort;
+import org.lazydog.jdnsaas.NotifyMessageMonitorSocketTimeout;
 import org.lazydog.jdnsaas.NotifyMessageMonitorThreads;
 import org.lazydog.jdnsaas.bind.DNSServerExecutor;
 import org.lazydog.jdnsaas.bind.DNSServerExecutorException;
@@ -56,9 +62,12 @@ public class ZoneCache {
     private static final Logger logger = LoggerFactory.getLogger(ZoneCache.class);
     private boolean isShutdown;
     private boolean isSuspended;
-    private NotifyMessageMonitor notifyMessageMonitor;
+    private ExecutorService notifyMessageMonitor;
+    private ScheduledExecutorService refreshZoneScheduler;
+    private ConcurrentMap<ZoneIdentity,ScheduledFuture> refreshZoneFutureMap = new ConcurrentHashMap<ZoneIdentity,ScheduledFuture>();
     private String notifyMessageMonitorAddress;
     private int notifyMessageMonitorPort;
+    private int notifyMessageMonitorSocketTimeout;
     private int notifyMessageMonitorThreads;
     private ConcurrentMap<ZoneAction,Set<ZoneIdentity>> refreshZoneMap = new ConcurrentHashMap<ZoneAction,Set<ZoneIdentity>>();
     private JDNSaaSRepository repository;
@@ -90,6 +99,20 @@ public class ZoneCache {
     /**
      * Flag the zone cache for a refresh.
      * 
+     * @param  zoneIdentity  the zone identity.
+     */
+    public synchronized void flagForRefresh(final ZoneIdentity zoneIdentity) {
+        if (this.refreshZoneMap.containsKey(ZoneAction.UPDATE)) {
+            this.refreshZoneMap.get(ZoneAction.UPDATE).add(zoneIdentity);
+        } else {
+            this.refreshZoneMap.put(ZoneAction.UPDATE, new HashSet<ZoneIdentity>(Arrays.asList(zoneIdentity)));
+        }
+        logger.debug("Flagged the zone {} for refresh.", zoneIdentity);
+    }
+    
+    /**
+     * Flag the zone cache for a refresh.
+     * 
      * @param  zoneName  the zone name.
      */
     public synchronized void flagForRefresh(final String zoneName) {
@@ -99,14 +122,7 @@ public class ZoneCache {
 
             // Check if the zone is found.
             if (zoneIdentity.getZoneName().equals(zoneName)) {
-                
-                if (this.refreshZoneMap.containsKey(ZoneAction.UPDATE)) {
-                    this.refreshZoneMap.get(ZoneAction.UPDATE).add(zoneIdentity);
-                } else {
-                    this.refreshZoneMap.put(ZoneAction.UPDATE, new HashSet<ZoneIdentity>(Arrays.asList(zoneIdentity)));
-                }
-                
-                logger.debug("Flagged the view {} and the zone {} for refresh.", zoneIdentity.getViewName(), zoneIdentity.getZoneName());
+                this.flagForRefresh(zoneIdentity);
             }
         }
     }
@@ -118,7 +134,7 @@ public class ZoneCache {
      * 
      * @return  the records.
      */
-    private List<Record> getRecordsFromDNS(ZoneIdentity zoneIdentity) {
+    private List<Record> getRecordsFromDNS(final ZoneIdentity zoneIdentity) {
         
         List<Record> records = new ArrayList<Record>();
         
@@ -128,9 +144,33 @@ public class ZoneCache {
             Zone zone = this.repository.findZone(zoneIdentity.getViewName(), zoneIdentity.getZoneName());
             records = DNSServerExecutor.newInstance(zone.getView().getResolvers(), null, zone.getTransferTSIGKey(), null, zone.getName()).findRecords(RecordType.ANY, null);
         } catch (JDNSaaSRepositoryException e) {
-            logger.warn("Unable to find the zone {} for the view {}.", zoneIdentity.getZoneName(), zoneIdentity.getViewName(), e);
+            logger.warn("Unable to find the zone {}.", zoneIdentity, e);
         } catch (DNSServerExecutorException e) {
-            logger.warn("Unable to find all the records for the view {} and the zone {}.", zoneIdentity.getViewName(), zoneIdentity.getZoneName(), e);
+            logger.warn("Unable to find the records for the zone {}.", zoneIdentity, e);
+        }
+        
+        return records;
+    }
+     
+    /**
+     * Get the records for the specified zone identity from DNS.
+     * 
+     * @param  zoneIdentity  the zone identity.
+     * @param  records       the records.
+     * 
+     * @return  the records.
+     */
+    private List<Record> getRecordsFromDNS(final ZoneIdentity zoneIdentity, List<Record> records) {
+ 
+        try {
+
+            // Get the records for the zone.
+            Zone zone = this.repository.findZone(zoneIdentity.getViewName(), zoneIdentity.getZoneName());
+            records = DNSServerExecutor.newInstance(zone.getView().getResolvers(), null, zone.getTransferTSIGKey(), null, zone.getName()).updateRecords(records);
+        } catch (JDNSaaSRepositoryException e) {
+            logger.warn("Unable to find the zone {}.", zoneIdentity, e);
+        } catch (DNSServerExecutorException e) {
+            logger.warn("Unable to find the records for the zone {}.", zoneIdentity, e);
         }
         
         return records;
@@ -146,7 +186,32 @@ public class ZoneCache {
     private List<Record> getRecordsFromCache(ZoneIdentity zoneIdentity) {
         return this.zoneMap.get(zoneIdentity);
     }
-    
+        
+    /**
+     * Get the refresh interval for the specified zone identity from the zone cache.
+     * 
+     * @param  zoneIdentity  the zone identity.
+     * @param  zoneMap       the zone map.
+     * 
+     * @return  the refresh interval.
+     */
+    private static long getRefreshInterval(ZoneIdentity zoneIdentity, ConcurrentMap<ZoneIdentity,List<Record>> zoneMap) {
+        
+        long refreshInterval = 0L;
+
+        List<Record> records = zoneMap.get(zoneIdentity);
+        
+        for (Record record : records) {
+            
+            if (record.getType() == RecordType.SOA) {
+                refreshInterval = ((SOARecord)record).getData().getRefreshInterval();
+                break;
+            }
+        }
+        
+        return refreshInterval;
+    }
+
     /**
      * Get the serial number for the specified zone identity from DNS.
      * 
@@ -168,14 +233,14 @@ public class ZoneCache {
             }
 
         } catch (JDNSaaSRepositoryException e) {
-            logger.warn("Unable to find the zone {} for the view {}.", zoneIdentity.getZoneName(), zoneIdentity.getViewName(), e);
+            logger.warn("Unable to find the zone {}.", zoneIdentity, e);
         } catch (DNSServerExecutorException e) {
-            logger.warn("Unable to find the records for the view {} and the zone {}.", zoneIdentity.getViewName(), zoneIdentity.getZoneName(), e);
+            logger.warn("Unable to find the SOA record for the zone {}.", zoneIdentity, e);
         }
 
         return serialNumber;
     }
-    
+
     /**
      * Get the serial number for the specified zone identity from the zone cache.
      * 
@@ -193,6 +258,7 @@ public class ZoneCache {
             
             if (record.getType() == RecordType.SOA) {
                 serialNumber = ((SOARecord)record).getData().getSerialNumber();
+                break;
             }
         }
         
@@ -244,7 +310,7 @@ public class ZoneCache {
                 logger.debug("Found {} zones to delete from the zone cache.", addZoneIdentities.size());
             }
         } catch (JDNSaaSRepositoryException e) {
-            logger.warn("Unable to find zones in database.  Using existing zone map.", e);
+            logger.warn("Unable to find the zones in the database.  Using the existing zone map.", e);
         }
 
         // Check if a refresh is necessary.
@@ -259,7 +325,10 @@ public class ZoneCache {
                 for (ZoneIdentity zoneIdentity : this.refreshZoneMap.get(ZoneAction.ADD)) {
                     List<Record> records = getRecordsFromDNS(zoneIdentity);
                     newZoneMap.put(zoneIdentity, records);
-                    logger.debug("Added {} records to the zone cache for the view {} and the zone {}.", records.size(), zoneIdentity.getViewName(), zoneIdentity.getZoneName());
+                    logger.debug("Added {} records to the zone cache for the zone {}.", records.size(), zoneIdentity);
+                    
+                    // Schedule the refresh of the zone.
+                    this.refreshZoneFutureMap.put(zoneIdentity, this.refreshZoneScheduler.scheduleWithFixedDelay(new RefreshZoneThread(this, zoneIdentity), getRefreshInterval(zoneIdentity, newZoneMap), getRefreshInterval(zoneIdentity, newZoneMap), TimeUnit.SECONDS));
                 }
             }
             
@@ -269,7 +338,11 @@ public class ZoneCache {
                 for (ZoneIdentity zoneIdentity : this.refreshZoneMap.get(ZoneAction.DELETE)) {
                     List<Record> records = getRecordsFromCache(zoneIdentity);
                     newZoneMap.remove(zoneIdentity);
-                    logger.debug("Deleted {} records from the zone cache for the view {} and the zone {}.", records.size(), zoneIdentity.getViewName(), zoneIdentity.getZoneName());
+                    logger.debug("Deleted {} records from the zone cache for the zone {}.", records.size(), zoneIdentity);
+                    
+                    // Remove the scheduled refresh of the zone.
+                    this.refreshZoneFutureMap.get(zoneIdentity).cancel(true);
+                    this.refreshZoneFutureMap.remove(zoneIdentity);
                 }
             }
 
@@ -282,11 +355,17 @@ public class ZoneCache {
                     long dnsSerialNumber = getSerialNumberFromDNS(zoneIdentity);
                     long cacheSerialNumber = getSerialNumberFromCache(zoneIdentity);
                     
-                    logger.debug("Comparing the DNS serial number {} to the zone cache serial number {} for the view {} and the zone {}.", dnsSerialNumber, cacheSerialNumber, zoneIdentity.getViewName(), zoneIdentity.getZoneName());
+                    logger.debug("Comparing the DNS serial number {} to the zone cache serial number {} for the zone {}.", dnsSerialNumber, cacheSerialNumber, zoneIdentity);
                     if (dnsSerialNumber != cacheSerialNumber) {
-                        List<Record> records = getRecordsFromDNS(zoneIdentity);
+                        logger.debug("{} records in the zone {} prior to the zone cache update.", this.zoneMap.get(zoneIdentity).size(), zoneIdentity);
+                        List<Record> records = getRecordsFromDNS(zoneIdentity, this.zoneMap.get(zoneIdentity));
                         newZoneMap.put(zoneIdentity, records);
-                    }                       
+                        logger.debug("{} records in the zone {} after the zone cache update.", records.size(), zoneIdentity);
+                    }
+                    
+                    // Update the scheduled refresh of the zone.
+                    this.refreshZoneFutureMap.get(zoneIdentity).cancel(true);
+                    this.refreshZoneFutureMap.put(zoneIdentity, this.refreshZoneScheduler.scheduleWithFixedDelay(new RefreshZoneThread(this, zoneIdentity), getRefreshInterval(zoneIdentity, newZoneMap), getRefreshInterval(zoneIdentity, newZoneMap), TimeUnit.SECONDS));
                 }
             }
             
@@ -312,11 +391,18 @@ public class ZoneCache {
     @PreDestroy
     public void shutdown() throws InterruptedException {
         
-        logger.info("Stopping the zone cache.");
+        logger.info("Stopping the zone cache ...");
         
         // Stop the notify message monitor and wait for it to finish.
         this.isShutdown = true;
-        this.notifyMessageMonitor.join();
+        this.notifyMessageMonitor.shutdown();
+        for (ScheduledFuture refreshZoneFuture : this.refreshZoneFutureMap.values()) {
+            refreshZoneFuture.cancel(true);
+        }
+        this.refreshZoneScheduler.shutdown();
+        this.notifyMessageMonitor.awaitTermination(30000L, TimeUnit.MILLISECONDS);
+        this.refreshZoneScheduler.awaitTermination(30000L, TimeUnit.MILLISECONDS);
+        logger.info("Zone cache stopped.");
     }
       
     /**
@@ -350,6 +436,17 @@ public class ZoneCache {
         this.notifyMessageMonitorPort = notifyMessageMonitorPort;
         logger.info("Set the notify message monitor port to {}.", notifyMessageMonitorPort);
     }
+        
+    /**
+     * Set the notify message monitor socket timeout.
+     * 
+     * @param  notifyMessageMonitorSocketTimeout  the notify message monitor socket timeout.
+     */
+    @Inject 
+    public void setNotifyMessageMonitorSocketTimeout(@NotifyMessageMonitorSocketTimeout final int notifyMessageMonitorSocketTimeout) {
+        this.notifyMessageMonitorSocketTimeout = notifyMessageMonitorSocketTimeout;
+        logger.info("Set the notify message monitor socket timeout to {}.", notifyMessageMonitorSocketTimeout);
+    }
     
     /**
      * Set the notify message monitor threads.
@@ -370,12 +467,14 @@ public class ZoneCache {
     @PostConstruct
     public void startup() throws IOException {
         
-        logger.info("Startup the zone cache.");
+        logger.info("Start the zone cache ...");
         this.isShutdown = false;
         this.isSuspended = false;
+        this.refreshZoneScheduler = Executors.newScheduledThreadPool(10);
         this.refresh();
-        this.notifyMessageMonitor = new NotifyMessageMonitor(this, this.notifyMessageMonitorAddress, this.notifyMessageMonitorPort, this.notifyMessageMonitorThreads);
-        this.notifyMessageMonitor.start();
+        this.notifyMessageMonitor = Executors.newFixedThreadPool(1);
+        this.notifyMessageMonitor.execute(new NotifyMessageMonitor(this, this.notifyMessageMonitorAddress, this.notifyMessageMonitorPort, this.notifyMessageMonitorSocketTimeout, this.notifyMessageMonitorThreads));
+        logger.info("Zone cache started.");
     }
         
     /**
@@ -383,5 +482,42 @@ public class ZoneCache {
      */
     public void suspend() {
         this.isSuspended = true;
+    }
+    
+    /**
+     * Refresh zone thread.
+     */
+    private class RefreshZoneThread implements Runnable {
+        
+        private ZoneCache zoneCache;
+        private ZoneIdentity zoneIdentity;
+        
+        /**
+         * Initialize the refresh zone thread.
+         * 
+         * @param  socket         the socket.
+         * @param  requestPacket  the request packet.
+         */
+        public RefreshZoneThread(final ZoneCache zoneCache, final ZoneIdentity zoneIdentity) {
+            this.zoneCache = zoneCache;
+            this.zoneIdentity = zoneIdentity;
+        }
+
+        /**
+         * Run the refresh zone thread.
+         */
+        @Override
+        public void run() {
+
+            // Flag the zone cache for refresh.
+            this.zoneCache.flagForRefresh(this.zoneIdentity);
+               
+            // Check if the record cache is not suspended.
+            if (!this.zoneCache.isSuspended()) {
+                
+                // Refresh the zone cache.
+                this.zoneCache.refresh();
+            }
+        }
     }
 }

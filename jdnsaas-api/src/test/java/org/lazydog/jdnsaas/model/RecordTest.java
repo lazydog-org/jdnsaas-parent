@@ -32,7 +32,7 @@ public class RecordTest {
     @Test(expected=NullPointerException.class)
     @SuppressWarnings("unchecked")
     public void testNewInstanceNullRecordClass() throws Exception {
-        Record.<Record,Record.Data>newInstance(null, "name", new Integer(0), (Object[])null);
+        Record.<Record,Record.Data>newInstance(null, "name", new Long(0), (Object[])null);
     }
      
     
@@ -43,8 +43,8 @@ public class RecordTest {
         ARecord expectedRecord = new ARecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(ARecord.class, "name", new Integer(0), recordData));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(ARecord.class, "name", new Long(0), recordData));
     }
      
     @Test
@@ -54,8 +54,8 @@ public class RecordTest {
         ARecord expectedRecord = new ARecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(ARecord.class, "name", new Integer(0), "0.0.0.0"));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(ARecord.class, "name", new Long(0), "0.0.0.0"));
     }
         
     @Test
@@ -63,8 +63,8 @@ public class RecordTest {
         ARecord expectedRecord = new ARecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(ARecord.class, "name", new Integer(0), (ARecord.Data)null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(ARecord.class, "name", new Long(0), (ARecord.Data)null));
     }
     
     @Test
@@ -72,8 +72,8 @@ public class RecordTest {
         ARecord expectedRecord = new ARecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(ARecord.class, "name", new Integer(0), (Object[])null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(ARecord.class, "name", new Long(0), (Object[])null));
     }
     
     @Test
@@ -88,12 +88,12 @@ public class RecordTest {
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceAExtraDataElement() throws Exception {
-        Record.newInstance(ARecord.class, "name", new Integer(0), "0.0.0.0", "extra");
+        Record.newInstance(ARecord.class, "name", new Long(0), "0.0.0.0", "extra");
     }
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceAInvalidIpAddressProperty() throws Exception {
-        Record.newInstance(ARecord.class, "name", new Integer(0), new Integer(0));
+        Record.newInstance(ARecord.class, "name", new Long(0), new Integer(0));
     }
     
     
@@ -104,8 +104,8 @@ public class RecordTest {
         AAAARecord expectedRecord = new AAAARecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(AAAARecord.class, "name", new Integer(0), recordData));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(AAAARecord.class, "name", new Long(0), recordData));
     }
      
     @Test
@@ -115,8 +115,8 @@ public class RecordTest {
         AAAARecord expectedRecord = new AAAARecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(AAAARecord.class, "name", new Integer(0), "0000:0000:0000:0000:0000:0000:0000:0000"));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(AAAARecord.class, "name", new Long(0), "0000:0000:0000:0000:0000:0000:0000:0000"));
     }
         
     @Test
@@ -124,8 +124,8 @@ public class RecordTest {
         AAAARecord expectedRecord = new AAAARecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(AAAARecord.class, "name", new Integer(0), (AAAARecord.Data)null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(AAAARecord.class, "name", new Long(0), (AAAARecord.Data)null));
     }
     
     @Test
@@ -133,8 +133,8 @@ public class RecordTest {
         AAAARecord expectedRecord = new AAAARecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(AAAARecord.class, "name", new Integer(0), (Object[])null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(AAAARecord.class, "name", new Long(0), (Object[])null));
     }
     
     @Test
@@ -149,12 +149,12 @@ public class RecordTest {
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceAAAAExtraDataElement() throws Exception {
-        Record.newInstance(AAAARecord.class, "name", new Integer(0), "0000:0000:0000:0000:0000:0000:0000:0000", "extra");
+        Record.newInstance(AAAARecord.class, "name", new Long(0), "0000:0000:0000:0000:0000:0000:0000:0000", "extra");
     }
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceAAAAInvalidIpv6AddressProperty() throws Exception {
-        Record.newInstance(AAAARecord.class, "name", new Integer(0), new Integer(0));
+        Record.newInstance(AAAARecord.class, "name", new Long(0), new Integer(0));
     }
     
     
@@ -165,8 +165,8 @@ public class RecordTest {
         CNAMERecord expectedRecord = new CNAMERecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(CNAMERecord.class, "name", new Integer(0), recordData));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(CNAMERecord.class, "name", new Long(0), recordData));
     }
      
     @Test
@@ -176,8 +176,8 @@ public class RecordTest {
         CNAMERecord expectedRecord = new CNAMERecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(CNAMERecord.class, "name", new Integer(0), "target"));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(CNAMERecord.class, "name", new Long(0), "target"));
     }
         
     @Test
@@ -185,8 +185,8 @@ public class RecordTest {
         CNAMERecord expectedRecord = new CNAMERecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(CNAMERecord.class, "name", new Integer(0), (CNAMERecord.Data)null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(CNAMERecord.class, "name", new Long(0), (CNAMERecord.Data)null));
     }
     
     @Test
@@ -194,8 +194,8 @@ public class RecordTest {
         CNAMERecord expectedRecord = new CNAMERecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(CNAMERecord.class, "name", new Integer(0), (Object[])null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(CNAMERecord.class, "name", new Long(0), (Object[])null));
     }
     
     @Test
@@ -210,12 +210,12 @@ public class RecordTest {
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceCNAMEExtraDataElement() throws Exception {
-        Record.newInstance(CNAMERecord.class, "name", new Integer(0), "target", "extra");
+        Record.newInstance(CNAMERecord.class, "name", new Long(0), "target", "extra");
     }
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceCNAMEInvalidTargetProperty() throws Exception {
-        Record.newInstance(CNAMERecord.class, "name", new Integer(0), new Integer(0));
+        Record.newInstance(CNAMERecord.class, "name", new Long(0), new Integer(0));
     }
     
     
@@ -227,8 +227,8 @@ public class RecordTest {
         MXRecord expectedRecord = new MXRecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(MXRecord.class, "name", new Integer(0), recordData));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(MXRecord.class, "name", new Long(0), recordData));
     }
      
     @Test
@@ -239,8 +239,8 @@ public class RecordTest {
         MXRecord expectedRecord = new MXRecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(MXRecord.class, "name", new Integer(0), "target", new Integer(0)));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(MXRecord.class, "name", new Long(0), "target", new Integer(0)));
     }
         
     @Test
@@ -248,8 +248,8 @@ public class RecordTest {
         MXRecord expectedRecord = new MXRecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(MXRecord.class, "name", new Integer(0), (MXRecord.Data)null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(MXRecord.class, "name", new Long(0), (MXRecord.Data)null));
     }
     
     @Test
@@ -257,8 +257,8 @@ public class RecordTest {
         MXRecord expectedRecord = new MXRecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(MXRecord.class, "name", new Integer(0), (Object[])null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(MXRecord.class, "name", new Long(0), (Object[])null));
     }
     
     @Test
@@ -273,17 +273,17 @@ public class RecordTest {
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceMXExtraDataElement() throws Exception {
-        Record.newInstance(MXRecord.class, "name", new Integer(0), "target", new Integer(0), "extra");
+        Record.newInstance(MXRecord.class, "name", new Long(0), "target", new Integer(0), "extra");
     }
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceMXInvalidTargetProperty() throws Exception {
-        Record.newInstance(MXRecord.class, "name", new Integer(0), new Integer(0), new Integer(0));
+        Record.newInstance(MXRecord.class, "name", new Long(0), new Integer(0), new Integer(0));
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceMXInvalidPriorityProperty() throws Exception {
-        Record.newInstance(MXRecord.class, "name", new Integer(0), new Integer(0), "priority");
+        Record.newInstance(MXRecord.class, "name", new Long(0), new Integer(0), "priority");
     }
     
     
@@ -294,8 +294,8 @@ public class RecordTest {
         NSRecord expectedRecord = new NSRecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(NSRecord.class, "name", new Integer(0), recordData));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(NSRecord.class, "name", new Long(0), recordData));
     }
      
     @Test
@@ -305,8 +305,8 @@ public class RecordTest {
         NSRecord expectedRecord = new NSRecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(NSRecord.class, "name", new Integer(0), "target"));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(NSRecord.class, "name", new Long(0), "target"));
     }
         
     @Test
@@ -314,8 +314,8 @@ public class RecordTest {
         NSRecord expectedRecord = new NSRecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(NSRecord.class, "name", new Integer(0), (NSRecord.Data)null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(NSRecord.class, "name", new Long(0), (NSRecord.Data)null));
     }
     
     @Test
@@ -323,8 +323,8 @@ public class RecordTest {
         NSRecord expectedRecord = new NSRecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(NSRecord.class, "name", new Integer(0), (Object[])null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(NSRecord.class, "name", new Long(0), (Object[])null));
     }
     
     @Test
@@ -339,12 +339,12 @@ public class RecordTest {
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceNSExtraDataElement() throws Exception {
-        Record.newInstance(NSRecord.class, "name", new Integer(0), "target", "extra");
+        Record.newInstance(NSRecord.class, "name", new Long(0), "target", "extra");
     }
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceNSInvalidTargetProperty() throws Exception {
-        Record.newInstance(NSRecord.class, "name", new Integer(0), new Integer(0));
+        Record.newInstance(NSRecord.class, "name", new Long(0), new Integer(0));
     }
     
     
@@ -355,8 +355,8 @@ public class RecordTest {
         PTRRecord expectedRecord = new PTRRecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(PTRRecord.class, "name", new Integer(0), recordData));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(PTRRecord.class, "name", new Long(0), recordData));
     }
      
     @Test
@@ -366,8 +366,8 @@ public class RecordTest {
         PTRRecord expectedRecord = new PTRRecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(PTRRecord.class, "name", new Integer(0), "target"));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(PTRRecord.class, "name", new Long(0), "target"));
     }
         
     @Test
@@ -375,8 +375,8 @@ public class RecordTest {
         PTRRecord expectedRecord = new PTRRecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(PTRRecord.class, "name", new Integer(0), (PTRRecord.Data)null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(PTRRecord.class, "name", new Long(0), (PTRRecord.Data)null));
     }
     
     @Test
@@ -384,8 +384,8 @@ public class RecordTest {
         PTRRecord expectedRecord = new PTRRecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(PTRRecord.class, "name", new Integer(0), (Object[])null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(PTRRecord.class, "name", new Long(0), (Object[])null));
     }
     
     @Test
@@ -400,12 +400,12 @@ public class RecordTest {
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstancePTRExtraDataElement() throws Exception {
-        Record.newInstance(PTRRecord.class, "name", new Integer(0), "target", "extra");
+        Record.newInstance(PTRRecord.class, "name", new Long(0), "target", "extra");
     }
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstancePTRInvalidTargetProperty() throws Exception {
-        Record.newInstance(PTRRecord.class, "name", new Integer(0), new Integer(0));
+        Record.newInstance(PTRRecord.class, "name", new Long(0), new Integer(0));
     }
     
     
@@ -413,34 +413,34 @@ public class RecordTest {
     public void testNewInstanceSOAData() throws Exception {
         SOARecord.Data recordData = new SOARecord.Data();
         recordData.setEmailAddress("emailAddress");
-        recordData.setExpireInterval(new Integer(1));
+        recordData.setExpireInterval(new Long(1));
         recordData.setMasterNameServer("masterNameServer");
-        recordData.setMinimumTimeToLive(new Integer(0));
-        recordData.setRefreshInterval(new Integer(3));
-        recordData.setRetryInterval(new Integer(2));
+        recordData.setMinimumTimeToLive(new Long(0));
+        recordData.setRefreshInterval(new Long(3));
+        recordData.setRetryInterval(new Long(2));
         recordData.setSerialNumber(new Long(4));
         SOARecord expectedRecord = new SOARecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(SOARecord.class, "name", new Integer(0), recordData));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(SOARecord.class, "name", new Long(0), recordData));
     }
      
     @Test
     public void testNewInstanceSOADataElements() throws Exception {
         SOARecord.Data recordData = new SOARecord.Data();
         recordData.setEmailAddress("emailAddress");
-        recordData.setExpireInterval(new Integer(1));
+        recordData.setExpireInterval(new Long(1));
         recordData.setMasterNameServer("masterNameServer");
-        recordData.setMinimumTimeToLive(new Integer(0));
-        recordData.setRefreshInterval(new Integer(3));
-        recordData.setRetryInterval(new Integer(2));
+        recordData.setMinimumTimeToLive(new Long(0));
+        recordData.setRefreshInterval(new Long(3));
+        recordData.setRetryInterval(new Long(2));
         recordData.setSerialNumber(new Long(4));
         SOARecord expectedRecord = new SOARecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(SOARecord.class, "name", new Integer(0), new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Long(4), "emailAddress", "masterNameServer"));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(SOARecord.class, "name", new Long(0), new Long(0), new Long(1), new Long(2), new Long(3), new Long(4), "emailAddress", "masterNameServer"));
     }
         
     @Test
@@ -448,8 +448,8 @@ public class RecordTest {
         SOARecord expectedRecord = new SOARecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(SOARecord.class, "name", new Integer(0), (SOARecord.Data)null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(SOARecord.class, "name", new Long(0), (SOARecord.Data)null));
     }
     
     @Test
@@ -457,8 +457,8 @@ public class RecordTest {
         SOARecord expectedRecord = new SOARecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(SOARecord.class, "name", new Integer(0), (Object[])null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(SOARecord.class, "name", new Long(0), (Object[])null));
     }
     
     @Test
@@ -473,42 +473,42 @@ public class RecordTest {
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAExtraDataElement() throws Exception {
-        Record.newInstance(SOARecord.class, "name", new Integer(0), new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Long(4), "emailAddress", "masterNameServer", "extra");
+        Record.newInstance(SOARecord.class, "name", new Long(0), new Long(0), new Long(1), new Long(2), new Long(3), new Long(4), "emailAddress", "masterNameServer", "extra");
     }
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidMinumumTimeToLiveProperty() throws Exception {
-        Record.newInstance(SOARecord.class, "name", new Integer(0), "minimumTimeToLive", new Integer(1), new Integer(2), new Integer(3), new Long(4), "emailAddress", "masterNameServer");
+        Record.newInstance(SOARecord.class, "name", new Long(0), "minimumTimeToLive", new Long(1), new Long(2), new Long(3), new Long(4), "emailAddress", "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidExpireIntervalProperty() throws Exception {
-        Record.newInstance(SOARecord.class, "name", new Integer(0), new Integer(0), "expireInterval", new Integer(2), new Integer(3), new Long(4), "emailAddress", "masterNameServer");
+        Record.newInstance(SOARecord.class, "name", new Long(0), new Long(0), "expireInterval", new Long(2), new Long(3), new Long(4), "emailAddress", "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidRetryIntervalProperty() throws Exception {
-        Record.newInstance(SOARecord.class, "name", new Integer(0), new Integer(0), new Integer(1), "retryInterval", new Integer(3), new Long(4), "emailAddress", "masterNameServer");
+        Record.newInstance(SOARecord.class, "name", new Long(0), new Long(0), new Long(1), "retryInterval", new Long(3), new Long(4), "emailAddress", "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidRefreshIntervalProperty() throws Exception {
-        Record.newInstance(SOARecord.class, "name", new Integer(0), new Integer(0), new Integer(1), new Integer(2), "refreshInterval", new Long(4), "emailAddress", "masterNameServer");
+        Record.newInstance(SOARecord.class, "name", new Long(0), new Long(0), new Long(1), new Long(2), "refreshInterval", new Long(4), "emailAddress", "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidSerialNumberProperty() throws Exception {
-        Record.newInstance(SOARecord.class, "name", new Integer(0), new Integer(0), new Integer(1), new Integer(2), new Integer(3), "serialNumber", "emailAddress", "masterNameServer");
+        Record.newInstance(SOARecord.class, "name", new Long(0), new Long(0), new Long(1), new Long(2), new Long(3), "serialNumber", "emailAddress", "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidEmailAddressProperty() throws Exception {
-        Record.newInstance(SOARecord.class, "name", new Integer(0), new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Long(4), new Integer(5), "masterNameServer");
+        Record.newInstance(SOARecord.class, "name", new Long(0), new Long(0), new Long(1), new Long(2), new Long(3), new Long(4), new Integer(5), "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidMasterNameServerProperty() throws Exception {
-        Record.newInstance(SOARecord.class, "name", new Integer(0), new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Long(4), "emailAddress", new Integer(6));
+        Record.newInstance(SOARecord.class, "name", new Long(0), new Long(0), new Long(1), new Long(2), new Long(3), new Long(4), "emailAddress", new Integer(6));
     }
     
     
@@ -522,8 +522,8 @@ public class RecordTest {
         SRVRecord expectedRecord = new SRVRecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(SRVRecord.class, "name", new Integer(0), recordData));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(SRVRecord.class, "name", new Long(0), recordData));
     }
      
     @Test
@@ -536,8 +536,8 @@ public class RecordTest {
         SRVRecord expectedRecord = new SRVRecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(SRVRecord.class, "name", new Integer(0), "target", new Integer(0), new Integer(1), new Integer(2)));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(SRVRecord.class, "name", new Long(0), "target", new Integer(0), new Integer(1), new Integer(2)));
     }
         
     @Test
@@ -545,8 +545,8 @@ public class RecordTest {
         SRVRecord expectedRecord = new SRVRecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(SRVRecord.class, "name", new Integer(0), (SRVRecord.Data)null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(SRVRecord.class, "name", new Long(0), (SRVRecord.Data)null));
     }
     
     @Test
@@ -554,8 +554,8 @@ public class RecordTest {
         SRVRecord expectedRecord = new SRVRecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(SRVRecord.class, "name", new Integer(0), (Object[])null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(SRVRecord.class, "name", new Long(0), (Object[])null));
     }
     
     @Test
@@ -570,27 +570,27 @@ public class RecordTest {
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSRVExtraDataElement() throws Exception {
-        Record.newInstance(SRVRecord.class, "name", new Integer(0), "target", new Integer(0), new Integer(1), new Integer(2), "extra");
+        Record.newInstance(SRVRecord.class, "name", new Long(0), "target", new Integer(0), new Integer(1), new Integer(2), "extra");
     }
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSRVInvalidTargetProperty() throws Exception {
-        Record.newInstance(SRVRecord.class, "name", new Integer(0), new Integer(3), new Integer(0), new Integer(1), new Integer(2));
+        Record.newInstance(SRVRecord.class, "name", new Long(0), new Integer(3), new Integer(0), new Integer(1), new Integer(2));
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSRVInvalidPortProperty() throws Exception {
-        Record.newInstance(SRVRecord.class, "name", new Integer(0), "target", "port", new Integer(1), new Integer(2));
+        Record.newInstance(SRVRecord.class, "name", new Long(0), "target", "port", new Integer(1), new Integer(2));
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSRVInvalidWeightProperty() throws Exception {
-        Record.newInstance(SRVRecord.class, "name", new Integer(0), "target", new Integer(0), "weight", new Integer(2));
+        Record.newInstance(SRVRecord.class, "name", new Long(0), "target", new Integer(0), "weight", new Integer(2));
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSRVInvalidPriorityProperty() throws Exception {
-        Record.newInstance(SRVRecord.class, "name", new Integer(0), "target", new Integer(0), new Integer(1), "priority");
+        Record.newInstance(SRVRecord.class, "name", new Long(0), "target", new Integer(0), new Integer(1), "priority");
     }
     
     
@@ -601,8 +601,8 @@ public class RecordTest {
         TXTRecord expectedRecord = new TXTRecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(TXTRecord.class, "name", new Integer(0), recordData));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(TXTRecord.class, "name", new Long(0), recordData));
     }
      
     @Test
@@ -612,8 +612,8 @@ public class RecordTest {
         TXTRecord expectedRecord = new TXTRecord();
         expectedRecord.setData(recordData);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(TXTRecord.class, "name", new Integer(0), Arrays.asList("value")));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(TXTRecord.class, "name", new Long(0), Arrays.asList("value")));
     }
         
     @Test
@@ -621,8 +621,8 @@ public class RecordTest {
         TXTRecord expectedRecord = new TXTRecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(TXTRecord.class, "name", new Integer(0), (TXTRecord.Data)null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(TXTRecord.class, "name", new Long(0), (TXTRecord.Data)null));
     }
     
     @Test
@@ -630,8 +630,8 @@ public class RecordTest {
         TXTRecord expectedRecord = new TXTRecord();
         expectedRecord.setData(null);
         expectedRecord.setName("name");
-        expectedRecord.setTimeToLive(new Integer(0));
-        assertEquals(expectedRecord, Record.newInstance(TXTRecord.class, "name", new Integer(0), (Object[])null));
+        expectedRecord.setTimeToLive(new Long(0));
+        assertEquals(expectedRecord, Record.newInstance(TXTRecord.class, "name", new Long(0), (Object[])null));
     }
     
     @Test
@@ -646,11 +646,11 @@ public class RecordTest {
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceTXTExtraDataElement() throws Exception {
-        Record.newInstance(TXTRecord.class, "name", new Integer(0), Arrays.asList("value"), "extra");
+        Record.newInstance(TXTRecord.class, "name", new Long(0), Arrays.asList("value"), "extra");
     }
                 
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceTXTInvalidValuesProperty() throws Exception {
-        Record.newInstance(TXTRecord.class, "name", new Integer(0), new Integer(0));
+        Record.newInstance(TXTRecord.class, "name", new Long(0), new Integer(0));
     }
 }

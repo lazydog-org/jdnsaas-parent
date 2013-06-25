@@ -41,11 +41,11 @@ public class SOARecord extends Record<SOARecord.Data> {
 
         private static final long serialVersionUID = 1L;
         private String emailAddress;
-        private Integer expireInterval = new Integer(0);
+        private Long expireInterval = new Long(0);
         private String masterNameServer;
-        private Integer minimumTimeToLive = new Integer(0);
-        private Integer refreshInterval = new Integer(0);
-        private Integer retryInterval = new Integer(0);
+        private Long minimumTimeToLive = new Long(0);
+        private Long refreshInterval = new Long(0);
+        private Long retryInterval = new Long(0);
         private Long serialNumber = new Long(0);
 
         /**
@@ -62,7 +62,7 @@ public class SOARecord extends Record<SOARecord.Data> {
          * 
          * @return  the expire interval.
          */
-        public Integer getExpireInterval() {
+        public Long getExpireInterval() {
             return this.expireInterval;
         }
                 
@@ -80,7 +80,7 @@ public class SOARecord extends Record<SOARecord.Data> {
          * 
          * @return  the minimum time to live.
          */
-        public Integer getMinimumTimeToLive() {
+        public Long getMinimumTimeToLive() {
             return this.minimumTimeToLive;
         }
 
@@ -89,7 +89,7 @@ public class SOARecord extends Record<SOARecord.Data> {
          * 
          * @return  the refresh interval.
          */
-        public Integer getRefreshInterval() {
+        public Long getRefreshInterval() {
             return this.refreshInterval;
         }
         
@@ -98,7 +98,7 @@ public class SOARecord extends Record<SOARecord.Data> {
          * 
          * @return  the retry interval.
          */
-        public Integer getRetryInterval() {
+        public Long getRetryInterval() {
             return this.retryInterval;
         }
         
@@ -125,8 +125,8 @@ public class SOARecord extends Record<SOARecord.Data> {
          * 
          * @param  expireInterval  the expire interval.
          */
-        public void setExpireInterval(final Integer expireInterval) {
-            this.expireInterval = replaceNull(expireInterval, new Integer(0));
+        public void setExpireInterval(final Long expireInterval) {
+            this.expireInterval = replaceNull(expireInterval, new Long(0));
         }
         
         /**
@@ -143,8 +143,8 @@ public class SOARecord extends Record<SOARecord.Data> {
          * 
          * @param  minimumTimeToLive  the minimum time to live.
          */
-        public void setMinimumTimeToLive(final Integer minimumTimeToLive) {
-            this.minimumTimeToLive = replaceNull(minimumTimeToLive, new Integer(0));
+        public void setMinimumTimeToLive(final Long minimumTimeToLive) {
+            this.minimumTimeToLive = replaceNull(minimumTimeToLive, new Long(0));
         }
 
         /**
@@ -152,8 +152,8 @@ public class SOARecord extends Record<SOARecord.Data> {
          * 
          * @param  refreshInterval  the refresh interval.
          */
-        public void setRefreshInterval(final Integer refreshInterval) {
-            this.refreshInterval = replaceNull(refreshInterval, new Integer(0));
+        public void setRefreshInterval(final Long refreshInterval) {
+            this.refreshInterval = replaceNull(refreshInterval, new Long(0));
         }
         
         /**
@@ -161,8 +161,8 @@ public class SOARecord extends Record<SOARecord.Data> {
          * 
          * @param  retryInterval  the retry interval.
          */
-        public void setRetryInterval(final Integer retryInterval) {
-            this.retryInterval = replaceNull(retryInterval, new Integer(0));
+        public void setRetryInterval(final Long retryInterval) {
+            this.retryInterval = replaceNull(retryInterval, new Long(0));
         }
         
         /**

@@ -25,7 +25,6 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.lazydog.jdnsaas.model.SOARecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +34,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author  Ron Rickard
  */
-public class NotifyMessageMonitor extends Thread {
+public class NotifyMessageMonitor implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(NotifyMessageMonitor.class);
-    private static final int DEFAULT_SOCKET_TIMEOUT = 30000;
+    private static final int DEFAULT_SOCKET_TIMEOUT = 20000;
     private static final int DEFAULT_THREADS = 10;
     private static final int UDP_PACKET_SIZE = 4096;
     private String ipAddress;
@@ -46,6 +45,7 @@ public class NotifyMessageMonitor extends Thread {
     private int threads;
     private ZoneCache zoneCache;
     private DatagramSocket socket;
+    private int socketTimeout;
     
     /**
      * Create the notify message monitor.
@@ -53,20 +53,22 @@ public class NotifyMessageMonitor extends Thread {
      * @param  recordCache    the record cache.
      * @param  ipAddress      the IP address.
      * @param  port           the port.
+     * @param  socketTimeout  the socket timeout.
      * @param  threads        the number of threads.
      * 
      * @throws  IOException  if unable to create the notify message monitor.
      */
-    public NotifyMessageMonitor(final ZoneCache zoneCache, final String ipAddress, final int port, final int threads) throws IOException {
-        super();
+    public NotifyMessageMonitor(final ZoneCache zoneCache, final String ipAddress, final int port, final int socketTimeout, final int threads) throws IOException {
         this.zoneCache = zoneCache;
         this.ipAddress = ipAddress;
         this.port = port;
+        this.socketTimeout = socketTimeout;
         this.threads = threads;
-        
+
         // Open the UDP socket.  Set a timeout value to allow the monitor to be shutdown gracefully.
-        this.socket = new DatagramSocket(port, InetAddress.getByName(ipAddress));
-        this.socket.setSoTimeout(DEFAULT_SOCKET_TIMEOUT);
+        this.socket = new DatagramSocket(this.port, InetAddress.getByName(this.ipAddress));
+        this.socket.setSoTimeout((this.socketTimeout > 0) ? this.socketTimeout : DEFAULT_SOCKET_TIMEOUT);
+        logger.debug("Open the UDP socket {} port {} with a timeout of {}.", this.socket, this.port, (this.socketTimeout > 0) ? this.socketTimeout : DEFAULT_SOCKET_TIMEOUT);
     }
     
     /**
@@ -98,7 +100,7 @@ public class NotifyMessageMonitor extends Thread {
                     logger.debug("UDP socket {} port {} timed out.", this.ipAddress, this.port);
                 } catch (IOException e) {
                     logger.warn("Error receiving a UDP request from {} port {}.", this.ipAddress, this.port);
-                } 
+                }
             }
         } catch (Exception e) {
             logger.error("The notify message monitor has aborted.", e);

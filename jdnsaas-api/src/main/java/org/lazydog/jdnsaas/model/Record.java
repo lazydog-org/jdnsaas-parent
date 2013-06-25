@@ -30,11 +30,11 @@ import java.util.List;
 public abstract class Record<T extends Record.Data> extends Model {
         
     private static final long serialVersionUID = 1L;
-    public static final int DEFAULT_TIME_TO_LIVE = 300;
+    public static final long DEFAULT_TIME_TO_LIVE = 300L;
     private T data;
     private String name;
     private RecordOperation operation;
-    private Integer timeToLive = new Integer(DEFAULT_TIME_TO_LIVE);
+    private Long timeToLive = new Long(DEFAULT_TIME_TO_LIVE);
     private transient RecordType type;
   
     /**
@@ -69,7 +69,7 @@ public abstract class Record<T extends Record.Data> extends Model {
      * 
      * @return  the time to live.
      */
-    public Integer getTimeToLive() {
+    public Long getTimeToLive() {
         return this.timeToLive;
     }
     
@@ -106,7 +106,7 @@ public abstract class Record<T extends Record.Data> extends Model {
      * @throws  InstantiationException    if the record class cannot be instantiated.
      * @throws  NullPointerException      if the record class is null.
      */
-    public static <T extends Record<U>,U extends Data> T newInstance(final Class<T> recordClass, final String name, final Integer timeToLive, final U data) throws IllegalAccessException, InstantiationException {
+    public static <T extends Record<U>,U extends Data> T newInstance(final Class<T> recordClass, final String name, final Long timeToLive, final U data) throws IllegalAccessException, InstantiationException {
 
         if (recordClass == null) {
             throw new NullPointerException("The record class cannot be null.");
@@ -142,7 +142,7 @@ public abstract class Record<T extends Record.Data> extends Model {
      * 
      * @see  Data#newInstance(java.lang.Class, java.lang.Object[]) 
      */
-    public static <T extends Record<U>,U extends Data> T newInstance(final Class<T> recordClass, final String name, final Integer timeToLive, final Object... dataElements) throws IllegalAccessException, InstantiationException {
+    public static <T extends Record<U>,U extends Data> T newInstance(final Class<T> recordClass, final String name, final Long timeToLive, final Object... dataElements) throws IllegalAccessException, InstantiationException {
 
         if (recordClass == null) {
             throw new NullPointerException("The record class cannot be null.");
@@ -202,8 +202,8 @@ public abstract class Record<T extends Record.Data> extends Model {
      * 
      * @param  timeToLive  the time to live.
      */
-    public void setTimeToLive(final Integer timeToLive) {
-        this.timeToLive = replaceNull(timeToLive, new Integer(DEFAULT_TIME_TO_LIVE));
+    public void setTimeToLive(final Long timeToLive) {
+        this.timeToLive = replaceNull(timeToLive, new Long(DEFAULT_TIME_TO_LIVE));
     }
     
     /**
@@ -319,15 +319,15 @@ public abstract class Record<T extends Record.Data> extends Model {
 
                 // Check if the record data class is the SOA record data class.
                 } else if (SOARecord.Data.class.equals(dataClass)) {
-                    if (dataElements.length != 7 || !(dataElements[0] instanceof Integer) || !(dataElements[1] instanceof Integer) || !(dataElements[2] instanceof Integer) || !(dataElements[3] instanceof Integer) || !(dataElements[4] instanceof Long) || !(dataElements[5] instanceof String) || !(dataElements[6] instanceof String)) {
+                    if (dataElements.length != 7 || !(dataElements[0] instanceof Long) || !(dataElements[1] instanceof Long) || !(dataElements[2] instanceof Long) || !(dataElements[3] instanceof Long) || !(dataElements[4] instanceof Long) || !(dataElements[5] instanceof String) || !(dataElements[6] instanceof String)) {
                         throw illegalArgumentException;
                     }
                     ((SOARecord.Data)data).setEmailAddress((String)dataElements[5]);
-                    ((SOARecord.Data)data).setExpireInterval((Integer)dataElements[1]);
+                    ((SOARecord.Data)data).setExpireInterval((Long)dataElements[1]);
                     ((SOARecord.Data)data).setMasterNameServer((String)dataElements[6]);
-                    ((SOARecord.Data)data).setMinimumTimeToLive((Integer)dataElements[0]);
-                    ((SOARecord.Data)data).setRefreshInterval((Integer)dataElements[3]);
-                    ((SOARecord.Data)data).setRetryInterval((Integer)dataElements[2]);
+                    ((SOARecord.Data)data).setMinimumTimeToLive((Long)dataElements[0]);
+                    ((SOARecord.Data)data).setRefreshInterval((Long)dataElements[3]);
+                    ((SOARecord.Data)data).setRetryInterval((Long)dataElements[2]);
                     ((SOARecord.Data)data).setSerialNumber((Long)dataElements[4]);
                     
                 // Check if the record data class is the SRV record data class.

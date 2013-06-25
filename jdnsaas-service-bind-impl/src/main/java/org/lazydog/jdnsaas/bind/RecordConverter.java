@@ -18,10 +18,10 @@
  */
 package org.lazydog.jdnsaas.bind;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import org.lazydog.jdnsaas.model.AAAARecord;
 import org.lazydog.jdnsaas.model.ARecord;
 import org.lazydog.jdnsaas.model.CNAMERecord;
@@ -271,7 +271,7 @@ public final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createPTRRecord(final org.xbill.DNS.PTRRecord dnsPTRRecord) throws IllegalAccessException, InstantiationException {
-        return Record.newInstance(PTRRecord.class, this.zoneUtility.getIpAddress(this.zoneUtility.relativize(dnsPTRRecord.getName().toString())), (int)dnsPTRRecord.getTTL(), this.zoneUtility.relativize(dnsPTRRecord.getTarget().toString()));
+        return Record.newInstance(PTRRecord.class, this.zoneUtility.getIpAddress(this.zoneUtility.relativize(dnsPTRRecord.getName().toString())), dnsPTRRecord.getTTL(), this.zoneUtility.relativize(dnsPTRRecord.getTarget().toString()));
     }
      
     /**
@@ -287,7 +287,7 @@ public final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private <T extends Record<U>, U extends Record.Data> Record createRecord(final Class<T> recordClass, final org.xbill.DNS.Record dnsRecord, final Object... dataElements) throws IllegalAccessException, InstantiationException {
-        return Record.newInstance(recordClass, this.zoneUtility.relativize(dnsRecord.getName().toString()), (int)dnsRecord.getTTL(), dataElements);
+        return Record.newInstance(recordClass, this.zoneUtility.relativize(dnsRecord.getName().toString()), dnsRecord.getTTL(), dataElements);
     }
 
     /**
@@ -301,7 +301,7 @@ public final class RecordConverter {
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
     private Record createSOARecord(final org.xbill.DNS.SOARecord dnsSOARecord) throws IllegalAccessException, InstantiationException {
-        return this.createRecord(SOARecord.class, dnsSOARecord, (int)dnsSOARecord.getMinimum(), (int)dnsSOARecord.getExpire(), (int)dnsSOARecord.getRetry(), (int)dnsSOARecord.getRefresh(), dnsSOARecord.getSerial(), dnsSOARecord.getAdmin().toString(), this.zoneUtility.relativize(dnsSOARecord.getHost().toString()));
+        return this.createRecord(SOARecord.class, dnsSOARecord, dnsSOARecord.getMinimum(), dnsSOARecord.getExpire(), dnsSOARecord.getRetry(), dnsSOARecord.getRefresh(), dnsSOARecord.getSerial(), dnsSOARecord.getAdmin().toString(), this.zoneUtility.relativize(dnsSOARecord.getHost().toString()));
     }
 
     /**

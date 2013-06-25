@@ -183,13 +183,13 @@ public class RecordDataTest {
     public void testNewInstanceSOA() throws Exception {
         SOARecord.Data expectedRecordData = new SOARecord.Data();
         expectedRecordData.setEmailAddress("emailAddress");
-        expectedRecordData.setExpireInterval(new Integer(1));
+        expectedRecordData.setExpireInterval(new Long(1));
         expectedRecordData.setMasterNameServer("masterNameServer");
-        expectedRecordData.setMinimumTimeToLive(new Integer(0));
-        expectedRecordData.setRefreshInterval(new Integer(3));
-        expectedRecordData.setRetryInterval(new Integer(2));
+        expectedRecordData.setMinimumTimeToLive(new Long(0));
+        expectedRecordData.setRefreshInterval(new Long(3));
+        expectedRecordData.setRetryInterval(new Long(2));
         expectedRecordData.setSerialNumber(new Long(4));
-        assertEquals(expectedRecordData, Record.Data.newInstance(SOARecord.Data.class, new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Long(4), "emailAddress", "masterNameServer"));
+        assertEquals(expectedRecordData, Record.Data.newInstance(SOARecord.Data.class, new Long(0), new Long(1), new Long(2), new Long(3), new Long(4), "emailAddress", "masterNameServer"));
     }
 
     @Test
@@ -199,42 +199,42 @@ public class RecordDataTest {
              
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAExtraDataElement() throws Exception {
-        Record.Data.newInstance(SOARecord.Data.class, new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Long(4), "emailAddress", "masterNameServer", "extra");
+        Record.Data.newInstance(SOARecord.Data.class, new Long(0), new Long(1), new Long(2), new Long(3), new Long(4), "emailAddress", "masterNameServer", "extra");
     }
            
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidMinumumTimeToLiveProperty() throws Exception {
-        Record.Data.newInstance(SOARecord.Data.class, "minimumTimeToLive", new Integer(1), new Integer(2), new Integer(3), new Long(4), "emailAddress", "masterNameServer");
+        Record.Data.newInstance(SOARecord.Data.class, "minimumTimeToLive", new Long(1), new Long(2), new Long(3), new Long(4), "emailAddress", "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidExpireIntervalProperty() throws Exception {
-        Record.Data.newInstance(SOARecord.Data.class, new Integer(0), "expireInterval", new Integer(2), new Integer(3), new Long(4), "emailAddress", "masterNameServer");
+        Record.Data.newInstance(SOARecord.Data.class, new Long(0), "expireInterval", new Long(2), new Long(3), new Long(4), "emailAddress", "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidRetryIntervalProperty() throws Exception {
-        Record.Data.newInstance(SOARecord.Data.class, new Integer(0), new Integer(1), "retryInterval", new Integer(3), new Long(4), "emailAddress", "masterNameServer");
+        Record.Data.newInstance(SOARecord.Data.class, new Long(0), new Long(1), "retryInterval", new Long(3), new Long(4), "emailAddress", "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidRefreshIntervalProperty() throws Exception {
-        Record.Data.newInstance(SOARecord.Data.class, new Integer(0), new Integer(1), new Integer(2), "refreshInterval", new Long(4), "emailAddress", "masterNameServer");
+        Record.Data.newInstance(SOARecord.Data.class, new Long(0), new Long(1), new Long(2), "refreshInterval", new Long(4), "emailAddress", "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidSerialNumberProperty() throws Exception {
-        Record.Data.newInstance(SOARecord.Data.class, new Integer(0), new Integer(1), new Integer(2), new Integer(3), "serialNumber", "emailAddress", "masterNameServer");
+        Record.Data.newInstance(SOARecord.Data.class, new Long(0), new Long(1), new Long(2), new Long(3), "serialNumber", "emailAddress", "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidEmailAddressProperty() throws Exception {
-        Record.Data.newInstance(SOARecord.Data.class, new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Long(4), new Integer(5), "masterNameServer");
+        Record.Data.newInstance(SOARecord.Data.class, new Long(0), new Long(1), new Long(2), new Long(3), new Long(4), new Integer(5), "masterNameServer");
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testNewInstanceSOAInvalidMasterNameServerProperty() throws Exception {
-        Record.Data.newInstance(SOARecord.Data.class, new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Long(4), "emailAddress", new Integer(6));
+        Record.Data.newInstance(SOARecord.Data.class, new Long(0), new Long(1), new Long(2), new Long(3), new Long(4), "emailAddress", new Integer(6));
     }
     
     

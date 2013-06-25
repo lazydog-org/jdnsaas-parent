@@ -22,6 +22,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import org.lazydog.jdnsaas.NotifyMessageMonitorAddress;
 import org.lazydog.jdnsaas.NotifyMessageMonitorPort;
+import org.lazydog.jdnsaas.NotifyMessageMonitorSocketTimeout;
 import org.lazydog.jdnsaas.NotifyMessageMonitorThreads;
 import org.lazydog.jdnsaas.spi.repository.PersistenceUnitName;
 
@@ -43,6 +44,12 @@ public class Configuration {
     @NotifyMessageMonitorPort
     public int getNotifyMessageMonitorPort() {
         return 10053;
+    }
+        
+    @Produces
+    @NotifyMessageMonitorSocketTimeout
+    public int getNotifyMessageMonitorSocketTimeout() {
+        return 20000;
     }
     
     @Produces

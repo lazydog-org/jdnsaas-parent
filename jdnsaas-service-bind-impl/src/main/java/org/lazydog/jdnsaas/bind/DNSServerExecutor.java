@@ -24,11 +24,12 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import org.lazydog.jdnsaas.model.Record;
+import org.lazydog.jdnsaas.model.RecordOperation;
 import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.Resolver;
+import org.lazydog.jdnsaas.model.SOARecord;
 import org.lazydog.jdnsaas.model.TSIGKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,7 @@ public final class DNSServerExecutor {
      * 
      * @throws  UnknownHostException  if the address is invalid.
      */
-    private static InetSocketAddress createInetSocketAddress(String address, int port) throws UnknownHostException {
+    private static InetSocketAddress createInetSocketAddress(final String address, final int port) throws UnknownHostException {
         return (address != null) ? new InetSocketAddress(InetAddress.getByName(address), port) : null;
     }
     
@@ -121,7 +122,7 @@ public final class DNSServerExecutor {
      * 
      * @throws  UnknownHostException  if the host name or local host name is invalid.
      */
-    private ExtendedResolver createExtendedResolver(TSIGKey tsigKey) throws UnknownHostException {
+    private ExtendedResolver createExtendedResolver(final TSIGKey tsigKey) throws UnknownHostException {
 
         List<SimpleResolver> simpleResolvers = new ArrayList<SimpleResolver>();
         
@@ -149,24 +150,44 @@ public final class DNSServerExecutor {
      * 
      * @return  the TSIG key.
      */
-    private static TSIG createTSIGKey(TSIGKey tsigKey) {
+    private static TSIG createTSIGKey(final TSIGKey tsigKey) {
         return (tsigKey != null && tsigKey.getAlgorithm() != null && tsigKey.getName() != null && tsigKey.getValue() != null) ? new TSIG(tsigKey.getAlgorithm().asString(), tsigKey.getName(), tsigKey.getValue()) : null;
     }
         
     /**
-     * Create the zone transfer.
+     * Create the full zone transfer.
      * 
      * @param  resolver  the resolver.
      * 
-     * @return  the zone transfer.
+     * @return  the full zone transfer.
      * 
-     * @throws TextParseException    if the zone name is invalid.
-     * @throws UnknownHostException  if the host name or local host name is invalid.
+     * @throws  TextParseException    if the zone name is invalid.
+     * @throws  UnknownHostException  if the host name or local host name is invalid.
      */
-    private ZoneTransferIn createFullZoneTransfer(Resolver resolver) throws TextParseException, UnknownHostException {
+    private ZoneTransferIn createFullZoneTransfer(final Resolver resolver) throws TextParseException, UnknownHostException {
         
         // Create the zone transfer.
         ZoneTransferIn zoneTransfer = ZoneTransferIn.newAXFR(Name.fromString(this.zoneUtility.getAbsoluteZoneName()), resolver.getAddress(), resolver.getPort(), createTSIGKey(this.transferTSIGKey));
+        zoneTransfer.setLocalAddress(createInetSocketAddress(resolver.getLocalAddress(), 0));
+        
+        return zoneTransfer;
+    }
+
+    /**
+     * Create the incremental zone transfer.
+     * 
+     * @param  resolver      the resolver.
+     * @param  serialNumber  the serial number.
+     * 
+     * @return  the incremental zone transfer.
+     * 
+     * @throws  TextParseException    if the zone name is invalid.
+     * @throws  UnknownHostException  if the host name or local host name is invalid. 
+     */
+    private ZoneTransferIn createIncrementalZoneTransfer(final Resolver resolver, final long serialNumber) throws TextParseException, UnknownHostException {
+        
+        // Create the zone transfer.
+        ZoneTransferIn zoneTransfer = ZoneTransferIn.newIXFR(Name.fromString(this.zoneUtility.getAbsoluteZoneName()), serialNumber, false, resolver.getAddress(), resolver.getPort(), createTSIGKey(this.transferTSIGKey));
         zoneTransfer.setLocalAddress(createInetSocketAddress(resolver.getLocalAddress(), 0));
         
         return zoneTransfer;
@@ -240,7 +261,7 @@ public final class DNSServerExecutor {
     }
 
     /**
-     * Find the records using a zone transfer.
+     * Find the records using a full zone transfer.
      * 
      * @return  the records.
      * 
@@ -261,11 +282,59 @@ public final class DNSServerExecutor {
                 records = this.createFullZoneTransfer(resolver).run();
                 break;
             } catch (ZoneTransferException e) {
-                logger.error("Unable to find records with zone transfer.", e);
+                logger.error("Unable to find the records with a full zone transfer.", e);
             }
         }
         
         return (records != null) ? this.recordConverter.fromDnsRecords(records) : new ArrayList<Record>();
+    }
+
+    /**
+     * Find the delta records using an incremental zone transfer.
+     * 
+     * @param  serialNumber  the serial number.
+     * 
+     * @return  the delta records.
+     * 
+     * @throws  IOException            if the zone transfer fails due to an IO problem.
+     * @throws  TextParseException     if the zone name is invalid.
+     * @throws  UnknownHostException   if the host name or local host name is invalid.
+     * @throws  ZoneTransferException  if the zone transfer fails.
+     */
+    @SuppressWarnings("unchecked")
+    private List<Record> findDeltaRecordsWithIncrementalZoneTransfer(final long serialNumber) throws IOException, TextParseException, UnknownHostException, ZoneTransferException {
+        
+        List<Record> records = new ArrayList<Record>();
+        
+        // Loop through the resolvers.
+        for (Resolver resolver : this.resolvers) {
+            
+            try {
+                List<org.xbill.DNS.ZoneTransferIn.Delta> deltas = this.createIncrementalZoneTransfer(resolver, serialNumber).run();
+                logger.debug("{} deltas total.", deltas.size());
+                for (org.xbill.DNS.ZoneTransferIn.Delta delta : deltas) {
+
+                    logger.debug("  delta {}/{} - {} delete records found.", delta.start, delta.end, delta.deletes.size());
+                    for (org.xbill.DNS.Record deleteRecord : (List<org.xbill.DNS.Record>)delta.deletes) {
+                        Record record = this.recordConverter.fromDnsRecord(deleteRecord);
+                        record.setOperation(RecordOperation.DELETE);
+                        records.add(record);
+                    }
+                    
+                    logger.debug("  delta {}/{} - {} add records found.", delta.start, delta.end, delta.adds.size());
+                    for (org.xbill.DNS.Record addRecord : (List<org.xbill.DNS.Record>)delta.adds) {
+                        Record record = this.recordConverter.fromDnsRecord(addRecord);
+                        record.setOperation(RecordOperation.ADD);
+                        records.add(record);
+                    }
+                }
+                break;
+            } catch (ZoneTransferException e) {
+                logger.error("Unable to find the delta records with an incremental zone transfer.", e);
+            }
+        }
+        
+        return records;
     }
 
     /**
@@ -347,6 +416,52 @@ public final class DNSServerExecutor {
             
             // Remove the last record in the records since it is the duplicate SOA record.
             records.remove(records.size() - 1);
+        }
+        
+        return records;
+    }
+        
+    /**
+     * Update the specified records representing a zone with the current records in DNS for the zone.
+     * 
+     * @param  records  the records representing a zone.
+     * 
+     * @return  the updated records.
+     * 
+     * @throws  DNSServerExecutorException  if unable to update the records.
+     */
+    public List<Record> updateRecords(List<Record> records) throws DNSServerExecutorException {
+
+        try {
+
+            long serialNumber = 0L;
+            
+            // Loop through the records.
+            for (Record record : records) {
+            
+                // Check if the record is the SOA record.
+                if (record.getType() == RecordType.SOA) {
+                    serialNumber = ((SOARecord)record).getData().getSerialNumber();
+                    break;
+                }
+            }
+
+            // Loop through the delta records.
+            for (Record deltaRecord : this.findDeltaRecordsWithIncrementalZoneTransfer(serialNumber)) {
+                
+                logger.debug("    {}: {}", deltaRecord.getOperation().toString(), deltaRecord);
+                
+                if (deltaRecord.getOperation() == RecordOperation.DELETE) {
+                    deltaRecord.setOperation(null);
+                    records.remove(deltaRecord);
+                    
+                } else if (deltaRecord.getOperation() == RecordOperation.ADD) {
+                    deltaRecord.setOperation(null);
+                    records.add(deltaRecord);
+                }
+            }
+        } catch (Exception e) {
+            throw new DNSServerExecutorException("Unable to update the records.", e);
         }
         
         return records;
