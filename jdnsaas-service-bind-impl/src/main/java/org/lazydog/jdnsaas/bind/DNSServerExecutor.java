@@ -24,20 +24,21 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import org.lazydog.jdnsaas.model.Record;
+import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.Resolver;
+import org.lazydog.jdnsaas.model.TSIGKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Rcode;
-import org.xbill.DNS.Record;
 import org.xbill.DNS.SimpleResolver;
 import org.xbill.DNS.TSIG;
 import org.xbill.DNS.TextParseException;
-import org.xbill.DNS.Type;
 import org.xbill.DNS.Update;
 import org.xbill.DNS.ZoneTransferException;
 import org.xbill.DNS.ZoneTransferIn;
@@ -47,20 +48,31 @@ import org.xbill.DNS.ZoneTransferIn;
  * 
  * @author  Ron Rickard
  */
-final class DNSServerExecutor {
+public final class DNSServerExecutor {
   
     private static final Logger logger = LoggerFactory.getLogger(DNSServerExecutor.class);
+    private TSIGKey queryTSIGKey;
+    private RecordConverter recordConverter;
     private List<Resolver> resolvers;
+    private TSIGKey transferTSIGKey;
+    private TSIGKey updateTSIGKey;
     private ZoneUtility zoneUtility;
     
     /**
      * Hide the constructor.
      * 
-     * @param  resolvers  the resolvers.
-     * @param  zoneName   the zone name.
+     * @param  resolvers        the resolvers.
+     * @param  queryTSIGKey     the zone-level query transaction signature (TSIG) key.
+     * @param  transferTSIGKey  the zone-level transfer transaction signature (TSIG) key.
+     * @param  updateTSIGKey    the zone-level update transaction signature (TSIG) key.
+     * @param  zoneName         the zone name.
      */
-    private DNSServerExecutor(final List<Resolver> resolvers, final String zoneName) {
+    private DNSServerExecutor(final List<Resolver> resolvers, final TSIGKey queryTSIGKey, final TSIGKey transferTSIGKey, final TSIGKey updateTSIGKey, final String zoneName) {
         this.resolvers = resolvers;
+        this.queryTSIGKey = queryTSIGKey;
+        this.transferTSIGKey = transferTSIGKey;
+        this.updateTSIGKey = updateTSIGKey;
+        this.recordConverter = RecordConverter.newInstance(zoneName);
         this.zoneUtility = ZoneUtility.newInstance(zoneName);
     }
 
@@ -89,12 +101,12 @@ final class DNSServerExecutor {
      * @throws  TextParseException    if the zone name or record name is invalid.
      * @throws  UnknownHostException  if the host name or local host name is invalid.
      */
-    private Lookup createLookup(final int recordType, final String recordName) throws TextParseException, UnknownHostException {
+    private Lookup createLookup(final RecordType recordType, final String recordName) throws TextParseException, UnknownHostException {
         
         // Create the lookup.
-        Lookup lookup = new Lookup(recordName, recordType);
+        Lookup lookup = new Lookup(recordName, RecordConverter.getDnsRecordType((recordType == null) ? RecordType.ANY : recordType));
         lookup.setCache(null);
-        lookup.setResolver(this.createExtendedResolver());
+        lookup.setResolver(this.createExtendedResolver(this.queryTSIGKey));
         lookup.setSearchPath(new Name[] {Name.fromString(this.zoneUtility.getAbsoluteZoneName())});
         
         return lookup;
@@ -103,11 +115,13 @@ final class DNSServerExecutor {
     /**
      * Create the extended resolver.
      * 
+     * @param  tsigKey  the transaction signature (TSIG) key.
+     * 
      * @return  the created extended resolver.
      * 
      * @throws  UnknownHostException  if the host name or local host name is invalid.
      */
-    private ExtendedResolver createExtendedResolver() throws UnknownHostException {
+    private ExtendedResolver createExtendedResolver(TSIGKey tsigKey) throws UnknownHostException {
 
         List<SimpleResolver> simpleResolvers = new ArrayList<SimpleResolver>();
         
@@ -119,7 +133,7 @@ final class DNSServerExecutor {
             simpleResolver.setAddress(createInetSocketAddress(resolver.getAddress(), resolver.getPort()));
             simpleResolver.setLocalAddress(createInetSocketAddress(resolver.getLocalAddress(), 0));
             simpleResolver.setTCP(true);
-            simpleResolver.setTSIGKey(createTSIGKey(resolver));
+            simpleResolver.setTSIGKey(createTSIGKey(tsigKey));
             
             // Add the simple resolver to the list.
             simpleResolvers.add(simpleResolver);
@@ -131,12 +145,12 @@ final class DNSServerExecutor {
     /**
      * Create the TSIG key.
      * 
-     * @param  resolver  the resolver.
+     * @param  tsigKey  the transaction signature (TSIG) key.
      * 
      * @return  the TSIG key.
      */
-    private static TSIG createTSIGKey(Resolver resolver) {
-        return (resolver.getTSIGKey() != null && resolver.getTSIGKey().getName() != null) ? new TSIG(resolver.getTSIGKey().getAlgorithm().asString(), resolver.getTSIGKey().getName(), resolver.getTSIGKey().getValue()) : null;
+    private static TSIG createTSIGKey(TSIGKey tsigKey) {
+        return (tsigKey != null && tsigKey.getAlgorithm() != null && tsigKey.getName() != null && tsigKey.getValue() != null) ? new TSIG(tsigKey.getAlgorithm().asString(), tsigKey.getName(), tsigKey.getValue()) : null;
     }
         
     /**
@@ -149,57 +163,15 @@ final class DNSServerExecutor {
      * @throws TextParseException    if the zone name is invalid.
      * @throws UnknownHostException  if the host name or local host name is invalid.
      */
-    private ZoneTransferIn createZoneTransfer(Resolver resolver) throws TextParseException, UnknownHostException {
+    private ZoneTransferIn createFullZoneTransfer(Resolver resolver) throws TextParseException, UnknownHostException {
         
         // Create the zone transfer.
-        ZoneTransferIn zoneTransfer = ZoneTransferIn.newAXFR(Name.fromString(this.zoneUtility.getAbsoluteZoneName()), resolver.getAddress(), resolver.getPort(), createTSIGKey(resolver));
+        ZoneTransferIn zoneTransfer = ZoneTransferIn.newAXFR(Name.fromString(this.zoneUtility.getAbsoluteZoneName()), resolver.getAddress(), resolver.getPort(), createTSIGKey(this.transferTSIGKey));
         zoneTransfer.setLocalAddress(createInetSocketAddress(resolver.getLocalAddress(), 0));
         
         return zoneTransfer;
     }
-    
-    /**
-     * Find the records.
-     * 
-     * @param  recordType  the record type.
-     * 
-     * @return  the records.
-     * 
-     * @throws  DNSServerExecutorException  if unable to find the records.
-     */
-    public List<Record> findRecords(final int recordType) throws DNSServerExecutorException {
-        
-        // Initialize the records.
-        List<Record> records = new ArrayList<Record>();
-        
-        try {
-            
-            // Find all the records with a zone transfer.
-            List<Record> allRecords = this.findRecordsWithZoneTransfer();
 
-            // Check if the desired record type is not all records.
-            if (recordType != Type.ANY) {
-
-                // Loop through all the records.
-                for (Record record : allRecords) {
-
-                    // Check if the record is the desired record type.
-                    if (recordType == record.getType()) {
-
-                        // Add the record to the list.
-                        records.add(record);
-                    }
-                }
-            } else {
-                records = allRecords;
-            }
-        } catch (Exception e) {
-            throw new DNSServerExecutorException("Unable to find the records for record type, " + recordType + ".", e);
-        }
-
-        return removeDuplicateSOARecord(records, recordType);
-    }
-    
     /**
      * Find the records.
      * 
@@ -210,20 +182,45 @@ final class DNSServerExecutor {
      * 
      * @throws  DNSServerExecutorException  if unable to find the records.
      */
-    public List<Record> findRecords(final int recordType, final String recordName) throws DNSServerExecutorException {
+    public List<Record> findRecords(final RecordType recordType, final String recordName) throws DNSServerExecutorException {
 
         // Initialize the records.
         List<Record> records = new ArrayList<Record>();
         
         try {
 
-            // Find the records with a lookup.
-            records = this.findRecordsWithLookup(recordType, recordName);
+            // Check if the record name exists.
+            if (recordName != null) {
+                
+                // Find the records with a lookup.
+                records = this.findRecordsWithLookup(recordType, recordName);
+            } else {
+                
+                // Find the records with a zone transfer.
+                List<Record> allRecords = this.findRecordsWithFullZoneTransfer();
+                
+                // Check if a record type was specified.
+                if (recordType != RecordType.ANY) {
+                    
+                    // Loop through the records.
+                    for (Record record : allRecords) {
+
+                        // Check if the record is of the desired type.
+                        if (record.getType() == recordType) {
+                            records.add(record);
+                        }
+                    }
+                } else {
+                    records = allRecords;
+                }
+                
+                records = removeDuplicateSOARecord(records, recordType);
+            }
         } catch (Exception e) {
             throw new DNSServerExecutorException("Unable to find the records for record type, " + recordType + ", and record name, " + recordName + ".", e);
         }
         
-        return removeDuplicateSOARecord(records, recordType);
+        return records;
     }
 
     /**
@@ -237,9 +234,9 @@ final class DNSServerExecutor {
      * @throws  TextParseException    if the zone name or record name is invalid.
      * @throws  UnknownHostException  if the host name or local host name is invalid.
      */
-    private List<Record> findRecordsWithLookup(final int recordType, final String recordName) throws TextParseException, UnknownHostException {
-        Record[] records = this.createLookup(recordType, recordName).run();
-        return (records != null) ? Arrays.asList(records) : new ArrayList<Record>();
+    private List<Record> findRecordsWithLookup(final RecordType recordType, final String recordName) throws TextParseException, UnknownHostException {
+        org.xbill.DNS.Record[] records = this.createLookup(recordType, recordName).run();
+        return (records != null) ? this.recordConverter.fromDnsRecords(Arrays.asList(records)) : new ArrayList<Record>();
     }
 
     /**
@@ -253,46 +250,49 @@ final class DNSServerExecutor {
      * @throws  ZoneTransferException  if the zone transfer fails.
      */
     @SuppressWarnings("unchecked")
-    private List<Record> findRecordsWithZoneTransfer() throws IOException, TextParseException, UnknownHostException, ZoneTransferException {
+    private List<Record> findRecordsWithFullZoneTransfer() throws IOException, TextParseException, UnknownHostException, ZoneTransferException {
         
-        List<Record> records = null;
+        List<org.xbill.DNS.Record> records = null;
         
         // Loop through the resolvers.
         for (Resolver resolver : this.resolvers) {
             
             try {
-                records = this.createZoneTransfer(resolver).run();
+                records = this.createFullZoneTransfer(resolver).run();
                 break;
             } catch (ZoneTransferException e) {
                 logger.error("Unable to find records with zone transfer.", e);
             }
         }
         
-        return (records != null) ? records : new ArrayList<Record>();
+        return (records != null) ? this.recordConverter.fromDnsRecords(records) : new ArrayList<Record>();
     }
 
     /**
      * Create a new instance of the DNS server executor class.
      * 
      * @param  resolvers  the resolvers.
+     * @param  queryTSIGKey     the zone-level query transaction signature (TSIG) key.
+     * @param  transferTSIGKey  the zone-level transfer transaction signature (TSIG) key.
+     * @param  updateTSIGKey    the zone-level update transaction signature (TSIG) key.
      * @param  zoneName   the zone name.
      * 
      * @return  a new instance of the DNS server executor class.
      */
-    public static DNSServerExecutor newInstance(final List<Resolver> resolvers, final String zoneName) {
-        return new DNSServerExecutor(resolvers, zoneName);
+    public static DNSServerExecutor newInstance(final List<Resolver> resolvers, final TSIGKey queryTSIGKey, final TSIGKey transferTSIGKey, final TSIGKey updateTSIGKey, final String zoneName) {
+        return new DNSServerExecutor(resolvers, queryTSIGKey, transferTSIGKey, updateTSIGKey, zoneName);
     }
     
     /**
      * Process the record operations.
      * 
-     * @param  recordOperationMap  the record operation map.
+     * @param  records  the records.
      * 
      * @return  true if the record operations are processed successfully, otherwise false.
      * 
      * @throws  DNSServerExecutorException  if unable to process the record operations due to an exception.
      */
-    public boolean processRecordOperations(final Map<Record,String> recordOperationMap) throws DNSServerExecutorException {
+    public boolean processRecordOperations(final List<Record> records) throws DNSServerExecutorException {
         
         // Initialize success to false.
         boolean success = false;
@@ -304,24 +304,22 @@ final class DNSServerExecutor {
             logger.debug("Processing record operations...");
 
             // Loop through the record operation map.
-            for (Map.Entry<Record,String> entry : recordOperationMap.entrySet()) {
+            for (Record record : records) {
                 
                 // Get the record and operation.
-                Record record = entry.getKey();
-                String operation = entry.getValue();
-                logger.debug("    {}: {}", operation, record);
+                logger.debug("    {}: {}", record.getOperation().toString(), record);
                 
-                if ("ADD".equals(operation.toUpperCase())) {
-                    update.add(record);
-                } else if ("DELETE".equals(operation.toUpperCase())) {
-                    update.delete(record);
-                } else if ("REPLACE".equals(operation.toUpperCase())) {
-                    update.replace(record);
+                if ("ADD".equals(record.getOperation().toString().toUpperCase())) {
+                    update.add(this.recordConverter.toDnsRecord(record));
+                } else if ("DELETE".equals(record.getOperation().toString().toUpperCase())) {
+                    update.delete(this.recordConverter.toDnsRecord(record));
+                } else if ("REPLACE".equals(record.getOperation().toString().toUpperCase())) {
+                    update.replace(this.recordConverter.toDnsRecord(record));
                 }
             }
             
             // Perform the operations and check if the operations were successful.
-            int errorCode = createExtendedResolver().send(update).getRcode();
+            int errorCode = createExtendedResolver(this.updateTSIGKey).send(update).getRcode();
             if (errorCode == Rcode.NOERROR) {
                 success = true;
             } else {
@@ -342,10 +340,10 @@ final class DNSServerExecutor {
      * 
      * @return  the records with the duplicate SOA record removed.
      */
-    private static List<Record> removeDuplicateSOARecord(List<Record> records, final int recordType) {
+    private static List<Record> removeDuplicateSOARecord(List<Record> records, final RecordType recordType) {
         
         // Check if the record type is any or SOA.
-        if (recordType == Type.ANY || recordType == Type.SOA) {
+        if (recordType == RecordType.ANY || recordType == RecordType.SOA) {
             
             // Remove the last record in the records since it is the duplicate SOA record.
             records.remove(records.size() - 1);

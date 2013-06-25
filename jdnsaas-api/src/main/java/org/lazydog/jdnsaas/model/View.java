@@ -25,7 +25,7 @@ import java.util.List;
  * 
  * @author  Ron Rickard
  */
-public class View extends Entity implements IdentityEqualator<View> {
+public class View extends Entity {
     
     private static final long serialVersionUID = 1L;
     private String name;
@@ -49,18 +49,6 @@ public class View extends Entity implements IdentityEqualator<View> {
         return this.resolvers;
     }
 
-    /**
-     * Compare this object's identity to the specified object's identity.
-     * 
-     * @param  object  the object's identity to compare this object's identity against.
-     * 
-     * @return  true if the objects' identities are equal; false otherwise.
-     */
-    @Override
-    public boolean identityEquals(View object) {
-        return (object != null) ? this.getName().equals(object.getName()) : false;
-    }
-    
     /**
      * Set the name.
      * 

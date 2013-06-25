@@ -19,15 +19,12 @@
 package org.lazydog.jdnsaas.bind.cache;
 
 import java.io.IOException;
-import org.lazydog.jdnsaas.bind.RecordConverter;
-import org.lazydog.jdnsaas.bind.RecordConverterException;
-import org.lazydog.jdnsaas.model.SOARecord;
+import org.lazydog.jdnsaas.bind.ZoneUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xbill.DNS.Flags;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.Opcode;
-import org.xbill.DNS.Record;
 import org.xbill.DNS.Section;
 
 /**
@@ -84,20 +81,12 @@ final class NotifyRequestMessage {
     }
 
     /**
-     * Get the SOA record.
+     * Get the zone name.
      * 
-     * @return  the SOA record.
+     * @return  the zone name.
      */
-    public SOARecord getSOARecord() {
-
-        // Get the zone name and record from the request message.
-        String zoneName = this.requestMessage.getQuestion().getName().toString();
-        Record record = this.requestMessage.getSectionArray(Section.ANSWER)[0];
-
-        // Convert the DNS record to a SOA record.
-        SOARecord soaRecord = (SOARecord)RecordConverter.newInstance(zoneName).fromDnsRecord(record);
-        
-        return soaRecord;
+    public String getZoneName() {
+        return ZoneUtility.newInstance(this.requestMessage.getQuestion().getName().toString()).getRelativeZoneName();
     }
     
     /**

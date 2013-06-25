@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author  Ron Rickard
  */
-final class ZoneUtility {
+public final class ZoneUtility {
     
     private static final Logger logger = LoggerFactory.getLogger(ZoneUtility.class);
     private static final String APEX = "@";

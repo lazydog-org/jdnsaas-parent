@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public class NotifyMessageMonitor extends Thread {
 
     private static final Logger logger = LoggerFactory.getLogger(NotifyMessageMonitor.class);
+    private static final int DEFAULT_SOCKET_TIMEOUT = 30000;
     private static final int DEFAULT_THREADS = 10;
     private static final int UDP_PACKET_SIZE = 4096;
     private String ipAddress;
@@ -65,7 +66,7 @@ public class NotifyMessageMonitor extends Thread {
         
         // Open the UDP socket.  Set a timeout value to allow the monitor to be shutdown gracefully.
         this.socket = new DatagramSocket(port, InetAddress.getByName(ipAddress));
-        this.socket.setSoTimeout(30000);
+        this.socket.setSoTimeout(DEFAULT_SOCKET_TIMEOUT);
     }
     
     /**
@@ -80,8 +81,8 @@ public class NotifyMessageMonitor extends Thread {
         
         try {
 
-            // Check if the zone cache is running.
-            while (this.zoneCache.isRunning()) {
+            // Check if the zone cache is not shutdown.
+            while (!this.zoneCache.isShutdown()) {
 
                 try {
 
@@ -89,9 +90,7 @@ public class NotifyMessageMonitor extends Thread {
                     DatagramPacket requestPacket = new DatagramPacket(new byte[UDP_PACKET_SIZE], UDP_PACKET_SIZE);
                     this.socket.receive(requestPacket);
                     
-                    // Validate address and port.
-                    System.out.println("request address: " + requestPacket.getAddress().getHostAddress());
-                    System.out.println("request port: " + requestPacket.getPort());
+                    // TODO: validate the address and port.
 
                     // Execute a notify message thread to handle the packet.
                     notifyMessageThreadPool.execute(new NotifyMessageThread(this.zoneCache, this.socket, requestPacket));
@@ -160,16 +159,15 @@ public class NotifyMessageMonitor extends Thread {
                 logger.warn("Error sending a UDP response to {} port {}.", this.requestPacket.getAddress().getHostAddress(), this.requestPacket.getPort());
             }
 
-            SOARecord soaRecord = requestMessage.getSOARecord();
-
-            // Check if the record cache is suspended.
-            if (this.zoneCache.isSuspended()) {
+            // Since there is a notify message, flag the zone cache for refresh.
+            // TODO: use the address and port to find the exact zone.
+            this.zoneCache.flagForRefresh(requestMessage.getZoneName());
+               
+            // Check if the record cache is not suspended.
+            if (!this.zoneCache.isSuspended()) {
                 
-                // Since there is a notify message, the record cache needs to be refreshed.
-               this.zoneCache.flagForRefresh(soaRecord.getName(), this.requestPacket.getAddress().getHostAddress(), this.requestPacket.getPort());
-            } else {
-                
-                // Refresh the 
+                // Refresh the zone cache.
+                this.zoneCache.refresh();
             }
         }
     }

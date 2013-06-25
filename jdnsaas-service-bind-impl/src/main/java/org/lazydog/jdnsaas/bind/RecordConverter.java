@@ -18,6 +18,8 @@
  */
 package org.lazydog.jdnsaas.bind;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import org.lazydog.jdnsaas.model.AAAARecord;
@@ -67,9 +69,125 @@ public final class RecordConverter {
      * @throws  TextParseException   if the record name is invalid.
      * @throws  UknownHostException  if the IPv6 address is invalid.
      */
-    private org.xbill.DNS.Record createAAAARecord(final AAAARecord aaaaRecord) throws TextParseException, UnknownHostException {
+    private org.xbill.DNS.Record createDnsAAAARecord(final AAAARecord aaaaRecord) throws TextParseException, UnknownHostException {
         return new org.xbill.DNS.AAAARecord(Name.fromString(this.zoneUtility.absolutize(aaaaRecord.getName())), DClass.IN, aaaaRecord.getTimeToLive().longValue(), 
                 InetAddress.getByName(aaaaRecord.getData().getIpv6Address()));
+    }
+    
+    /**
+     * Create the DNS A record from the A record.
+     * 
+     * @param  aRecord  the A record.
+     * 
+     * @return  the DNS A record.
+     * 
+     * @throws  TextParseException   if the record name is invalid.
+     * @throws  UknownHostException  if the IP address is invalid.
+     */
+    private org.xbill.DNS.Record createDnsARecord(final ARecord aRecord) throws TextParseException, UnknownHostException {
+        return new org.xbill.DNS.ARecord(Name.fromString(this.zoneUtility.absolutize(aRecord.getName())), DClass.IN, aRecord.getTimeToLive().longValue(), 
+                InetAddress.getByName(aRecord.getData().getIpAddress()));
+    }
+          
+    /**
+     * Create the DNS CNAME record from the CNAME record.
+     * 
+     * @param  cnameRecord  the CNAME record.
+     * 
+     * @return  the DNS CNAME record.
+     * 
+     * @throws  TextParseException  if the record name or target is invalid.
+     */
+    private org.xbill.DNS.Record createDnsCNAMERecord(final CNAMERecord cnameRecord) throws TextParseException {
+        return new org.xbill.DNS.CNAMERecord(Name.fromString(this.zoneUtility.absolutize(cnameRecord.getName())), DClass.IN, cnameRecord.getTimeToLive().longValue(), 
+                Name.fromString(this.zoneUtility.absolutize(cnameRecord.getData().getTarget())));
+    }
+                 
+    /**
+     * Create the DNS MX record from the MX record.
+     * 
+     * @param  mxRecord  the MX record.
+     * 
+     * @return  the DNS MX record.
+     * 
+     * @throws  TextParseException  if the record name or target is invalid.
+     */
+    private org.xbill.DNS.Record createDnsMXRecord(final MXRecord mxRecord) throws TextParseException {
+        return new org.xbill.DNS.MXRecord(Name.fromString(this.zoneUtility.absolutize(mxRecord.getName())), DClass.IN, mxRecord.getTimeToLive().longValue(), 
+                mxRecord.getData().getPriority().intValue(), Name.fromString(this.zoneUtility.absolutize(mxRecord.getData().getTarget())));
+    }
+                  
+    /**
+     * Create the DNS NS record from the NS record.
+     * 
+     * @param  nsRecord  the NS record.
+     * 
+     * @return  the DNS NS record.
+     * 
+     * @throws  TextParseException  if the record name or target is invalid.
+     */
+    private org.xbill.DNS.Record createDnsNSRecord(final NSRecord nsRecord) throws TextParseException {
+        return new org.xbill.DNS.NSRecord(Name.fromString(this.zoneUtility.absolutize(nsRecord.getName())), DClass.IN, nsRecord.getTimeToLive().longValue(), 
+                Name.fromString(this.zoneUtility.absolutize(nsRecord.getData().getTarget())));
+    }
+                      
+    /**
+     * Create the DNS PTR record from the PTR record.
+     * 
+     * @param  ptrRecord  the PTR record.
+     * 
+     * @return  the DNS PTR record.
+     * 
+     * @throws  TextParseException  if the record name or target is invalid.
+     */
+    private org.xbill.DNS.Record createDnsPTRRecord(final PTRRecord ptrRecord) throws TextParseException {
+        return new org.xbill.DNS.PTRRecord(Name.fromString(this.zoneUtility.absolutize(this.zoneUtility.getReverseTets(ptrRecord.getName()))), DClass.IN, ptrRecord.getTimeToLive().longValue(), 
+                Name.fromString(this.zoneUtility.absolutize(ptrRecord.getData().getTarget())));
+    }
+                   
+    /**
+     * Create the DNS SOA record from the SOA record.
+     * 
+     * @param  soaRecord  the SOA record.
+     * 
+     * @return  the DNS SOA record.
+     * 
+     * @throws  TextParseException  if the record name, master name server, or email address is invalid.
+     */
+    private org.xbill.DNS.Record createDnsSOARecord(final SOARecord soaRecord) throws TextParseException {
+        return new org.xbill.DNS.SOARecord(Name.fromString(this.zoneUtility.absolutize(soaRecord.getName())), DClass.IN, soaRecord.getTimeToLive().longValue(),
+                Name.fromString(this.zoneUtility.absolutize(soaRecord.getData().getMasterNameServer())), Name.fromString(soaRecord.getData().getEmailAddress()),
+                soaRecord.getData().getSerialNumber().longValue(), soaRecord.getData().getRefreshInterval().longValue(), soaRecord.getData().getRetryInterval().longValue(),
+                soaRecord.getData().getExpireInterval().longValue(), soaRecord.getData().getMinimumTimeToLive().longValue());
+    }
+                   
+    /**
+     * Create the DNS SRV record from the SRV record.
+     * 
+     * @param  srvRecord  the SRV record.
+     * 
+     * @return  the DNS SRV record.
+     * 
+     * @throws  TextParseException  if the record name or target is invalid.
+     */
+    private org.xbill.DNS.Record createDnsSRVRecord(final SRVRecord srvRecord) throws TextParseException {
+        return new org.xbill.DNS.SRVRecord(Name.fromString(this.zoneUtility.absolutize(srvRecord.getName())), DClass.IN, srvRecord.getTimeToLive().longValue(), 
+                srvRecord.getData().getPriority().intValue(), srvRecord.getData().getWeight().intValue(), 
+                srvRecord.getData().getPort().intValue(), Name.fromString(this.zoneUtility.absolutize(srvRecord.getData().getTarget())));
+    }
+                           
+    /**
+     * Create the DNS TXT record from the TXT record.
+     * 
+     * @param  txtRecord  the TXT record.
+     * 
+     * @return  the DNS TXT record.
+     * 
+     * @throws  TextParseException  if the record name is invalid.
+     */
+    private org.xbill.DNS.Record createDnsTXTRecord(final TXTRecord txtRecord) throws TextParseException {
+        return new org.xbill.DNS.TXTRecord(Name.fromString(this.zoneUtility.absolutize(txtRecord.getName())), DClass.IN, txtRecord.getTimeToLive().longValue(), 
+                txtRecord.getData().getValues());
     }
     
     /**
@@ -87,21 +205,6 @@ public final class RecordConverter {
     }
 
     /**
-     * Create the DNS A record from the A record.
-     * 
-     * @param  aRecord  the A record.
-     * 
-     * @return  the DNS A record.
-     * 
-     * @throws  TextParseException   if the record name is invalid.
-     * @throws  UknownHostException  if the IP address is invalid.
-     */
-    private org.xbill.DNS.Record createARecord(final ARecord aRecord) throws TextParseException, UnknownHostException {
-        return new org.xbill.DNS.ARecord(Name.fromString(this.zoneUtility.absolutize(aRecord.getName())), DClass.IN, aRecord.getTimeToLive().longValue(), 
-                InetAddress.getByName(aRecord.getData().getIpAddress()));
-    }
-    
-    /**
      * Create the A record from the DNS A record.
      * 
      * @param  dnsARecord  the DNS A record.
@@ -114,21 +217,7 @@ public final class RecordConverter {
     private Record createARecord(final org.xbill.DNS.ARecord dnsARecord) throws IllegalAccessException, InstantiationException {
         return this.createRecord(ARecord.class, dnsARecord, dnsARecord.getAddress().getHostAddress());
     }
-      
-    /**
-     * Create the DNS CNAME record from the CNAME record.
-     * 
-     * @param  cnameRecord  the CNAME record.
-     * 
-     * @return  the DNS CNAME record.
-     * 
-     * @throws  TextParseException  if the record name or target is invalid.
-     */
-    private org.xbill.DNS.Record createCNAMERecord(final CNAMERecord cnameRecord) throws TextParseException {
-        return new org.xbill.DNS.CNAMERecord(Name.fromString(this.zoneUtility.absolutize(cnameRecord.getName())), DClass.IN, cnameRecord.getTimeToLive().longValue(), 
-                Name.fromString(this.zoneUtility.absolutize(cnameRecord.getData().getTarget())));
-    }
-      
+ 
     /**
      * Create the CNAME record from the DNS CNAME record.
      * 
@@ -142,21 +231,7 @@ public final class RecordConverter {
     private Record createCNAMERecord(final org.xbill.DNS.CNAMERecord dnsCNAMERecord) throws IllegalAccessException, InstantiationException {
         return this.createRecord(CNAMERecord.class, dnsCNAMERecord, this.zoneUtility.relativize(dnsCNAMERecord.getTarget().toString()));
     }
-            
-    /**
-     * Create the DNS MX record from the MX record.
-     * 
-     * @param  mxRecord  the MX record.
-     * 
-     * @return  the DNS MX record.
-     * 
-     * @throws  TextParseException  if the record name or target is invalid.
-     */
-    private org.xbill.DNS.Record createMXRecord(final MXRecord mxRecord) throws TextParseException {
-        return new org.xbill.DNS.MXRecord(Name.fromString(this.zoneUtility.absolutize(mxRecord.getName())), DClass.IN, mxRecord.getTimeToLive().longValue(), 
-                mxRecord.getData().getPriority().intValue(), Name.fromString(this.zoneUtility.absolutize(mxRecord.getData().getTarget())));
-    }
-     
+
     /**
      * Create the MX record from the DNS MX record.
      * 
@@ -170,21 +245,7 @@ public final class RecordConverter {
     private Record createMXRecord(final org.xbill.DNS.MXRecord dnsMXRecord) throws IllegalAccessException, InstantiationException {
         return this.createRecord(MXRecord.class, dnsMXRecord, this.zoneUtility.relativize(dnsMXRecord.getTarget().toString()), dnsMXRecord.getPriority());
     }
-             
-    /**
-     * Create the DNS NS record from the NS record.
-     * 
-     * @param  nsRecord  the NS record.
-     * 
-     * @return  the DNS NS record.
-     * 
-     * @throws  TextParseException  if the record name or target is invalid.
-     */
-    private org.xbill.DNS.Record createNSRecord(final NSRecord nsRecord) throws TextParseException {
-        return new org.xbill.DNS.NSRecord(Name.fromString(this.zoneUtility.absolutize(nsRecord.getName())), DClass.IN, nsRecord.getTimeToLive().longValue(), 
-                Name.fromString(this.zoneUtility.absolutize(nsRecord.getData().getTarget())));
-    }
-               
+          
     /**
      * Create the NS record from the DNS NS record.
      * 
@@ -198,21 +259,7 @@ public final class RecordConverter {
     private Record createNSRecord(final org.xbill.DNS.NSRecord dnsNSRecord) throws IllegalAccessException, InstantiationException {
         return this.createRecord(NSRecord.class, dnsNSRecord, this.zoneUtility.relativize(dnsNSRecord.getTarget().toString()));
     }
-                 
-    /**
-     * Create the DNS PTR record from the PTR record.
-     * 
-     * @param  ptrRecord  the PTR record.
-     * 
-     * @return  the DNS PTR record.
-     * 
-     * @throws  TextParseException  if the record name or target is invalid.
-     */
-    private org.xbill.DNS.Record createPTRRecord(final PTRRecord ptrRecord) throws TextParseException {
-        return new org.xbill.DNS.PTRRecord(Name.fromString(this.zoneUtility.absolutize(this.zoneUtility.getReverseTets(ptrRecord.getName()))), DClass.IN, ptrRecord.getTimeToLive().longValue(), 
-                Name.fromString(this.zoneUtility.absolutize(ptrRecord.getData().getTarget())));
-    }
-     
+
     /**
      * Create the PTR record from the DNS PTR record.
      * 
@@ -242,23 +289,7 @@ public final class RecordConverter {
     private <T extends Record<U>, U extends Record.Data> Record createRecord(final Class<T> recordClass, final org.xbill.DNS.Record dnsRecord, final Object... dataElements) throws IllegalAccessException, InstantiationException {
         return Record.newInstance(recordClass, this.zoneUtility.relativize(dnsRecord.getName().toString()), (int)dnsRecord.getTTL(), dataElements);
     }
-               
-    /**
-     * Create the DNS SOA record from the SOA record.
-     * 
-     * @param  soaRecord  the SOA record.
-     * 
-     * @return  the DNS SOA record.
-     * 
-     * @throws  TextParseException  if the record name, master name server, or email address is invalid.
-     */
-    private org.xbill.DNS.Record createSOARecord(final SOARecord soaRecord) throws TextParseException {
-        return new org.xbill.DNS.SOARecord(Name.fromString(this.zoneUtility.absolutize(soaRecord.getName())), DClass.IN, soaRecord.getTimeToLive().longValue(),
-                Name.fromString(this.zoneUtility.absolutize(soaRecord.getData().getMasterNameServer())), Name.fromString(soaRecord.getData().getEmailAddress()),
-                soaRecord.getData().getSerialNumber().longValue(), soaRecord.getData().getRefreshInterval().longValue(), soaRecord.getData().getRetryInterval().longValue(),
-                soaRecord.getData().getExpireInterval().longValue(), soaRecord.getData().getMinimumTimeToLive().longValue());
-    }
-    
+
     /**
      * Create the SOA record from the DNS SOA record.
      * 
@@ -272,22 +303,7 @@ public final class RecordConverter {
     private Record createSOARecord(final org.xbill.DNS.SOARecord dnsSOARecord) throws IllegalAccessException, InstantiationException {
         return this.createRecord(SOARecord.class, dnsSOARecord, (int)dnsSOARecord.getMinimum(), (int)dnsSOARecord.getExpire(), (int)dnsSOARecord.getRetry(), (int)dnsSOARecord.getRefresh(), dnsSOARecord.getSerial(), dnsSOARecord.getAdmin().toString(), this.zoneUtility.relativize(dnsSOARecord.getHost().toString()));
     }
-               
-    /**
-     * Create the DNS SRV record from the SRV record.
-     * 
-     * @param  srvRecord  the SRV record.
-     * 
-     * @return  the DNS SRV record.
-     * 
-     * @throws  TextParseException  if the record name or target is invalid.
-     */
-    private org.xbill.DNS.Record createSRVRecord(final SRVRecord srvRecord) throws TextParseException {
-        return new org.xbill.DNS.SRVRecord(Name.fromString(this.zoneUtility.absolutize(srvRecord.getName())), DClass.IN, srvRecord.getTimeToLive().longValue(), 
-                srvRecord.getData().getPriority().intValue(), srvRecord.getData().getWeight().intValue(), 
-                srvRecord.getData().getPort().intValue(), Name.fromString(this.zoneUtility.absolutize(srvRecord.getData().getTarget())));
-    }
-    
+
     /**
      * Create the SRV record from the DNS SRV record.
      * 
@@ -301,21 +317,7 @@ public final class RecordConverter {
     private Record createSRVRecord(final org.xbill.DNS.SRVRecord dnsSRVRecord) throws IllegalAccessException, InstantiationException {
         return this.createRecord(SRVRecord.class, dnsSRVRecord, this.zoneUtility.relativize(dnsSRVRecord.getTarget().toString()), dnsSRVRecord.getPort(), dnsSRVRecord.getWeight(), dnsSRVRecord.getPriority());
     }
-                      
-    /**
-     * Create the DNS TXT record from the TXT record.
-     * 
-     * @param  txtRecord  the TXT record.
-     * 
-     * @return  the DNS TXT record.
-     * 
-     * @throws  TextParseException  if the record name is invalid.
-     */
-    private org.xbill.DNS.Record createTXTRecord(final TXTRecord txtRecord) throws TextParseException {
-        return new org.xbill.DNS.TXTRecord(Name.fromString(this.zoneUtility.absolutize(txtRecord.getName())), DClass.IN, txtRecord.getTimeToLive().longValue(), 
-                txtRecord.getData().getValues());
-    }
-                
+            
     /**
      * Create the TXT record from the DNS TXT record.
      * 
@@ -330,7 +332,7 @@ public final class RecordConverter {
     private Record createTXTRecord(final org.xbill.DNS.TXTRecord dnsTXTRecord) throws IllegalAccessException, InstantiationException {
         return this.createRecord(TXTRecord.class, dnsTXTRecord, dnsTXTRecord.getStrings());
     } 
-    
+
     /**
      * Convert the DNS record to a record.
      * 
@@ -385,6 +387,36 @@ public final class RecordConverter {
         logger.debug("Converted from {}\n to {}\n", dnsRecord, record);      
         return record;       
     }
+        
+    /**
+     * Convert the DNS records to records.
+     * 
+     * @param  dnsRecords  the DNS records.
+     * 
+     * @return  the records.
+     * 
+     * @throws  RecordConverterException  if the DNS records cannot be converted to records.
+     */
+    public List<Record> fromDnsRecords(final List<org.xbill.DNS.Record> dnsRecords) throws RecordConverterException {
+        
+        List<Record> records = new ArrayList<Record>();
+        
+        // Loop through the DNS records.
+        for (org.xbill.DNS.Record dnsRecord : dnsRecords) {
+
+            // Get the record from the DNS record.
+            Record record = this.fromDnsRecord(dnsRecord);
+
+            // Check if the record exists.
+            if (record != null) {
+
+                // Add the record to the list.
+                records.add(record);
+            }
+        }
+        
+        return records;
+    }
     
     /**
      * Get the DNS record type.
@@ -428,31 +460,31 @@ public final class RecordConverter {
             switch (record.getType()) {
 
                 case AAAA:
-                    dnsRecord = this.createAAAARecord((AAAARecord)record);
+                    dnsRecord = this.createDnsAAAARecord((AAAARecord)record);
                     break;
                 case A:
-                    dnsRecord = this.createARecord((ARecord)record);
+                    dnsRecord = this.createDnsARecord((ARecord)record);
                     break;
                 case CNAME:
-                    dnsRecord = this.createCNAMERecord((CNAMERecord)record);
+                    dnsRecord = this.createDnsCNAMERecord((CNAMERecord)record);
                     break;
                 case MX:
-                    dnsRecord = this.createMXRecord((MXRecord)record);
+                    dnsRecord = this.createDnsMXRecord((MXRecord)record);
                     break;
                 case NS:
-                    dnsRecord = this.createNSRecord((NSRecord)record);
+                    dnsRecord = this.createDnsNSRecord((NSRecord)record);
                     break;
                 case PTR:
-                    dnsRecord = this.createPTRRecord((PTRRecord)record);
+                    dnsRecord = this.createDnsPTRRecord((PTRRecord)record);
                     break;
                 case SOA:
-                    dnsRecord = this.createSOARecord((SOARecord)record);
+                    dnsRecord = this.createDnsSOARecord((SOARecord)record);
                     break;
                 case SRV:
-                    dnsRecord = this.createSRVRecord((SRVRecord)record);
+                    dnsRecord = this.createDnsSRVRecord((SRVRecord)record);
                     break;
                 case TXT:
-                    dnsRecord = this.createTXTRecord((TXTRecord)record);
+                    dnsRecord = this.createDnsTXTRecord((TXTRecord)record);
                     break;
             }
         } catch (Exception e) {
@@ -461,5 +493,36 @@ public final class RecordConverter {
                 
         logger.debug("Converted to {}\n from {}\n", dnsRecord, record); 
         return dnsRecord;
+    }
+    
+            
+    /**
+     * Convert the DNS records to records.
+     * 
+     * @param  dnsRecords  the DNS records.
+     * 
+     * @return  the records.
+     * 
+     * @throws  RecordConverterException  if the DNS records cannot be converted to records.
+     */
+    public List<org.xbill.DNS.Record> toDnsRecords(final List<Record> records) throws RecordConverterException {
+        
+        List<org.xbill.DNS.Record> dnsRecords = new ArrayList<org.xbill.DNS.Record>();
+        
+        // Loop through the records.
+        for (Record record : records) {
+
+            // Get the DNS record from the record.
+            org.xbill.DNS.Record dnsRecord = this.toDnsRecord(record);
+
+            // Check if the record exists.
+            if (dnsRecord != null) {
+
+                // Add the DNS record to the list.
+                dnsRecords.add(dnsRecord);
+            }
+        }
+        
+        return dnsRecords;
     }
 }

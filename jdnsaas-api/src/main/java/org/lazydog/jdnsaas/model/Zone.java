@@ -26,7 +26,7 @@ import java.util.List;
  * 
  * @author  Ron Rickard
  */
-public class Zone extends Entity implements IdentityEqualator<Zone> {
+public class Zone extends Entity {
     
     private static final long serialVersionUID = 1L;
     private String name;
@@ -137,28 +137,12 @@ public class Zone extends Entity implements IdentityEqualator<Zone> {
     }
 
     /**
-     * Compare this object's identity to the specified object's identity.
+     * Get the view name.
      * 
-     * @param  object  the object's identity to compare this object's identity against.
-     * 
-     * @return  true if the objects' identities are equal; false otherwise.
+     * @return  the view name.
      */
-    @Override
-    public boolean identityEquals(Zone object) {
-
-        boolean identityEquals = false;
-        
-        if (object != null) {
-            String thatName = replaceNull(object.getName(), "");
-            View thatView = replaceNull(object.getView(), new View());
-            String thisName = replaceNull(this.getName(), "");
-            View thisView = replaceNull(this.getView(), new View());
-
-            identityEquals = thisName.equals(thatName);
-            identityEquals = (identityEquals) ? thisView.identityEquals(thatView) : identityEquals;
-        }
-        
-        return identityEquals;
+    public String getViewName() {
+        return (this.view != null) ? this.view.getName() : null;
     }
     
     /**

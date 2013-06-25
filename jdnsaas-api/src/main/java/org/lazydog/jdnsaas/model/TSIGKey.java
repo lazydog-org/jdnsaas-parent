@@ -47,7 +47,7 @@ public class TSIGKey extends Entity {
     public String getName() {
         return this.name;
     }
-     
+
     /**
      * Get the value.
      * 
@@ -74,7 +74,7 @@ public class TSIGKey extends Entity {
     public void setName(final String name) {
         this.name = name;
     }
-        
+
     /**
      * Set the value.
      * 

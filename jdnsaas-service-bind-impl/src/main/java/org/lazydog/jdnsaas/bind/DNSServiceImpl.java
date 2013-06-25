@@ -20,9 +20,7 @@ package org.lazydog.jdnsaas.bind;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.lazydog.jdnsaas.DNSService;
@@ -54,36 +52,6 @@ public class DNSServiceImpl implements DNSService {
     @Inject private ZoneCache zoneCache;
 
     /**
-     * Create the DNS server executor.
-     * 
-     * @param  resolvers  the resolvers.
-     * @param  tsigKey    the zone-level transaction signature (TSIG) key.
-     * @param  zoneName   the zone name.
-     * 
-     * 
-     * @return  the DNS server executor.
-     */
-    private static DNSServerExecutor createDNSServerExecutor(final List<Resolver> resolvers, final TSIGKey tsigKey, final String zoneName) {
-
-        // Check if there is a zone-level TSIG key.
-        if (tsigKey != null) {
-            
-            // Loop through the resolvers.
-            for (Resolver resolver : resolvers) {
-                
-                // Check if there is no TSIG key.
-                if (resolver.getTSIGKey() == null || resolver.getTSIGKey().getName() == null) {
-                    
-                    // Set the zone-level TSIG key.
-                    resolver.setTSIGKey(tsigKey);
-                }
-            }
-        }
-
-        return DNSServerExecutor.newInstance(resolvers, zoneName);
-    }
-  
-    /**
      * Find the records.
      * 
      * @param  viewName    the view name.
@@ -109,34 +77,9 @@ public class DNSServiceImpl implements DNSService {
             if (zone == null) {
                 throw new ResourceNotFoundException("The zone (" + zoneName + ") for the view (" + viewName + ") is not found.");
             }
-            
-            // Get the DNS record type.
-            int dnsRecordType = RecordConverter.getDnsRecordType((recordType == null) ? RecordType.ANY : recordType);
-            
+
             // Find the DNS records.
-            List<org.xbill.DNS.Record> dnsRecords;
-            if (recordName != null) {
-                dnsRecords = createDNSServerExecutor(zone.getView().getResolvers(), zone.getQueryTSIGKey(), zoneName).findRecords(dnsRecordType, recordName);
-            } else {
-                dnsRecords = createDNSServerExecutor(zone.getView().getResolvers(), zone.getTransferTSIGKey(), zoneName).findRecords(dnsRecordType);
-            }
-
-            // Initialize the record converter.
-            RecordConverter recordConverter = RecordConverter.newInstance(zoneName);
-            
-            // Loop through the DNS records.
-            for (org.xbill.DNS.Record dnsRecord : dnsRecords) {
-
-                // Get the record from the DNS record.
-                Record record = recordConverter.fromDnsRecord(dnsRecord);
-
-                // Check if the record exists.
-                if (record != null) {
-
-                    // Add the record to the list.
-                    records.add(record);
-                }
-            } 
+            records = DNSServerExecutor.newInstance(zone.getView().getResolvers(), zone.getQueryTSIGKey(), zone.getTransferTSIGKey(), null, zoneName).findRecords(recordType, recordName);
         } catch (JDNSaaSRepositoryException e) {
             throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
         } catch (DNSServerExecutorException e) {
@@ -345,29 +288,9 @@ public class DNSServiceImpl implements DNSService {
             if (zone == null) {
                 throw new ResourceNotFoundException("The zone (" + zoneName + ") for view (" + viewName + ") is not found.");
             }
-            
-            // Initialize the record converter.
-            RecordConverter recordConverter = RecordConverter.newInstance(zoneName);
-           
-            // Initialize the record operation map.
-            Map<org.xbill.DNS.Record,String> recordOperationMap = new HashMap<org.xbill.DNS.Record,String>();
-            
-            // Loop through the records.
-            for (Record record : records) {
-
-                // Get the DNS record from the record.
-                org.xbill.DNS.Record dnsRecord = recordConverter.toDnsRecord(record);
-             
-                // Check if the DNS record exists.
-                if (dnsRecord != null) {
-                   
-                    // Add the record and operation to the map.
-                    recordOperationMap.put(dnsRecord, record.getOperation().toString());
-                }
-            }
 
             // Process the records.
-            success = createDNSServerExecutor(zone.getView().getResolvers(), zone.getUpdateTSIGKey(), zoneName).processRecordOperations(recordOperationMap);
+            success = DNSServerExecutor.newInstance(zone.getView().getResolvers(), null, null, zone.getUpdateTSIGKey(), zoneName).processRecordOperations(records);
         } catch (JDNSaaSRepositoryException e) {
             throw new DNSServiceException("Unable to process the record operations for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
         } catch (DNSServerExecutorException e) {

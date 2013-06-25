@@ -29,7 +29,6 @@ public class Resolver extends Entity {
     private String address;
     private String localAddress;
     private Integer port;
-    private TSIGKey tsigKey;
 
     /**
      * Get the address.
@@ -57,16 +56,7 @@ public class Resolver extends Entity {
     public Integer getPort() {
         return this.port;
     }
-
-    /**
-     * Get the TSIG key.
-     * 
-     * @return  the TSIG key.
-     */
-    public TSIGKey getTSIGKey() {
-        return this.tsigKey;
-    }
-        
+    
     /**
      * Set the address.
      * 
@@ -92,14 +82,5 @@ public class Resolver extends Entity {
      */
     public void setPort(final Integer port) {
         this.port = port;
-    }
-    
-    /**
-     * Set the TSIG key.
-     * 
-     * @param  tsigKey  the TSIG key.
-     */
-    public void setTSIGKey(final TSIGKey tsigKey) {
-        this.tsigKey = tsigKey;
     }
 }

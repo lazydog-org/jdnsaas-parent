@@ -14,10 +14,8 @@ create table resolver(
     address                         varchar(255) not null,
     port                            smallint unsigned not null,
     local_address                   varchar(255),
-    tsig_key_id                     int unsigned,
     primary key(id),
-    foreign key(tsig_key_id) references tsig_key(id),
-    unique key(address, port, local_address, tsig_key_id)
+    unique key(address, port, local_address)
 ) engine = innodb;
 
 create table dns_view(

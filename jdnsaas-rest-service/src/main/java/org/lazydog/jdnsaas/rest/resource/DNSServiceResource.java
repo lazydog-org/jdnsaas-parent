@@ -21,7 +21,6 @@ package org.lazydog.jdnsaas.rest.resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;

@@ -3,14 +3,12 @@
     <tsig_key id="1" name="tsigkeyname1" value="tsigkeyvalue1" algorithm="HMAC_MD5"/>
     <tsig_key id="2" name="tsigkeyname2" value="tsigkeyvalue2" algorithm="HMAC_SHA256"/>
     <tsig_key id="3" name="tsigkeyname3" value="tsigkeyvalue3" algorithm="HMAC_SHA512"/>
-    <resolver id="1" address="10.0.0.1" port="53" local_address="172.16.0.1" tsig_key_id="1"/>
-    <resolver id="2" address="10.0.0.2" port="53" local_address="172.16.0.2"/>
-    <resolver id="3" address="10.0.0.3" port="53"/>
+    <resolver id="1" address="10.0.0.1" port="53" local_address="172.16.0.1"/>
+    <resolver id="2" address="10.0.0.2" port="53"/>
     <dns_view id="1" name="view1"/>
     <dns_view id="2" name="view2"/>
     <dns_view_resolver dns_view_id="1" resolver_id="1"/>
     <dns_view_resolver dns_view_id="1" resolver_id="2"/>
-    <dns_view_resolver dns_view_id="1" resolver_id="3"/>
     <dns_view_resolver dns_view_id="2" resolver_id="1"/>
     <dns_zone id="1" name="zone1" dns_view_id="1" query_tsig_key_id="1" transfer_tsig_key_id="2" update_tsig_key_id="3"/>
     <dns_zone id="2" name="zone2" dns_view_id="1" transfer_tsig_key_id="2" update_tsig_key_id="3"/>
