@@ -63,9 +63,9 @@ public final class DNSServerExecutor {
      * Hide the constructor.
      * 
      * @param  resolvers        the resolvers.
-     * @param  queryTSIGKey     the zone-level query transaction signature (TSIG) key.
-     * @param  transferTSIGKey  the zone-level transfer transaction signature (TSIG) key.
-     * @param  updateTSIGKey    the zone-level update transaction signature (TSIG) key.
+     * @param  queryTSIGKey     the query transaction signature (TSIG) key.
+     * @param  transferTSIGKey  the transfer transaction signature (TSIG) key.
+     * @param  updateTSIGKey    the update transaction signature (TSIG) key.
      * @param  zoneName         the zone name.
      */
     private DNSServerExecutor(final List<Resolver> resolvers, final TSIGKey queryTSIGKey, final TSIGKey transferTSIGKey, final TSIGKey updateTSIGKey, final String zoneName) {
@@ -118,7 +118,7 @@ public final class DNSServerExecutor {
      * 
      * @param  tsigKey  the transaction signature (TSIG) key.
      * 
-     * @return  the created extended resolver.
+     * @return  the extended resolver.
      * 
      * @throws  UnknownHostException  if the host name or local host name is invalid.
      */
@@ -261,7 +261,7 @@ public final class DNSServerExecutor {
     }
 
     /**
-     * Find the records using a full zone transfer.
+     * Find the records using a full (AXFR) zone transfer.
      * 
      * @return  the records.
      * 
@@ -290,7 +290,7 @@ public final class DNSServerExecutor {
     }
 
     /**
-     * Find the delta records using an incremental zone transfer.
+     * Find the delta records using an incremental (IXFR) zone transfer.
      * 
      * @param  serialNumber  the serial number.
      * 
@@ -340,11 +340,11 @@ public final class DNSServerExecutor {
     /**
      * Create a new instance of the DNS server executor class.
      * 
-     * @param  resolvers  the resolvers.
-     * @param  queryTSIGKey     the zone-level query transaction signature (TSIG) key.
-     * @param  transferTSIGKey  the zone-level transfer transaction signature (TSIG) key.
-     * @param  updateTSIGKey    the zone-level update transaction signature (TSIG) key.
-     * @param  zoneName   the zone name.
+     * @param  resolvers        the resolvers.
+     * @param  queryTSIGKey     the query transaction signature (TSIG) key.
+     * @param  transferTSIGKey  the transfer transaction signature (TSIG) key.
+     * @param  updateTSIGKey    the update transaction signature (TSIG) key.
+     * @param  zoneName         the zone name.
      * 
      * @return  a new instance of the DNS server executor class.
      */
@@ -402,7 +402,8 @@ public final class DNSServerExecutor {
     }
          
     /**
-     * Remove the duplicate SOA record.
+     * Remove the duplicate SOA record.  
+     * When performing a full (AXFR) zone transfer, the SOA record is the first and last record in the returned records.
      * 
      * @param  records     the records.
      * @param  recordType  the record type.

@@ -35,7 +35,6 @@ import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.jdnsaas.model.ZoneType;
 import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepository;
-import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,9 +79,7 @@ public class DNSServiceImpl implements DNSService {
 
             // Find the DNS records.
             records = DNSServerExecutor.newInstance(zone.getView().getResolvers(), zone.getQueryTSIGKey(), zone.getTransferTSIGKey(), null, zoneName).findRecords(recordType, recordName);
-        } catch (JDNSaaSRepositoryException e) {
-            throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
-        } catch (DNSServerExecutorException e) {
+        } catch (Exception e) {
             throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
         }
         
@@ -105,7 +102,7 @@ public class DNSServiceImpl implements DNSService {
             
             // Find the resolvers.
             resolvers = this.jdnsaasRepository.findResolvers();
-        } catch (JDNSaaSRepositoryException e) {
+        } catch (Exception e) {
             throw new DNSServiceException("unable to find the resolvers.", e);
         }
  
@@ -128,7 +125,7 @@ public class DNSServiceImpl implements DNSService {
             
             // Find the TSIG keys.
             tsigKeys = this.jdnsaasRepository.findTSIGKeys();
-        } catch (JDNSaaSRepositoryException e) {
+        } catch (Exception e) {
             throw new DNSServiceException("unable to find the TSIG keys.", e);
         }
  
@@ -157,7 +154,7 @@ public class DNSServiceImpl implements DNSService {
             if (view == null) {
                 throw new ResourceNotFoundException("The view (" + viewName + ") is not found.");
             }
-        } catch (JDNSaaSRepositoryException e) {
+        } catch (Exception e) {
             throw new DNSServiceException("Unable to find the view (" + viewName + ").", e);
         }
     
@@ -180,7 +177,7 @@ public class DNSServiceImpl implements DNSService {
             
             // Find the view names.
             viewNames = this.jdnsaasRepository.findViewNames();
-        } catch (JDNSaaSRepositoryException e) {
+        } catch (Exception e) {
             throw new DNSServiceException("unable to find the view names.", e);
         }
  
@@ -214,7 +211,7 @@ public class DNSServiceImpl implements DNSService {
             // Set some zone properties.
             zone.setType(ZoneUtility.newInstance(zoneName).isForwardZone() ? ZoneType.FORWARD : ZoneType.REVERSE);
             zone.setSupportedRecordTypes(Arrays.asList(RecordType.values(zone.getType())));
-        } catch (JDNSaaSRepositoryException e) {
+        } catch (Exception e) {
             throw new DNSServiceException("Unable to find the zone (" + zoneName + ") for the view (" + viewName + ").", e);
         }
         
@@ -246,7 +243,7 @@ public class DNSServiceImpl implements DNSService {
             
            // Find the zone names.
            zoneNames = this.jdnsaasRepository.findZoneNames(viewName);
-       } catch (JDNSaaSRepositoryException e) {
+       } catch (Exception e) {
            throw new DNSServiceException("Unable to find the zone names for the view (" + viewName + ").", e);
        }
 
@@ -291,9 +288,7 @@ public class DNSServiceImpl implements DNSService {
 
             // Process the records.
             success = DNSServerExecutor.newInstance(zone.getView().getResolvers(), null, null, zone.getUpdateTSIGKey(), zoneName).processRecordOperations(records);
-        } catch (JDNSaaSRepositoryException e) {
-            throw new DNSServiceException("Unable to process the record operations for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
-        } catch (DNSServerExecutorException e) {
+        } catch (Exception e) {
             throw new DNSServiceException("Unable to process the record operations for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
         }
         

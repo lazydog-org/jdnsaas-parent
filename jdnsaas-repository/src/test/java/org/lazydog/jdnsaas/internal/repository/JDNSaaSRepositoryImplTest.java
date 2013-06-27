@@ -93,40 +93,40 @@ public class JDNSaaSRepositoryImplTest {
     }
  
     @Test
-    public void testFindResolvers() throws Exception {
+    public void testFindResolvers() {
         TSIGKey tsigKey1 = new TSIGKey();
         tsigKey1.setAlgorithm(TSIGKeyAlgorithm.HMAC_MD5);
-        tsigKey1.setId(new Integer(1));
+        tsigKey1.setId(1);
         tsigKey1.setName("tsigkeyname1");
         tsigKey1.setValue("tsigkeyvalue1");
         Resolver resolver1 = new Resolver();
         resolver1.setAddress("10.0.0.1");
-        resolver1.setId(new Integer(1));
+        resolver1.setId(1);
         resolver1.setLocalAddress("172.16.0.1");
-        resolver1.setPort(new Integer(53));
+        resolver1.setPort(53);
         Resolver resolver2 = new Resolver();
         resolver2.setAddress("10.0.0.2");
-        resolver2.setId(new Integer(2));
-        resolver2.setPort(new Integer(53));
+        resolver2.setId(2);
+        resolver2.setPort(53);
         List<Resolver> expectedResolvers = Arrays.asList(resolver1, resolver2);
         assertReflectionEquals(expectedResolvers, this.jdnsaasRepository.findResolvers(), ReflectionComparatorMode.LENIENT_ORDER);
     }
      
     @Test
-    public void testFindTSIGKeys() throws Exception {
+    public void testFindTSIGKeys() {
         TSIGKey tsigKey1 = new TSIGKey();
         tsigKey1.setAlgorithm(TSIGKeyAlgorithm.HMAC_MD5);
-        tsigKey1.setId(new Integer(1));
+        tsigKey1.setId(1);
         tsigKey1.setName("tsigkeyname1");
         tsigKey1.setValue("tsigkeyvalue1");
         TSIGKey tsigKey2 = new TSIGKey();
         tsigKey2.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA256);
-        tsigKey2.setId(new Integer(2));
+        tsigKey2.setId(2);
         tsigKey2.setName("tsigkeyname2");
         tsigKey2.setValue("tsigkeyvalue2");
         TSIGKey tsigKey3 = new TSIGKey();
         tsigKey3.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA512);
-        tsigKey3.setId(new Integer(3));
+        tsigKey3.setId(3);
         tsigKey3.setName("tsigkeyname3");
         tsigKey3.setValue("tsigkeyvalue3");
         List<TSIGKey> expectedTSIGKeys = Arrays.asList(tsigKey1, tsigKey2, tsigKey3);
@@ -134,21 +134,21 @@ public class JDNSaaSRepositoryImplTest {
     }
 
     @Test
-    public void testFindView() throws Exception {
+    public void testFindView() {
         TSIGKey tsigKey1 = new TSIGKey();
         tsigKey1.setAlgorithm(TSIGKeyAlgorithm.HMAC_MD5);
-        tsigKey1.setId(new Integer(1));
+        tsigKey1.setId(1);
         tsigKey1.setName("tsigkeyname1");
         tsigKey1.setValue("tsigkeyvalue1");
         Resolver resolver1 = new Resolver();
         resolver1.setAddress("10.0.0.1");
-        resolver1.setId(new Integer(1));
+        resolver1.setId(1);
         resolver1.setLocalAddress("172.16.0.1");
-        resolver1.setPort(new Integer(53));
+        resolver1.setPort(53);
         Resolver resolver2 = new Resolver();
         resolver2.setAddress("10.0.0.2");
-        resolver2.setId(new Integer(2));
-        resolver2.setPort(new Integer(53));
+        resolver2.setId(2);
+        resolver2.setPort(53);
         View expectedView = new View();
         expectedView.setId(1);
         expectedView.setName("view1");
@@ -162,43 +162,43 @@ public class JDNSaaSRepositoryImplTest {
     }
 
     @Test
-    public void testFindViewNames() throws Exception {
+    public void testFindViewNames() {
         List<String> expectedViewNames = new ArrayList<String>(Arrays.asList("view1", "view2"));
         assertReflectionEquals(expectedViewNames, this.jdnsaasRepository.findViewNames(), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     @Test
-    public void testFindZone() throws Exception {
+    public void testFindZone() {
         TSIGKey queryTSIGKey = new TSIGKey();
         queryTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_MD5);
-        queryTSIGKey.setId(new Integer(1));
+        queryTSIGKey.setId(1);
         queryTSIGKey.setName("tsigkeyname1");
         queryTSIGKey.setValue("tsigkeyvalue1");
         TSIGKey transferTSIGKey = new TSIGKey();
         transferTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA256);
-        transferTSIGKey.setId(new Integer(2));
+        transferTSIGKey.setId(2);
         transferTSIGKey.setName("tsigkeyname2");
         transferTSIGKey.setValue("tsigkeyvalue2");
         TSIGKey updateTSIGKey = new TSIGKey();
         updateTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA512);
-        updateTSIGKey.setId(new Integer(3));
+        updateTSIGKey.setId(3);
         updateTSIGKey.setName("tsigkeyname3");
         updateTSIGKey.setValue("tsigkeyvalue3");
         Resolver resolver1 = new Resolver();
         resolver1.setAddress("10.0.0.1");
-        resolver1.setId(new Integer(1));
+        resolver1.setId(1);
         resolver1.setLocalAddress("172.16.0.1");
-        resolver1.setPort(new Integer(53));
+        resolver1.setPort(53);
         Resolver resolver2 = new Resolver();
         resolver2.setAddress("10.0.0.2");
-        resolver2.setId(new Integer(2));
-        resolver2.setPort(new Integer(53));
+        resolver2.setId(2);
+        resolver2.setPort(53);
         View view = new View();
         view.setId(1);
         view.setName("view1");
         view.setResolvers(Arrays.asList(resolver1, resolver2));
         Zone expectedZone = new Zone();
-        expectedZone.setId(new Integer(1));
+        expectedZone.setId(1);
         expectedZone.setName("zone1");
         expectedZone.setQueryTSIGKey(queryTSIGKey);
         expectedZone.setTransferTSIGKey(transferTSIGKey);
@@ -206,7 +206,7 @@ public class JDNSaaSRepositoryImplTest {
         expectedZone.setView(view);
         assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("view1", "zone1"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedZone = new Zone();
-        expectedZone.setId(new Integer(2));
+        expectedZone.setId(2);
         expectedZone.setName("zone2");
         expectedZone.setTransferTSIGKey(transferTSIGKey);
         expectedZone.setUpdateTSIGKey(updateTSIGKey);
@@ -217,14 +217,14 @@ public class JDNSaaSRepositoryImplTest {
         view.setName("view2");
         view.setResolvers(Arrays.asList(resolver1));
         expectedZone = new Zone();
-        expectedZone.setId(new Integer(3));
+        expectedZone.setId(3);
         expectedZone.setName("zone2");
         expectedZone.setQueryTSIGKey(queryTSIGKey);
         expectedZone.setUpdateTSIGKey(updateTSIGKey);
         expectedZone.setView(view);
         assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("view2", "zone2"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedZone = new Zone();
-        expectedZone.setId(new Integer(4));
+        expectedZone.setId(4);
         expectedZone.setName("zone3");
         expectedZone.setQueryTSIGKey(queryTSIGKey);
         expectedZone.setTransferTSIGKey(transferTSIGKey);
@@ -233,7 +233,7 @@ public class JDNSaaSRepositoryImplTest {
     }
 
     @Test
-    public void testFindZoneNames() throws Exception {
+    public void testFindZoneNames() {
         List<String> expectedZoneNames = new ArrayList<String>(Arrays.asList("zone1", "zone2"));
         assertReflectionEquals(expectedZoneNames, this.jdnsaasRepository.findZoneNames("view1"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedZoneNames = new ArrayList<String>(Arrays.asList("zone2", "zone3"));
@@ -241,44 +241,44 @@ public class JDNSaaSRepositoryImplTest {
     }
 
     @Test
-    public void testFindZones() throws Exception {
+    public void testFindZones() {
         TSIGKey queryTSIGKey = new TSIGKey();
         queryTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_MD5);
-        queryTSIGKey.setId(new Integer(1));
+        queryTSIGKey.setId(1);
         queryTSIGKey.setName("tsigkeyname1");
         queryTSIGKey.setValue("tsigkeyvalue1");
         TSIGKey transferTSIGKey = new TSIGKey();
         transferTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA256);
-        transferTSIGKey.setId(new Integer(2));
+        transferTSIGKey.setId(2);
         transferTSIGKey.setName("tsigkeyname2");
         transferTSIGKey.setValue("tsigkeyvalue2");
         TSIGKey updateTSIGKey = new TSIGKey();
         updateTSIGKey.setAlgorithm(TSIGKeyAlgorithm.HMAC_SHA512);
-        updateTSIGKey.setId(new Integer(3));
+        updateTSIGKey.setId(3);
         updateTSIGKey.setName("tsigkeyname3");
         updateTSIGKey.setValue("tsigkeyvalue3");
         Resolver resolver1 = new Resolver();
         resolver1.setAddress("10.0.0.1");
-        resolver1.setId(new Integer(1));
+        resolver1.setId(1);
         resolver1.setLocalAddress("172.16.0.1");
-        resolver1.setPort(new Integer(53));
+        resolver1.setPort(53);
         Resolver resolver2 = new Resolver();
         resolver2.setAddress("10.0.0.2");
-        resolver2.setId(new Integer(2));
-        resolver2.setPort(new Integer(53));
+        resolver2.setId(2);
+        resolver2.setPort(53);
         View view = new View();
         view.setId(1);
         view.setName("view1");
         view.setResolvers(Arrays.asList(resolver1, resolver2));
         Zone zone1 = new Zone();
-        zone1.setId(new Integer(1));
+        zone1.setId(1);
         zone1.setName("zone1");
         zone1.setQueryTSIGKey(queryTSIGKey);
         zone1.setTransferTSIGKey(transferTSIGKey);
         zone1.setUpdateTSIGKey(updateTSIGKey);
         zone1.setView(view);
         Zone zone2 = new Zone();
-        zone2.setId(new Integer(2));
+        zone2.setId(2);
         zone2.setName("zone2");
         zone2.setTransferTSIGKey(transferTSIGKey);
         zone2.setUpdateTSIGKey(updateTSIGKey);
@@ -288,13 +288,13 @@ public class JDNSaaSRepositoryImplTest {
         view.setName("view2");
         view.setResolvers(Arrays.asList(resolver1));
         Zone zone3 = new Zone();
-        zone3.setId(new Integer(3));
+        zone3.setId(3);
         zone3.setName("zone2");
         zone3.setQueryTSIGKey(queryTSIGKey);
         zone3.setUpdateTSIGKey(updateTSIGKey);
         zone3.setView(view);
         Zone zone4 = new Zone();
-        zone4.setId(new Integer(4));
+        zone4.setId(4);
         zone4.setName("zone3");
         zone4.setQueryTSIGKey(queryTSIGKey);
         zone4.setTransferTSIGKey(transferTSIGKey);

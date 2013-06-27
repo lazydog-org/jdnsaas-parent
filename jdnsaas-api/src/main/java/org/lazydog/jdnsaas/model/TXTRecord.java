@@ -18,6 +18,7 @@
  */
 package org.lazydog.jdnsaas.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -59,7 +60,7 @@ public class TXTRecord extends Record<TXTRecord.Data> {
          * @param  values  the values.
          */
         public void setValues(final List<String> values) {
-            this.values = values;
+            this.values = replaceNull(values, new ArrayList<String>());
         }    
     }
 }

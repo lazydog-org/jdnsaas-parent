@@ -18,6 +18,7 @@
  */
 package org.lazydog.jdnsaas.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,6 +65,6 @@ public class View extends Entity {
      * @param  resolvers  the resolvers.
      */
     public void setResolvers(final List<Resolver> resolvers) {
-        this.resolvers = resolvers;
+        this.resolvers = replaceNull(resolvers, new ArrayList<Resolver>());
     }
 }

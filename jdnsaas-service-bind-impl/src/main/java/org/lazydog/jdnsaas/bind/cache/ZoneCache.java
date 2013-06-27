@@ -46,7 +46,6 @@ import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.SOARecord;
 import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepository;
-import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepositoryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,9 +142,7 @@ public class ZoneCache {
             // Get the records for the zone.
             Zone zone = this.repository.findZone(zoneIdentity.getViewName(), zoneIdentity.getZoneName());
             records = DNSServerExecutor.newInstance(zone.getView().getResolvers(), null, zone.getTransferTSIGKey(), null, zone.getName()).findRecords(RecordType.ANY, null);
-        } catch (JDNSaaSRepositoryException e) {
-            logger.warn("Unable to find the zone {}.", zoneIdentity, e);
-        } catch (DNSServerExecutorException e) {
+        } catch (Exception e) {
             logger.warn("Unable to find the records for the zone {}.", zoneIdentity, e);
         }
         
@@ -167,9 +164,7 @@ public class ZoneCache {
             // Get the records for the zone.
             Zone zone = this.repository.findZone(zoneIdentity.getViewName(), zoneIdentity.getZoneName());
             records = DNSServerExecutor.newInstance(zone.getView().getResolvers(), null, zone.getTransferTSIGKey(), null, zone.getName()).updateRecords(records);
-        } catch (JDNSaaSRepositoryException e) {
-            logger.warn("Unable to find the zone {}.", zoneIdentity, e);
-        } catch (DNSServerExecutorException e) {
+        } catch (Exception e) {
             logger.warn("Unable to find the records for the zone {}.", zoneIdentity, e);
         }
         
@@ -232,9 +227,7 @@ public class ZoneCache {
                 serialNumber = ((SOARecord)soaRecords.get(0)).getData().getSerialNumber();
             }
 
-        } catch (JDNSaaSRepositoryException e) {
-            logger.warn("Unable to find the zone {}.", zoneIdentity, e);
-        } catch (DNSServerExecutorException e) {
+        } catch (Exception e) {
             logger.warn("Unable to find the SOA record for the zone {}.", zoneIdentity, e);
         }
 
@@ -309,7 +302,7 @@ public class ZoneCache {
                 this.refreshZoneMap.put(ZoneAction.DELETE, deleteZoneIdentities);
                 logger.debug("Found {} zones to delete from the zone cache.", addZoneIdentities.size());
             }
-        } catch (JDNSaaSRepositoryException e) {
+        } catch (Exception e) {
             logger.warn("Unable to find the zones in the database.  Using the existing zone map.", e);
         }
 
@@ -329,6 +322,7 @@ public class ZoneCache {
                     
                     // Schedule the refresh of the zone.
                     this.refreshZoneFutureMap.put(zoneIdentity, this.refreshZoneScheduler.scheduleWithFixedDelay(new RefreshZoneThread(this, zoneIdentity), getRefreshInterval(zoneIdentity, newZoneMap), getRefreshInterval(zoneIdentity, newZoneMap), TimeUnit.SECONDS));
+                    logger.debug("Scheduled zone refresh for {} in {} seconds.", zoneIdentity, getRefreshInterval(zoneIdentity, newZoneMap));
                 }
             }
             
@@ -356,7 +350,7 @@ public class ZoneCache {
                     long cacheSerialNumber = getSerialNumberFromCache(zoneIdentity);
                     
                     logger.debug("Comparing the DNS serial number {} to the zone cache serial number {} for the zone {}.", dnsSerialNumber, cacheSerialNumber, zoneIdentity);
-                    if (dnsSerialNumber != cacheSerialNumber) {
+                    if (dnsSerialNumber > cacheSerialNumber) {
                         logger.debug("{} records in the zone {} prior to the zone cache update.", this.zoneMap.get(zoneIdentity).size(), zoneIdentity);
                         List<Record> records = getRecordsFromDNS(zoneIdentity, this.zoneMap.get(zoneIdentity));
                         newZoneMap.put(zoneIdentity, records);

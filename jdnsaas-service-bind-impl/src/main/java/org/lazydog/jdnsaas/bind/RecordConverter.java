@@ -344,7 +344,6 @@ public final class RecordConverter {
      */
     public Record fromDnsRecord(final org.xbill.DNS.Record dnsRecord) throws RecordConverterException {
 
-        // Initialize the record.
         Record record = null;
         
         try {
@@ -450,8 +449,7 @@ public final class RecordConverter {
      * @throws  RecordConverterException  if the record cannot be converted to a DNS record.
      */
     public org.xbill.DNS.Record toDnsRecord(final Record record) throws RecordConverterException {
-        
-        // Initialize the record.
+
         org.xbill.DNS.Record dnsRecord = null;
         
         try {

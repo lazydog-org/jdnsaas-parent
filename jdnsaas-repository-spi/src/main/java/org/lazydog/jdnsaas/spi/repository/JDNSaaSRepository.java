@@ -36,19 +36,15 @@ public interface JDNSaaSRepository extends Repository {
      * Find the resolvers.
      * 
      * @return  the resolvers.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the resolvers due to an exception.
      */
-    List<Resolver> findResolvers() throws JDNSaaSRepositoryException;
+    List<Resolver> findResolvers();
     
     /**
      * Find the transaction signature (TSIG) keys.
      * 
      * @return  the transaction signature (TSIG) keys.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the transaction signature (TSIG) keys due to an exception.
      */
-    List<TSIGKey> findTSIGKeys() throws JDNSaaSRepositoryException;
+    List<TSIGKey> findTSIGKeys();
     
     /**
      * Find the view.
@@ -56,19 +52,15 @@ public interface JDNSaaSRepository extends Repository {
      * @param  viewName  the view name.
      * 
      * @return  the view.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the view due to an exception.
      */
-    View findView(String viewName) throws JDNSaaSRepositoryException;
+    View findView(String viewName);
     
     /**
      * Find the view names.
      * 
      * @return  the view names.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the view names due to an exception.
      */
-    List<String> findViewNames() throws JDNSaaSRepositoryException;
+    List<String> findViewNames();
     
     /**
      * Find the zone.
@@ -77,10 +69,8 @@ public interface JDNSaaSRepository extends Repository {
      * @param  zoneName  the zone name.
      * 
      * @return  the zone.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the zone due to an exception.
      */
-    Zone findZone(String viewName, String zoneName) throws JDNSaaSRepositoryException;
+    Zone findZone(String viewName, String zoneName);
 
     /**
      * Find the zone names.
@@ -88,17 +78,13 @@ public interface JDNSaaSRepository extends Repository {
      * @param  viewName  the view name.
      * 
      * @return  the zone names.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the zone names due to an exception.
      */
-    List<String> findZoneNames(String viewName) throws JDNSaaSRepositoryException;
+    List<String> findZoneNames(String viewName);
     
     /**
      * Find the zones.
      * 
      * @return  the zones.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the zones due to an exception.
      */
-    List<Zone> findZones() throws JDNSaaSRepositoryException;
+    List<Zone> findZones();
 }

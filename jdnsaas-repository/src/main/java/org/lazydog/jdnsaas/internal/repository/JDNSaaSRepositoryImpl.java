@@ -31,7 +31,6 @@ import org.lazydog.jdnsaas.model.TSIGKey;
 import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepository;
-import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepositoryException;
 import org.lazydog.jdnsaas.spi.repository.PersistenceUnitName;
 import org.lazydog.repository.Criteria;
 import org.lazydog.repository.criterion.Comparison;
@@ -55,46 +54,20 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
      * Find the resolvers.
      * 
      * @return  the resolvers.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the resolvers due to an exception.
      */
     @Override
-    public List<Resolver> findResolvers() throws JDNSaaSRepositoryException {
-        
-        List<Resolver> resolvers = new ArrayList<Resolver>();
-        
-        try {
-            
-            // Find the resolvers.
-            resolvers = this.findList(Resolver.class);
-        } catch (Exception e) {
-            throw new JDNSaaSRepositoryException("Unable to find the resolvers.", e);
-        }
-        
-        return resolvers;
+    public List<Resolver> findResolvers() {
+        return this.findList(Resolver.class);
     }
     
     /**
      * Find the transaction signature (TSIG) keys.
      * 
      * @return  the transaction signature (TSIG) keys.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the transaction signature (TSIG) keys due to an exception.
      */
     @Override
-    public List<TSIGKey> findTSIGKeys() throws JDNSaaSRepositoryException {
-        
-        List<TSIGKey> tsigKeys = new ArrayList<TSIGKey>();
-        
-        try {
-            
-            // Find the transaction signature (TSIG) keys.
-            tsigKeys = this.findList(TSIGKey.class);
-        } catch (Exception e) {
-            throw new JDNSaaSRepositoryException("Unable to find the TSIG keys.", e);
-        }
-        
-        return tsigKeys;
+    public List<TSIGKey> findTSIGKeys() {     
+        return this.findList(TSIGKey.class);
     }
     
     /**
@@ -103,51 +76,33 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
      * @param  viewName  the view name.
      * 
      * @return  the view.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the view due to an exception.
      */
     @Override
-    public View findView(final String viewName) throws JDNSaaSRepositoryException {
-        
-        View view;
-        
-        try {
-            
-            // Set the view criteria.
-            Criteria<View> criteria = this.getCriteria(View.class);
-            criteria.add(Comparison.eq("name", viewName));
-            
-            // Find the view.
-            view = this.find(View.class, criteria);
-        } catch (Exception e) {
-            throw new JDNSaaSRepositoryException("Unable to find the view " + viewName + ".", e);
-        }
-        
-        return view;
+    public View findView(final String viewName) {
+
+        // Set the view criteria.
+        Criteria<View> criteria = this.getCriteria(View.class);
+        criteria.add(Comparison.eq("name", viewName));
+
+        // Find the view.
+        return this.find(View.class, criteria);
     }
     
     /**
      * Find the view names.
      * 
      * @return  the view names.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the view names due to an exception.
      */
     @Override
-    public List<String> findViewNames() throws JDNSaaSRepositoryException {
+    public List<String> findViewNames() {
 
         List<String> viewNames = new ArrayList<String>();
-        
-        try {
-            
-            // Loop through the views.
-            for (View view : this.findList(View.class)) {
 
-                // Add the view name to the list.
-                viewNames.add(view.getName());
-            }
-        } catch (Exception e) {
-            throw new JDNSaaSRepositoryException("Unable to find the view names.", e);
+        // Loop through the views.
+        for (View view : this.findList(View.class)) {
+
+            // Add the view name to the list.
+            viewNames.add(view.getName());
         }
         
         return viewNames;
@@ -160,28 +115,16 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
      * @param  zoneName  the zone name.
      * 
      * @return  the zone.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the zone due to an exception.
      */
     @Override
-    public Zone findZone(final String viewName, final String zoneName) throws JDNSaaSRepositoryException {
+    public Zone findZone(final String viewName, final String zoneName) {
 
-        Zone zone;
-        
-        try {
-            
-            // Set the zone criteria.
-            Criteria<Zone> criteria = this.getCriteria(Zone.class);
-            criteria.add(Comparison.eq("name", zoneName));
-            criteria.add(Logical.and(Comparison.eq("view.name", viewName)));
-            
-            // Find the zone.
-            zone = this.find(Zone.class, criteria);
-        } catch (Exception e) {
-            throw new JDNSaaSRepositoryException("Unable to find the zone " + zoneName + " for the view " + viewName + ".", e);
-        }
-        
-        return zone;
+        // Set the zone criteria.
+        Criteria<Zone> criteria = this.getCriteria(Zone.class);
+        criteria.add(Comparison.eq("name", zoneName));
+        criteria.add(Logical.and(Comparison.eq("view.name", viewName)));
+
+        return this.find(Zone.class, criteria);
     }
     
     /**
@@ -190,28 +133,21 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
      * @param  viewName  the view name.
      * 
      * @return  the zone names.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the zone names due to an exception.
      */
     @Override
-    public List<String> findZoneNames(final String viewName) throws JDNSaaSRepositoryException {
+    public List<String> findZoneNames(final String viewName) {
 
         List<String> zoneNames = new ArrayList<String>();
-        
-        try {
-            
-            // Loop through the zones.
-            for (Zone zone : this.findList(Zone.class)) {
 
-                // Check if the zone's view name is the desire view name.
-                if (zone.getView().getName().equals(viewName)) {
-                    
-                    // Add the zone name to the list.
-                    zoneNames.add(zone.getName());
-                }
+        // Loop through the zones.
+        for (Zone zone : this.findList(Zone.class)) {
+
+            // Check if the zone's view name is the desire view name.
+            if (zone.getView().getName().equals(viewName)) {
+
+                // Add the zone name to the list.
+                zoneNames.add(zone.getName());
             }
-        } catch (Exception e) {
-            throw new JDNSaaSRepositoryException("Unable to find the zone names for the view " + viewName + ".", e);
         }
         
         return zoneNames;
@@ -221,23 +157,10 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
      * Find the zones.
      * 
      * @return  the zones.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to find the zones due to an exception.
      */
     @Override
-    public List<Zone> findZones() throws JDNSaaSRepositoryException {
-        
-        List<Zone> zones = new ArrayList<Zone>();
-        
-        try {
-
-            // Find the zones.
-            zones = this.findList(Zone.class);
-        } catch (Exception e) {
-            throw new JDNSaaSRepositoryException("Unable to find the zones.", e);
-        }
-        
-        return zones;
+    public List<Zone> findZones() {        
+        return this.findList(Zone.class);
     }
     
     /**
@@ -273,20 +196,13 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
     
     /**
      * Startup the JDNSaaS repository.
-     * 
-     * @throws  JDNSaaSRepositoryException  if unable to startup the JDNSaaS repository due to an exception.
      */
     @PostConstruct
-    public void startup() throws JDNSaaSRepositoryException {
+    public void startup() {
         
         logger.info("Startup the JDNSaaS repository.");
-        
-        try {
-            
-            // Set the entity manager.
-            this.setEntityManager(Persistence.createEntityManagerFactory(this.persistenceUnitName).createEntityManager());
-        } catch (Exception e) {
-            throw new JDNSaaSRepositoryException("Unable to startup the JDNSaaS repository with the persistence unit " + persistenceUnitName + ".", e);
-        }
+
+        // Set the entity manager.
+        this.setEntityManager(Persistence.createEntityManagerFactory(this.persistenceUnitName).createEntityManager());
     }
 }
