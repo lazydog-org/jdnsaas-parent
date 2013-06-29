@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
@@ -37,15 +36,15 @@ import org.slf4j.LoggerFactory;
 public class NotifyMessageMonitor implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(NotifyMessageMonitor.class);
-    private static final int DEFAULT_SOCKET_TIMEOUT = 20000;
+    private static final int DEFAULT_PORT = 10053;
     private static final int DEFAULT_THREADS = 10;
     private static final int UDP_PACKET_SIZE = 4096;
     private String ipAddress;
+    private boolean isRunning;
+    private ExecutorService notifyMessageThreadPool;
     private int port;
-    private int threads;
     private ZoneCache zoneCache;
     private DatagramSocket socket;
-    private int socketTimeout;
     
     /**
      * Create the notify message monitor.
@@ -53,38 +52,32 @@ public class NotifyMessageMonitor implements Runnable {
      * @param  recordCache    the record cache.
      * @param  ipAddress      the IP address.
      * @param  port           the port.
-     * @param  socketTimeout  the socket timeout.
      * @param  threads        the number of threads.
      * 
      * @throws  IOException  if unable to create the notify message monitor.
      */
-    public NotifyMessageMonitor(final ZoneCache zoneCache, final String ipAddress, final int port, final int socketTimeout, final int threads) throws IOException {
+    public NotifyMessageMonitor(final ZoneCache zoneCache, final String ipAddress, final int port, final int threads) throws IOException {
         this.zoneCache = zoneCache;
         this.ipAddress = ipAddress;
-        this.port = port;
-        this.socketTimeout = socketTimeout;
-        this.threads = threads;
-
-        // Open the UDP socket.  Set a timeout value to allow the monitor to be shutdown gracefully.
+        this.port = (port > 0) ? port : DEFAULT_PORT;
         this.socket = new DatagramSocket(this.port, InetAddress.getByName(this.ipAddress));
-        this.socket.setSoTimeout((this.socketTimeout > 0) ? this.socketTimeout : DEFAULT_SOCKET_TIMEOUT);
-        logger.debug("Open the UDP socket {} port {} with a timeout of {}.", this.socket, this.port, (this.socketTimeout > 0) ? this.socketTimeout : DEFAULT_SOCKET_TIMEOUT);
+        logger.info("Opened the UDP socket {} port {}.", this.socket, this.port);
+        this.notifyMessageThreadPool = Executors.newFixedThreadPool((threads > 0) ? threads : DEFAULT_THREADS);
+        logger.info("Startup the notify message thread pool with {} threads.", (threads > 0) ? threads : DEFAULT_THREADS);
     }
-    
+
     /**
-     * Run the notify message monitor.
+     * Startup the notify message monitor.
      */
     @Override
     public void run() {
 
-        // Initialize the notify message thread pool.
-        ExecutorService notifyMessageThreadPool = Executors.newFixedThreadPool((this.threads > 0) ? this.threads : DEFAULT_THREADS);
-        logger.debug("Startup the notify message thread pool with {} threads.", (this.threads > 0) ? this.threads : DEFAULT_THREADS);
-        
+        this.isRunning = true;
+
         try {
 
-            // Check if the zone cache is not shutdown.
-            while (!this.zoneCache.isShutdown()) {
+            // Continue to run until explicitedly shutdown.
+            while (this.isRunning) {
 
                 try {
 
@@ -95,11 +88,9 @@ public class NotifyMessageMonitor implements Runnable {
                     // TODO: validate the address and port.
 
                     // Execute a notify message thread to handle the packet.
-                    notifyMessageThreadPool.execute(new NotifyMessageThread(this.zoneCache, this.socket, requestPacket));
-                } catch (SocketTimeoutException e) {
-                    logger.debug("UDP socket {} port {} timed out.", this.ipAddress, this.port);
+                    this.notifyMessageThreadPool.execute(new NotifyMessageThread(requestPacket));
                 } catch (IOException e) {
-                    logger.warn("Error receiving a UDP request from {} port {}.", this.ipAddress, this.port);
+                    logger.debug("Error receiving a UDP request from {} port {}.", this.ipAddress, this.port);
                 }
             }
         } catch (Exception e) {
@@ -107,32 +98,38 @@ public class NotifyMessageMonitor implements Runnable {
         } finally {
 
             // Shutdown the notify message thread pool.
-            notifyMessageThreadPool.shutdown();
-            logger.debug("Shutdown the notify message thread pool.");
+            this.notifyMessageThreadPool.shutdown();
+            logger.info("Shutdown the notify message thread pool.");
             
-            // Close the UDP socket.
-            this.socket.close();
+            // Close the UDP socket if necessary.
+            if (!this.socket.isClosed()) {
+                this.socket.close();
+            }
         }
+    }
+        
+    /**
+     * Shutdown the notify message monitor.
+     */
+    public void shutdown() {
+        this.isRunning = false;
+        this.socket.close();
+        logger.info("Closed the UDP socket {} port {}.", this.socket, this.port);
     }
 
     /**
      * Notify message thread.
      */
     private class NotifyMessageThread implements Runnable {
-        
-        private ZoneCache zoneCache;
+
         private DatagramPacket requestPacket;
-        private DatagramSocket socket;
         
         /**
-         * Initialize the notify message thread.
+         * Create the notify message thread.
          * 
-         * @param  socket         the socket.
          * @param  requestPacket  the request packet.
          */
-        public NotifyMessageThread(final ZoneCache zoneCache, final DatagramSocket socket, final DatagramPacket requestPacket) {
-            this.zoneCache = zoneCache;
-            this.socket = socket;
+        public NotifyMessageThread(final DatagramPacket requestPacket) {
             this.requestPacket = requestPacket;
         }
 
@@ -142,6 +139,8 @@ public class NotifyMessageMonitor implements Runnable {
         @Override
         public void run() {
 
+            logger.info("Start a notify message thread.");
+            
             NotifyRequestMessage requestMessage = null;
             
             try {
@@ -154,23 +153,25 @@ public class NotifyMessageMonitor implements Runnable {
 
                 // Send the response.
                 DatagramPacket responsePacket = new DatagramPacket(response, response.length, this.requestPacket.getAddress(), this.requestPacket.getPort());
-                socket.send(responsePacket);
+                NotifyMessageMonitor.this.socket.send(responsePacket);
+                        
+                // Since there is a notify message, flag the zone for a refresh.
+                // TODO: use the address and port to find the exact zone.  Currently, all the zones with the same name in different views will be flagged for refresh.
+                NotifyMessageMonitor.this.zoneCache.flagForRefresh(requestMessage.getZoneName());
             } catch (InvalidRequestMessageException e) {
                 logger.warn("An invalid notify request message was received.  Not sending a response to {} port {}.", this.requestPacket.getAddress(), this.requestPacket.getPort(), e);
             } catch (IOException e) {
                 logger.warn("Error sending a UDP response to {} port {}.", this.requestPacket.getAddress().getHostAddress(), this.requestPacket.getPort());
             }
-
-            // Since there is a notify message, flag the zone cache for refresh.
-            // TODO: use the address and port to find the exact zone.
-            this.zoneCache.flagForRefresh(requestMessage.getZoneName());
-               
-            // Check if the record cache is not suspended.
-            if (!this.zoneCache.isSuspended()) {
+   
+            // Check if the record cache is available.
+            if (NotifyMessageMonitor.this.zoneCache.isAvailable()) {
                 
                 // Refresh the zone cache.
-                this.zoneCache.refresh();
+                NotifyMessageMonitor.this.zoneCache.refresh();
             }
+            
+            logger.info("Stop a notify message thread.");
         }
     }
 }

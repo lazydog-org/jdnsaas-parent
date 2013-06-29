@@ -16,10 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.lazydog.jdnsaas.bind.cache;
-
-import org.lazydog.jdnsaas.model.Model;
-import org.lazydog.jdnsaas.model.Zone;
+package org.lazydog.jdnsaas.model;
 
 /**
  * Zone identity.
@@ -29,8 +26,13 @@ import org.lazydog.jdnsaas.model.Zone;
 public class ZoneIdentity extends Model {
     
     private static final long serialVersionUID = 1L;
+    private static final ZoneIdentity NO_ZONE_IDENTITY = ZoneIdentity.newInstance(null, null);
     private String viewName;
     private String zoneName;
+    
+    public ZoneIdentity() {
+        
+    }
     
     /**
      * Hide the constructor.
@@ -41,6 +43,15 @@ public class ZoneIdentity extends Model {
     private ZoneIdentity(String viewName, String zoneName) {
         this.viewName = viewName;
         this.zoneName = zoneName;
+    }
+       
+    /**
+     * Create no zone identity.
+     * 
+     * @return  no zone identity.
+     */
+    public static ZoneIdentity noZoneIdentity() {
+        return NO_ZONE_IDENTITY;
     }
     
     /**
@@ -60,6 +71,29 @@ public class ZoneIdentity extends Model {
     public String getZoneName() {
         return this.zoneName;
     }
+        
+    /**
+     * Create the zone identity.
+     * 
+     * @param  zone  the zone.
+     * 
+     * @return  the zone identity.
+     */
+    public static ZoneIdentity newInstance(Zone zone) {
+        return new ZoneIdentity(zone.getViewName(), zone.getName());
+    }
+        
+    /**
+     * Create the zone identity.
+     * 
+     * @param  viewName  the view name.
+     * @param  zoneName  the zone name.
+     * 
+     * @return  the zone identity.
+     */
+    public static ZoneIdentity newInstance(String viewName, String zoneName) {
+        return new ZoneIdentity(viewName, zoneName);
+    }
     
     /**
      * Set the view name.
@@ -77,16 +111,5 @@ public class ZoneIdentity extends Model {
      */
     public void setZoneName(String zoneName) {
         this.zoneName = zoneName;
-    }
-    
-    /**
-     * Create the zone identity.
-     * 
-     * @param  zone  the zone.
-     * 
-     * @return  the zone identity.
-     */
-    public static ZoneIdentity newInstance(Zone zone) {
-        return new ZoneIdentity(zone.getViewName(), zone.getName());
     }
 }

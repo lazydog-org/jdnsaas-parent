@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractResource {
       
     private static final Logger logger = LoggerFactory.getLogger(AbstractResource.class);
+    private static final String USE_CACHE_HTTP_HEADER = "Use-Cache";
     @Context private HttpHeaders httpHeaders;
     @Context private Providers providers;
     @Context private Request request;
@@ -154,5 +155,22 @@ public abstract class AbstractResource {
      */
     protected String getNextUri(final String path) {
         return this.uriInfo.getAbsolutePathBuilder().path(path).build().toASCIIString();
+    }
+    
+    /**
+     * Should the zone cache be used?
+     * 
+     * @return  true if the zone cache should be used, otherwise false.
+     */
+    protected boolean useCache() {
+        
+        boolean useCache = false;
+        
+        // Flag that the cache should be used if the use cache HTTP header exists and is set to true.
+        List<String> values = this.httpHeaders.getRequestHeader(USE_CACHE_HTTP_HEADER);
+        useCache = (values != null && !values.isEmpty() && Boolean.valueOf(values.get(0)).booleanValue());
+        logger.info("Use cache flag is {}.", useCache);
+        
+        return useCache;
     }
 }

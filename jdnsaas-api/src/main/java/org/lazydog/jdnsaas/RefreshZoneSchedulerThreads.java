@@ -25,12 +25,12 @@ import java.lang.annotation.Target;
 import javax.inject.Qualifier;
 
 /**
- * Notify message monitor socket timeout qualifier.
+ * Refresh zone scheduler threads qualifier.
  * 
  * @author  Ron Rickard
  */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
-public @interface NotifyMessageMonitorSocketTimeout { }
+public @interface RefreshZoneSchedulerThreads { }
 

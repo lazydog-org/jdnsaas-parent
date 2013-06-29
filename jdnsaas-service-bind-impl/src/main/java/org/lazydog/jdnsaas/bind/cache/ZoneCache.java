@@ -28,8 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -37,14 +35,15 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.lazydog.jdnsaas.NotifyMessageMonitorAddress;
 import org.lazydog.jdnsaas.NotifyMessageMonitorPort;
-import org.lazydog.jdnsaas.NotifyMessageMonitorSocketTimeout;
 import org.lazydog.jdnsaas.NotifyMessageMonitorThreads;
+import org.lazydog.jdnsaas.RefreshZoneSchedulerInitialDelay;
+import org.lazydog.jdnsaas.RefreshZoneSchedulerThreads;
 import org.lazydog.jdnsaas.bind.DNSServerExecutor;
-import org.lazydog.jdnsaas.bind.DNSServerExecutorException;
 import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.SOARecord;
 import org.lazydog.jdnsaas.model.Zone;
+import org.lazydog.jdnsaas.model.ZoneIdentity;
 import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,16 +58,18 @@ import org.slf4j.LoggerFactory;
 public class ZoneCache {
 
     private static final Logger logger = LoggerFactory.getLogger(ZoneCache.class);
-    private boolean isShutdown;
-    private boolean isSuspended;
-    private ExecutorService notifyMessageMonitor;
-    private ScheduledExecutorService refreshZoneScheduler;
-    private ConcurrentMap<ZoneIdentity,ScheduledFuture> refreshZoneFutureMap = new ConcurrentHashMap<ZoneIdentity,ScheduledFuture>();
+    private static final Long SHUTDOWN_TIMEOUT = 30000L;
+    private boolean isAvailable;
+    private Runnable notifyMessageMonitor;
     private String notifyMessageMonitorAddress;
+    private ExecutorService notifyMessageMonitorPool;
     private int notifyMessageMonitorPort;
-    private int notifyMessageMonitorSocketTimeout;
     private int notifyMessageMonitorThreads;
     private ConcurrentMap<ZoneAction,Set<ZoneIdentity>> refreshZoneMap = new ConcurrentHashMap<ZoneAction,Set<ZoneIdentity>>();
+    private Runnable refreshZoneScheduler;
+    private int refreshZoneSchedulerInitialDelay;
+    private ExecutorService refreshZoneSchedulerPool;
+    private int refreshZoneSchedulerThreads;
     private JDNSaaSRepository repository;
     private ConcurrentMap<ZoneIdentity,List<Record>> zoneMap = new ConcurrentHashMap<ZoneIdentity,List<Record>>();
     private enum ZoneAction {
@@ -76,31 +77,13 @@ public class ZoneCache {
         DELETE,
         UPDATE;
     }
-    
+
     /**
-     * Is the zone cache shutdown?
-     * 
-     * @return  true if the zone cache is shutdown, otherwise false.
-     */
-    public boolean isShutdown() {
-        return this.isShutdown;
-    }
-    
-    /**
-     * Is the zone cache suspended?
-     * 
-     * @return  true if the zone cache is suspended, otherwise false.
-     */
-    public boolean isSuspended() {
-        return this.isSuspended;
-    }
-    
-    /**
-     * Flag the zone cache for a refresh.
+     * Flag the zone for a refresh.
      * 
      * @param  zoneIdentity  the zone identity.
      */
-    public synchronized void flagForRefresh(final ZoneIdentity zoneIdentity) {
+    protected synchronized void flagForRefresh(final ZoneIdentity zoneIdentity) {
         if (this.refreshZoneMap.containsKey(ZoneAction.UPDATE)) {
             this.refreshZoneMap.get(ZoneAction.UPDATE).add(zoneIdentity);
         } else {
@@ -110,11 +93,11 @@ public class ZoneCache {
     }
     
     /**
-     * Flag the zone cache for a refresh.
+     * Flag the zone for a refresh.
      * 
      * @param  zoneName  the zone name.
      */
-    public synchronized void flagForRefresh(final String zoneName) {
+    protected synchronized void flagForRefresh(final String zoneName) {
 
         // Loop through the zone identities in the zone map.
         for (ZoneIdentity zoneIdentity : this.zoneMap.keySet()) {
@@ -277,9 +260,18 @@ public class ZoneCache {
     }
     
     /**
+     * Is the zone cache available?
+     * 
+     * @return  true if the zone cache is available, otherwise false.
+     */
+    public boolean isAvailable() {
+        return this.isAvailable;
+    }
+    
+    /**
      * Refresh the zone cache.
      */
-    public synchronized void refresh() {
+    protected synchronized void refresh() {
         
         try {
             
@@ -320,9 +312,8 @@ public class ZoneCache {
                     newZoneMap.put(zoneIdentity, records);
                     logger.debug("Added {} records to the zone cache for the zone {}.", records.size(), zoneIdentity);
                     
-                    // Schedule the refresh of the zone.
-                    this.refreshZoneFutureMap.put(zoneIdentity, this.refreshZoneScheduler.scheduleWithFixedDelay(new RefreshZoneThread(this, zoneIdentity), getRefreshInterval(zoneIdentity, newZoneMap), getRefreshInterval(zoneIdentity, newZoneMap), TimeUnit.SECONDS));
-                    logger.debug("Scheduled zone refresh for {} in {} seconds.", zoneIdentity, getRefreshInterval(zoneIdentity, newZoneMap));
+                    // Schedule a refresh for the zone.
+                    ((RefreshZoneScheduler)this.refreshZoneScheduler).schedule(zoneIdentity, getRefreshInterval(zoneIdentity, newZoneMap));
                 }
             }
             
@@ -334,9 +325,8 @@ public class ZoneCache {
                     newZoneMap.remove(zoneIdentity);
                     logger.debug("Deleted {} records from the zone cache for the zone {}.", records.size(), zoneIdentity);
                     
-                    // Remove the scheduled refresh of the zone.
-                    this.refreshZoneFutureMap.get(zoneIdentity).cancel(true);
-                    this.refreshZoneFutureMap.remove(zoneIdentity);
+                    // Unschedule a refresh for the zone.
+                    ((RefreshZoneScheduler)this.refreshZoneScheduler).unschedule(zoneIdentity);
                 }
             }
 
@@ -357,9 +347,8 @@ public class ZoneCache {
                         logger.debug("{} records in the zone {} after the zone cache update.", records.size(), zoneIdentity);
                     }
                     
-                    // Update the scheduled refresh of the zone.
-                    this.refreshZoneFutureMap.get(zoneIdentity).cancel(true);
-                    this.refreshZoneFutureMap.put(zoneIdentity, this.refreshZoneScheduler.scheduleWithFixedDelay(new RefreshZoneThread(this, zoneIdentity), getRefreshInterval(zoneIdentity, newZoneMap), getRefreshInterval(zoneIdentity, newZoneMap), TimeUnit.SECONDS));
+                    // Rechedule a refresh for the zone.
+                    ((RefreshZoneScheduler)this.refreshZoneScheduler).reschedule(zoneIdentity, getRefreshInterval(zoneIdentity, newZoneMap));
                 }
             }
             
@@ -372,33 +361,34 @@ public class ZoneCache {
     }
     
     /**
-     * Resume the zone cache.
+     * Refresh the zone cache and make it available.
      */
-    public void resume() {
+    public synchronized void resume() {
         refresh();
-        this.isSuspended = false;
+        this.isAvailable = true;
     }
 
     /**
      * Shutdown the zone cache.
      */
     @PreDestroy
-    public void shutdown() throws InterruptedException {
+    public synchronized void shutdown() throws InterruptedException {
         
         logger.info("Stopping the zone cache ...");
+        this.suspend();
         
-        // Stop the notify message monitor and wait for it to finish.
-        this.isShutdown = true;
-        this.notifyMessageMonitor.shutdown();
-        for (ScheduledFuture refreshZoneFuture : this.refreshZoneFutureMap.values()) {
-            refreshZoneFuture.cancel(true);
-        }
-        this.refreshZoneScheduler.shutdown();
-        this.notifyMessageMonitor.awaitTermination(30000L, TimeUnit.MILLISECONDS);
-        this.refreshZoneScheduler.awaitTermination(30000L, TimeUnit.MILLISECONDS);
+        // Shutdown the notify message monitor and refresh zone scheduler.
+        ((NotifyMessageMonitor)this.notifyMessageMonitor).shutdown();
+        this.notifyMessageMonitorPool.shutdown();
+        ((RefreshZoneScheduler)this.refreshZoneScheduler).shutdown();
+        this.refreshZoneSchedulerPool.shutdown();
+        
+        // Wait for the notify message monitor and refresh zone scheduler to shutdown.
+        this.notifyMessageMonitorPool.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+        this.refreshZoneSchedulerPool.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
         logger.info("Zone cache stopped.");
     }
-      
+
     /**
      * Set the repository.
      * 
@@ -430,18 +420,7 @@ public class ZoneCache {
         this.notifyMessageMonitorPort = notifyMessageMonitorPort;
         logger.info("Set the notify message monitor port to {}.", notifyMessageMonitorPort);
     }
-        
-    /**
-     * Set the notify message monitor socket timeout.
-     * 
-     * @param  notifyMessageMonitorSocketTimeout  the notify message monitor socket timeout.
-     */
-    @Inject 
-    public void setNotifyMessageMonitorSocketTimeout(@NotifyMessageMonitorSocketTimeout final int notifyMessageMonitorSocketTimeout) {
-        this.notifyMessageMonitorSocketTimeout = notifyMessageMonitorSocketTimeout;
-        logger.info("Set the notify message monitor socket timeout to {}.", notifyMessageMonitorSocketTimeout);
-    }
-    
+
     /**
      * Set the notify message monitor threads.
      * 
@@ -452,6 +431,28 @@ public class ZoneCache {
         this.notifyMessageMonitorThreads = notifyMessageMonitorThreads;
         logger.info("Set the notify message monitor threads to {}.", notifyMessageMonitorThreads);
     }
+        
+    /**
+     * Set the refresh zone scheduler initial delay.
+     * 
+     * @param  refreshZoneSchedulerInitialDelay  the refresh zone scheduler initial delay.
+     */
+    @Inject 
+    public void setRefreshZoneSchedulerInitialDelay(@RefreshZoneSchedulerInitialDelay final int refreshZoneSchedulerInitialDelay) {
+        this.refreshZoneSchedulerInitialDelay = refreshZoneSchedulerInitialDelay;
+        logger.info("Set the refresh zone scheduler initial delay to {}.", refreshZoneSchedulerInitialDelay);
+    }
+    
+    /**
+     * Set the refresh zone scheduler threads.
+     * 
+     * @param  refreshZoneSchedulerThreads  the refresh zone scheduler threads.
+     */
+    @Inject 
+    public void setRefreshZoneSchedulerThreads(@RefreshZoneSchedulerThreads final int refreshZoneSchedulerThreads) {
+        this.refreshZoneSchedulerThreads = refreshZoneSchedulerThreads;
+        logger.info("Set the refresh zone scheduler threads to {}.", refreshZoneSchedulerThreads);
+    }
     
     /**
      * Startup the zone cache.
@@ -459,59 +460,23 @@ public class ZoneCache {
      * @throws  IOException  if unable to zone the record cache.
      */
     @PostConstruct
-    public void startup() throws IOException {
+    public synchronized void startup() throws IOException {
         
         logger.info("Start the zone cache ...");
-        this.isShutdown = false;
-        this.isSuspended = false;
-        this.refreshZoneScheduler = Executors.newScheduledThreadPool(10);
-        this.refresh();
-        this.notifyMessageMonitor = Executors.newFixedThreadPool(1);
-        this.notifyMessageMonitor.execute(new NotifyMessageMonitor(this, this.notifyMessageMonitorAddress, this.notifyMessageMonitorPort, this.notifyMessageMonitorSocketTimeout, this.notifyMessageMonitorThreads));
+        this.suspend();
+        this.refreshZoneScheduler = new RefreshZoneScheduler(this, this.refreshZoneSchedulerThreads, this.refreshZoneSchedulerInitialDelay);
+        this.refreshZoneSchedulerPool = Executors.newSingleThreadExecutor();
+        this.refreshZoneSchedulerPool.execute(this.refreshZoneScheduler);
+        this.notifyMessageMonitor = new NotifyMessageMonitor(this, this.notifyMessageMonitorAddress, this.notifyMessageMonitorPort, this.notifyMessageMonitorThreads);
+        this.notifyMessageMonitorPool = Executors.newSingleThreadExecutor();
+        this.notifyMessageMonitorPool.execute(this.notifyMessageMonitor);
         logger.info("Zone cache started.");
     }
         
     /**
-     * Suspend the record cache.
+     * Make the zone cache unavailable.
      */
-    public void suspend() {
-        this.isSuspended = true;
-    }
-    
-    /**
-     * Refresh zone thread.
-     */
-    private class RefreshZoneThread implements Runnable {
-        
-        private ZoneCache zoneCache;
-        private ZoneIdentity zoneIdentity;
-        
-        /**
-         * Initialize the refresh zone thread.
-         * 
-         * @param  socket         the socket.
-         * @param  requestPacket  the request packet.
-         */
-        public RefreshZoneThread(final ZoneCache zoneCache, final ZoneIdentity zoneIdentity) {
-            this.zoneCache = zoneCache;
-            this.zoneIdentity = zoneIdentity;
-        }
-
-        /**
-         * Run the refresh zone thread.
-         */
-        @Override
-        public void run() {
-
-            // Flag the zone cache for refresh.
-            this.zoneCache.flagForRefresh(this.zoneIdentity);
-               
-            // Check if the record cache is not suspended.
-            if (!this.zoneCache.isSuspended()) {
-                
-                // Refresh the zone cache.
-                this.zoneCache.refresh();
-            }
-        }
-    }
+    public synchronized void suspend() {
+        this.isAvailable = false;
+    }  
 }

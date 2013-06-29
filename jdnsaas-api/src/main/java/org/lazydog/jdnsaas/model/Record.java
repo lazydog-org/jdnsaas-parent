@@ -229,21 +229,28 @@ public abstract class Record<T extends Record.Data> extends Model {
          * 
          * <table>
          *   <thead>
-         *     <tr><th>Class</th><th>Element</th><th>Type</th><th>Property</th>
+         *     <tr><th>Class</th><th>Element</th><th>Type</th><th>Property</th></tr>
          *   </thead>
          *   <tbody>
-         *     <tr><td>AAAARecordData</td><td>0</td><td>String</td><td>ipv6Address</td>
-         *     <tr><td>ARecordData</td><td>0</td><td>String</td><td>ipAddress</td>
-         *     <tr><td>CNAMERecordData</td><td>0</td><td>String</td><td>target</td>
-         *     <tr><td>MXRecordData</td><td>0</td><td>String</td><td>target</td>
-         *     <tr><td></td><td>1</td><td>Integer</td><td>priority</td>
-         *     <tr><td>NSRecordData</td><td>0</td><td>String</td><td>target</td>
-         *     <tr><td>PTRRecordData</td><td>0</td><td>String</td><td>target</td>
-         *     <tr><td>SRVRecordData</td><td>0</td><td>String</td><td>target</td>
-         *     <tr><td></td><td>1</td><td>Integer</td><td>port</td>
-         *     <tr><td></td><td>2</td><td>Integer</td><td>weight</td>
-         *     <tr><td></td><td>3</td><td>Integer</td><td>priority</td>
-         *     <tr><td>TXTRecordData</td><td> 0</td><td>List<String></td><td>values</td>
+         *     <tr><td>AAAARecordData</td><td>0</td><td>String</td><td>ipv6Address</td></tr>
+         *     <tr><td>ARecordData</td><td>0</td><td>String</td><td>ipAddress</td></tr>
+         *     <tr><td>CNAMERecordData</td><td>0</td><td>String</td><td>target</td></tr>
+         *     <tr><td>MXRecordData</td><td>0</td><td>String</td><td>target</td></tr>
+         *     <tr><td></td><td>1</td><td>Integer</td><td>priority</td></tr>
+         *     <tr><td>NSRecordData</td><td>0</td><td>String</td><td>target</td></tr>
+         *     <tr><td>PTRRecordData</td><td>0</td><td>String</td><td>target</td></tr>
+         *     <tr><td>SOARecordData</td><td>0</td><td>Long</td><td>minimumTimeToLive</td></tr>
+         *     <tr><td></td><td>1</td><td>Long</td><td>expireInterval</td></tr>
+         *     <tr><td></td><td>2</td><td>Long</td><td>retryInterval</td></tr>
+         *     <tr><td></td><td>3</td><td>Long</td><td>refreshInterval</td></tr>
+         *     <tr><td></td><td>4</td><td>Long</td><td>serialNumber</td></tr>
+         *     <tr><td></td><td>5</td><td>String</td><td>emailAddress</td></tr>
+         *     <tr><td></td><td>6</td><td>String</td><td>masterNameServer</td></tr>
+         *     <tr><td>SRVRecordData</td><td>0</td><td>String</td><td>target</td></tr>
+         *     <tr><td></td><td>1</td><td>Integer</td><td>port</td></tr>
+         *     <tr><td></td><td>2</td><td>Integer</td><td>weight</td></tr>
+         *     <tr><td></td><td>3</td><td>Integer</td><td>priority</td></tr>
+         *     <tr><td>TXTRecordData</td><td> 0</td><td>List<String></td><td>values</td></tr>
          *   </tbody>
          * </table>
          * 
