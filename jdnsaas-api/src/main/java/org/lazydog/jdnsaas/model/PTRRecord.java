@@ -23,9 +23,10 @@ package org.lazydog.jdnsaas.model;
  * 
  * @author  Ron Rickard
  */
-public class PTRRecord extends Record<PTRRecord.Data> {
+public class PTRRecord extends Record {
     
     private static final long serialVersionUID = 1L;
+    private String target;
     
     /**
      * Initialize the record with the record type.
@@ -33,31 +34,22 @@ public class PTRRecord extends Record<PTRRecord.Data> {
     public PTRRecord() {
         this.setType(RecordType.PTR);
     }
-    
+
     /**
-     * PTR record data.
+     * Get the target.
+     * 
+     * @return  the target.
      */
-    public static class Data extends Record.Data {
+    public String getTarget() {
+        return this.target;
+    }
 
-        private static final long serialVersionUID = 1L;
-        private String target;
-
-        /**
-         * Get the target.
-         * 
-         * @return  the target.
-         */
-        public String getTarget() {
-            return this.target;
-        }
-
-        /**
-         * Set the target.
-         * 
-         * @param  target  the target.
-         */
-        public void setTarget(final String target) {
-            this.target = target;
-        }
+    /**
+     * Set the target.
+     * 
+     * @param  target  the target.
+     */
+    public void setTarget(final String target) {
+        this.target = target;
     }
 }

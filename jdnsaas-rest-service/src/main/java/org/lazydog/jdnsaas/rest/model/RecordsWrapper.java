@@ -21,6 +21,7 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonSubTypes.Type;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -42,6 +43,7 @@ import org.lazydog.jdnsaas.model.TXTRecord;
  * 
  * @author  Ron Rickard
  */
+@XmlRootElement                                         // Needed by Enunciate.
 public class RecordsWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;

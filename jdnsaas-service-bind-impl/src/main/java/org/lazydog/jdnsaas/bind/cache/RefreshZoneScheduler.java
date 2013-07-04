@@ -25,10 +25,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.lazydog.jdnsaas.model.ZoneIdentity;
+import org.lazydog.jdnsaas.model.Zone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Refresh the zone scheduler.
@@ -42,7 +41,7 @@ public class RefreshZoneScheduler implements Runnable {
     private static final int DEFAULT_THREADS = 10;
     private int initialDelay;
     private boolean isRunning;
-    private ConcurrentMap<ZoneIdentity,ScheduledFuture> refreshZoneFutureMap = new ConcurrentHashMap<ZoneIdentity,ScheduledFuture>();
+    private ConcurrentMap<Zone,ScheduledFuture> refreshZoneFutureMap = new ConcurrentHashMap<Zone,ScheduledFuture>();
     private ScheduledExecutorService refreshZoneThreadPool;
     private CountDownLatch shutdownLatch;
     private ZoneCache zoneCache;
@@ -67,13 +66,13 @@ public class RefreshZoneScheduler implements Runnable {
     /**
      * Reschedule a refresh for the zone.
      * 
-     * @param  zoneIdentity     the zone identity.
+     * @param  zone             the zone.
      * @param  refreshInterval  the refresh interval.
      */
-    public void reschedule(final ZoneIdentity zoneIdentity, final long refreshInterval) {
-        this.refreshZoneFutureMap.get(zoneIdentity).cancel(true);
-        this.refreshZoneFutureMap.put(zoneIdentity, this.refreshZoneThreadPool.scheduleWithFixedDelay(new RefreshZoneThread(zoneIdentity), refreshInterval, refreshInterval, TimeUnit.SECONDS));
-        logger.debug("Rescheduled a refresh for the zone {} in {} seconds.", zoneIdentity, refreshInterval);
+    public void reschedule(final Zone zone, final long refreshInterval) {
+        this.refreshZoneFutureMap.get(zone).cancel(true);
+        this.refreshZoneFutureMap.put(zone, this.refreshZoneThreadPool.scheduleWithFixedDelay(new RefreshZoneThread(zone), refreshInterval, refreshInterval, TimeUnit.SECONDS));
+        logger.debug("Rescheduled a refresh for the zone {} in {} seconds.", zone, refreshInterval);
     }
   
     /**
@@ -84,9 +83,8 @@ public class RefreshZoneScheduler implements Runnable {
 
         this.isRunning = true;
         
-        // Bootstrap an initial refresh of the zones.
-        ZoneIdentity zoneIdentity = ZoneIdentity.noZoneIdentity();
-        this.refreshZoneFutureMap.put(zoneIdentity, this.refreshZoneThreadPool.scheduleWithFixedDelay(new RefreshZoneThread(zoneIdentity), this.initialDelay, this.initialDelay, TimeUnit.SECONDS));
+        // Schedule an initial refresh of all the zones.
+        this.schedule(Zone.noZone(), this.initialDelay);
 
         try {
 
@@ -114,12 +112,12 @@ public class RefreshZoneScheduler implements Runnable {
     /**
      * Schedule a refresh for the zone.
      * 
-     * @param  zoneIdentity     the zone identity.
+     * @param  zone             the zone.
      * @param  refreshInterval  the refresh interval.
      */
-    public void schedule(final ZoneIdentity zoneIdentity, final long refreshInterval) {
-        this.refreshZoneFutureMap.put(zoneIdentity, this.refreshZoneThreadPool.scheduleWithFixedDelay(new RefreshZoneThread(zoneIdentity), refreshInterval, refreshInterval, TimeUnit.SECONDS));
-        logger.debug("Scheduled a refresh for the zone {} in {} seconds.", zoneIdentity, refreshInterval);
+    public void schedule(final Zone zone, final long refreshInterval) {
+        this.refreshZoneFutureMap.put(zone, this.refreshZoneThreadPool.scheduleWithFixedDelay(new RefreshZoneThread(zone), refreshInterval, refreshInterval, TimeUnit.SECONDS));
+        logger.debug("Scheduled a refresh for the zone {} in {} seconds.", zone, refreshInterval);
     }
 
     /**
@@ -127,8 +125,8 @@ public class RefreshZoneScheduler implements Runnable {
      */
     public void shutdown() {
         this.isRunning = false;
-        for (ZoneIdentity zoneIdentity : this.refreshZoneFutureMap.keySet()) {
-            this.refreshZoneFutureMap.get(zoneIdentity).cancel(true);
+        for (Zone zone : this.refreshZoneFutureMap.keySet()) {
+            this.refreshZoneFutureMap.get(zone).cancel(true);
         }
         this.shutdownLatch.countDown();
     }
@@ -136,12 +134,12 @@ public class RefreshZoneScheduler implements Runnable {
     /**
      * Unschedule a refresh for the zone.
      * 
-     * @param  zoneIdentity  the zone identity.
+     * @param  zone  the zone.
      */
-    public void unschedule(final ZoneIdentity zoneIdentity) {
-        this.refreshZoneFutureMap.get(zoneIdentity).cancel(true);
-        this.refreshZoneFutureMap.remove(zoneIdentity);
-        logger.debug("Unschedule a refresh for the zone {}.", zoneIdentity);
+    public void unschedule(final Zone zone) {
+        this.refreshZoneFutureMap.get(zone).cancel(true);
+        this.refreshZoneFutureMap.remove(zone);
+        logger.debug("Unschedule a refresh for the zone {}.", zone);
     }
     
     /**
@@ -149,15 +147,15 @@ public class RefreshZoneScheduler implements Runnable {
      */
     private class RefreshZoneThread implements Runnable {
 
-        private ZoneIdentity zoneIdentity;
+        private Zone zone;
         
         /**
          * Create the refresh zone thread.
          * 
-         * @param  zoneIdentity  the zone identity.
+         * @param  zone  the zone.
          */
-        public RefreshZoneThread(final ZoneIdentity zoneIdentity) {
-            this.zoneIdentity = zoneIdentity;
+        public RefreshZoneThread(final Zone zone) {
+            this.zone = zone;
         }
 
         /**
@@ -169,15 +167,15 @@ public class RefreshZoneScheduler implements Runnable {
             logger.info("Start a refresh zone thread.");
             
             // Check if this is the initial refresh of the zones.
-            if (this.zoneIdentity.equals(ZoneIdentity.noZoneIdentity())) {
+            if (this.zone.equals(Zone.noZone())) {
                 
                 // Refresh the zone cache and make it available.
                 RefreshZoneScheduler.this.zoneCache.resume();
-                RefreshZoneScheduler.this.unschedule(this.zoneIdentity);
+                RefreshZoneScheduler.this.unschedule(this.zone);
             } else {
 
                 // Flag the zone for a refresh.
-                RefreshZoneScheduler.this.zoneCache.flagForRefresh(this.zoneIdentity);
+                RefreshZoneScheduler.this.zoneCache.flagZoneForRefresh(this.zone);
 
                 // Check if the record cache is available.
                 if (RefreshZoneScheduler.this.zoneCache.isAvailable()) {

@@ -21,6 +21,7 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.lazydog.jdnsaas.model.TSIGKeyAlgorithm;
 
 /**
@@ -28,6 +29,7 @@ import org.lazydog.jdnsaas.model.TSIGKeyAlgorithm;
  * 
  * @author  Ron Rickard
  */
+@XmlRootElement                                         // Needed by Enunciate.
 public class TSIGKeyAlgorithmsWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;

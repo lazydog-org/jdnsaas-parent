@@ -21,6 +21,7 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.lazydog.jdnsaas.model.RecordType;
 
 /**
@@ -28,6 +29,7 @@ import org.lazydog.jdnsaas.model.RecordType;
  * 
  * @author  Ron Rickard
  */
+@XmlRootElement                                         // Needed by Enunciate.
 public class RecordTypesWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;

@@ -18,6 +18,7 @@
  */
 package org.lazydog.jdnsaas.bind;
 
+import org.lazydog.jdnsaas.utility.ZoneUtility;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -26,11 +27,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.lazydog.jdnsaas.model.Record;
-import org.lazydog.jdnsaas.model.RecordOperation;
 import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.Resolver;
 import org.lazydog.jdnsaas.model.SOARecord;
 import org.lazydog.jdnsaas.model.TSIGKey;
+import org.lazydog.jdnsaas.model.Zone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xbill.DNS.ExtendedResolver;
@@ -62,19 +63,15 @@ public final class DNSServerExecutor {
     /**
      * Hide the constructor.
      * 
-     * @param  resolvers        the resolvers.
-     * @param  queryTSIGKey     the query transaction signature (TSIG) key.
-     * @param  transferTSIGKey  the transfer transaction signature (TSIG) key.
-     * @param  updateTSIGKey    the update transaction signature (TSIG) key.
-     * @param  zoneName         the zone name.
+     * @param  zone  the zone.
      */
-    private DNSServerExecutor(final List<Resolver> resolvers, final TSIGKey queryTSIGKey, final TSIGKey transferTSIGKey, final TSIGKey updateTSIGKey, final String zoneName) {
-        this.resolvers = resolvers;
-        this.queryTSIGKey = queryTSIGKey;
-        this.transferTSIGKey = transferTSIGKey;
-        this.updateTSIGKey = updateTSIGKey;
-        this.recordConverter = RecordConverter.newInstance(zoneName);
-        this.zoneUtility = ZoneUtility.newInstance(zoneName);
+    private DNSServerExecutor(final Zone zone) {
+        this.resolvers = zone.getView().getResolvers();
+        this.queryTSIGKey = zone.getQueryTSIGKey();
+        this.transferTSIGKey = zone.getTransferTSIGKey();
+        this.updateTSIGKey = zone.getUpdateTSIGKey();
+        this.recordConverter = RecordConverter.newInstance(zone.getName());
+        this.zoneUtility = ZoneUtility.newInstance(zone.getName());
     }
 
     /**
@@ -196,6 +193,30 @@ public final class DNSServerExecutor {
     /**
      * Find the records.
      * 
+     * @return  the records.
+     * 
+     * @throws  DNSServerExecutorException  if unable to find the records.
+     */
+    public List<Record> findRecords() throws DNSServerExecutorException {
+        
+        // Initialize the records.
+        List<Record> records = new ArrayList<Record>();
+        
+        try {
+
+            // Find the records with a zone transfer.
+            records = this.findRecordsWithFullZoneTransfer();
+            records = removeDuplicateSOARecord(records);
+        } catch (Exception e) {
+            throw new DNSServerExecutorException("Unable to find the records.", e);
+        }
+        
+        return records;
+    }
+    
+    /**
+     * Find the records.
+     * 
      * @param  recordType  the record type.
      * @param  recordName  the record name.
      * 
@@ -210,35 +231,10 @@ public final class DNSServerExecutor {
         
         try {
 
-            // Check if the record name exists.
-            if (recordName != null) {
-                
-                // Find the records with a lookup.
-                records = this.findRecordsWithLookup(recordType, recordName);
-            } else {
-                
-                // Find the records with a zone transfer.
-                List<Record> allRecords = this.findRecordsWithFullZoneTransfer();
-                
-                // Check if a record type was specified.
-                if (recordType != RecordType.ANY) {
-                    
-                    // Loop through the records.
-                    for (Record record : allRecords) {
-
-                        // Check if the record is of the desired type.
-                        if (record.getType() == recordType) {
-                            records.add(record);
-                        }
-                    }
-                } else {
-                    records = allRecords;
-                }
-                
-                records = removeDuplicateSOARecord(records, recordType);
-            }
+            // Find the records with a lookup.
+            records = this.findRecordsWithLookup(recordType, recordName);
         } catch (Exception e) {
-            throw new DNSServerExecutorException("Unable to find the records for record type, " + recordType + ", and record name, " + recordName + ".", e);
+            throw new DNSServerExecutorException("Unable to find the records for the record type " + recordType + " and the record name " + recordName + ".", e);
         }
         
         return records;
@@ -257,7 +253,7 @@ public final class DNSServerExecutor {
      */
     private List<Record> findRecordsWithLookup(final RecordType recordType, final String recordName) throws TextParseException, UnknownHostException {
         org.xbill.DNS.Record[] records = this.createLookup(recordType, recordName).run();
-        return (records != null) ? this.recordConverter.fromDnsRecords(Arrays.asList(records)) : new ArrayList<Record>();
+        return (records != null) ? this.recordConverter.fromDnsRecords(Arrays.asList(records), true) : new ArrayList<Record>();
     }
 
     /**
@@ -282,74 +278,44 @@ public final class DNSServerExecutor {
                 records = this.createFullZoneTransfer(resolver).run();
                 break;
             } catch (ZoneTransferException e) {
-                logger.error("Unable to find the records with a full zone transfer.", e);
+                logger.error("Unable to find the records with a full zone transfer using resolver {}.", resolver, e);
             }
         }
         
-        return (records != null) ? this.recordConverter.fromDnsRecords(records) : new ArrayList<Record>();
+        return (records != null) ? this.recordConverter.fromDnsRecords(records, true) : new ArrayList<Record>();
     }
-
+    
     /**
-     * Find the delta records using an incremental (IXFR) zone transfer.
+     * Get the serial number from the records representing a zone.
      * 
-     * @param  serialNumber  the serial number.
+     * @param  records  the records representing a zone.
      * 
-     * @return  the delta records.
-     * 
-     * @throws  IOException            if the zone transfer fails due to an IO problem.
-     * @throws  TextParseException     if the zone name is invalid.
-     * @throws  UnknownHostException   if the host name or local host name is invalid.
-     * @throws  ZoneTransferException  if the zone transfer fails.
+     * @return  the serial number.
      */
-    @SuppressWarnings("unchecked")
-    private List<Record> findDeltaRecordsWithIncrementalZoneTransfer(final long serialNumber) throws IOException, TextParseException, UnknownHostException, ZoneTransferException {
+    private static long getSerialNumber(List<Record> records) {
         
-        List<Record> records = new ArrayList<Record>();
-        
-        // Loop through the resolvers.
-        for (Resolver resolver : this.resolvers) {
-            
-            try {
-                List<org.xbill.DNS.ZoneTransferIn.Delta> deltas = this.createIncrementalZoneTransfer(resolver, serialNumber).run();
-                logger.debug("{} deltas total.", deltas.size());
-                for (org.xbill.DNS.ZoneTransferIn.Delta delta : deltas) {
+        long serialNumber = 0L;
 
-                    logger.debug("  delta {}/{} - {} delete records found.", delta.start, delta.end, delta.deletes.size());
-                    for (org.xbill.DNS.Record deleteRecord : (List<org.xbill.DNS.Record>)delta.deletes) {
-                        Record record = this.recordConverter.fromDnsRecord(deleteRecord);
-                        record.setOperation(RecordOperation.DELETE);
-                        records.add(record);
-                    }
-                    
-                    logger.debug("  delta {}/{} - {} add records found.", delta.start, delta.end, delta.adds.size());
-                    for (org.xbill.DNS.Record addRecord : (List<org.xbill.DNS.Record>)delta.adds) {
-                        Record record = this.recordConverter.fromDnsRecord(addRecord);
-                        record.setOperation(RecordOperation.ADD);
-                        records.add(record);
-                    }
-                }
+        for (Record record : records) {
+            
+            if (record.getType() == RecordType.SOA) {
+                serialNumber = ((SOARecord)record).getSerialNumber();
                 break;
-            } catch (ZoneTransferException e) {
-                logger.error("Unable to find the delta records with an incremental zone transfer.", e);
             }
         }
         
-        return records;
+        return serialNumber;
     }
-
+    
     /**
      * Create a new instance of the DNS server executor class.
      * 
-     * @param  resolvers        the resolvers.
-     * @param  queryTSIGKey     the query transaction signature (TSIG) key.
-     * @param  transferTSIGKey  the transfer transaction signature (TSIG) key.
-     * @param  updateTSIGKey    the update transaction signature (TSIG) key.
-     * @param  zoneName         the zone name.
+     * @param  zone  the zone.
      * 
      * @return  a new instance of the DNS server executor class.
      */
-    public static DNSServerExecutor newInstance(final List<Resolver> resolvers, final TSIGKey queryTSIGKey, final TSIGKey transferTSIGKey, final TSIGKey updateTSIGKey, final String zoneName) {
-        return new DNSServerExecutor(resolvers, queryTSIGKey, transferTSIGKey, updateTSIGKey, zoneName);
+    public static DNSServerExecutor newInstance(final Zone zone) {
+        return new DNSServerExecutor(zone);
     }
     
     /**
@@ -376,14 +342,14 @@ public final class DNSServerExecutor {
             for (Record record : records) {
                 
                 // Get the record and operation.
-                logger.debug("    {}: {}", record.getOperation().toString(), record);
+                logger.debug("  {}: {}", record.getOperation().toString(), record);
                 
                 if ("ADD".equals(record.getOperation().toString().toUpperCase())) {
-                    update.add(this.recordConverter.toDnsRecord(record));
+                    update.add(this.recordConverter.toDnsRecord(record, false));
                 } else if ("DELETE".equals(record.getOperation().toString().toUpperCase())) {
-                    update.delete(this.recordConverter.toDnsRecord(record));
+                    update.delete(this.recordConverter.toDnsRecord(record, false));
                 } else if ("REPLACE".equals(record.getOperation().toString().toUpperCase())) {
-                    update.replace(this.recordConverter.toDnsRecord(record));
+                    update.replace(this.recordConverter.toDnsRecord(record, false));
                 }
             }
             
@@ -406,65 +372,68 @@ public final class DNSServerExecutor {
      * When performing a full (AXFR) zone transfer, the SOA record is the first and last record in the returned records.
      * 
      * @param  records     the records.
-     * @param  recordType  the record type.
      * 
      * @return  the records with the duplicate SOA record removed.
      */
-    private static List<Record> removeDuplicateSOARecord(List<Record> records, final RecordType recordType) {
-        
-        // Check if the record type is any or SOA.
-        if (recordType == RecordType.ANY || recordType == RecordType.SOA) {
-            
-            // Remove the last record in the records since it is the duplicate SOA record.
-            records.remove(records.size() - 1);
-        }
-        
+    private static List<Record> removeDuplicateSOARecord(List<Record> records) {
+
+        // Remove the last record in the records since it is the duplicate SOA record.
+        records.remove(records.size() - 1);
+
         return records;
-    }
-        
+    }    
+
     /**
-     * Update the specified records representing a zone with the current records in DNS for the zone.
+     * Update the records representing a zone with the current records in DNS for the zone.
      * 
      * @param  records  the records representing a zone.
      * 
-     * @return  the updated records.
+     * @return  the new serial number of the SOA record in the updated records.
      * 
      * @throws  DNSServerExecutorException  if unable to update the records.
      */
-    public List<Record> updateRecords(List<Record> records) throws DNSServerExecutorException {
+    @SuppressWarnings("unchecked")
+    public long updateRecords(List<Record> records) throws DNSServerExecutorException {
 
-        try {
-
-            long serialNumber = 0L;
+        // Get the serial number.
+        long serialNumber = getSerialNumber(records);
+        
+        // Loop through the resolvers.
+        for (Resolver resolver : this.resolvers) {
             
-            // Loop through the records.
-            for (Record record : records) {
-            
-                // Check if the record is the SOA record.
-                if (record.getType() == RecordType.SOA) {
-                    serialNumber = ((SOARecord)record).getData().getSerialNumber();
-                    break;
-                }
-            }
+            try {
+                List<org.xbill.DNS.ZoneTransferIn.Delta> deltas = this.createIncrementalZoneTransfer(resolver, serialNumber).run();
+                logger.debug("{} deltas total.", deltas.size());
+                for (org.xbill.DNS.ZoneTransferIn.Delta delta : deltas) {
 
-            // Loop through the delta records.
-            for (Record deltaRecord : this.findDeltaRecordsWithIncrementalZoneTransfer(serialNumber)) {
-                
-                logger.debug("    {}: {}", deltaRecord.getOperation().toString(), deltaRecord);
-                
-                if (deltaRecord.getOperation() == RecordOperation.DELETE) {
-                    deltaRecord.setOperation(null);
-                    records.remove(deltaRecord);
+                    logger.debug("  delta {}/{} - {} delete records found.", delta.start, delta.end, delta.deletes.size());
+                    for (org.xbill.DNS.Record dnsRecord : (List<org.xbill.DNS.Record>)delta.deletes) {
+                        Record record = this.recordConverter.fromDnsRecord(dnsRecord, true);
+                        if (records.remove(record)) {
+                            logger.debug("    Deleted record {}.", record);
+                        } else {
+                            logger.warn("    Unable to delete the record {}.", record);
+                        }
+                    }
                     
-                } else if (deltaRecord.getOperation() == RecordOperation.ADD) {
-                    deltaRecord.setOperation(null);
-                    records.add(deltaRecord);
+                    logger.debug("  delta {}/{} - {} add records found.", delta.start, delta.end, delta.adds.size());
+                    for (org.xbill.DNS.Record dnsRecord : (List<org.xbill.DNS.Record>)delta.adds) {
+                        Record record = this.recordConverter.fromDnsRecord(dnsRecord, true);
+                        if (records.add(record)) {
+                            logger.debug("    Added record {}.", record);
+                        } else {
+                            logger.warn("    Unable to add the record {}.", record);
+                        }
+                    }
+                    
+                    serialNumber = delta.end;
                 }
+                break;
+            } catch (Exception e) {
+                logger.error("Unable to update the records with an incremental zone transfer using resolver {}.", resolver, e);
             }
-        } catch (Exception e) {
-            throw new DNSServerExecutorException("Unable to update the records.", e);
         }
         
-        return records;
+        return serialNumber;
     }
 }

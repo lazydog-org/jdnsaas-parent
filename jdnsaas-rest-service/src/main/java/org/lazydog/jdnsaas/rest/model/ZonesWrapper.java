@@ -21,6 +21,7 @@ package org.lazydog.jdnsaas.rest.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
@@ -28,6 +29,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * 
  * @author  Ron Rickard
  */
+@XmlRootElement                                         // Needed by Enunciate.
 public class ZonesWrapper implements Serializable {
     
     private static final long serialVersionUID = 1L;

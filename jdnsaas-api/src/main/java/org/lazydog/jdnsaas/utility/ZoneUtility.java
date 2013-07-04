@@ -16,11 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.lazydog.jdnsaas.bind;
+package org.lazydog.jdnsaas.utility;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Zone utility.
@@ -28,14 +26,13 @@ import org.slf4j.LoggerFactory;
  * @author  Ron Rickard
  */
 public final class ZoneUtility {
-    
-    private static final Logger logger = LoggerFactory.getLogger(ZoneUtility.class);
+
     private static final String APEX = "@";
     private static final String IPV4_REVERSE_DOMAIN = "in-addr.arpa";
     private static final String IPV6_REVERSE_DOMAIN = "ip6.arpa";
     private static final String LABEL_SEPARATOR = ".";
     private String relativeZoneName;
-    
+   
     /**
      * Hide the constructor.
      * 

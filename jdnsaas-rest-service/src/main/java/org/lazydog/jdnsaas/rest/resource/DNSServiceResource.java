@@ -33,6 +33,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.codehaus.enunciate.contract.jaxrs.ResourceMethodSignature;
 import org.lazydog.jdnsaas.DNSService;
 import org.lazydog.jdnsaas.DNSServiceException;
 import org.lazydog.jdnsaas.ResourceNotFoundException;
@@ -56,6 +57,7 @@ import org.lazydog.jdnsaas.rest.model.ViewsWrapper;
 import org.lazydog.jdnsaas.rest.model.ZoneTypesWrapper;
 import org.lazydog.jdnsaas.rest.model.ZoneWrapper;
 import org.lazydog.jdnsaas.rest.model.ZonesWrapper;
+import org.lazydog.jdnsaas.utility.RecordFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,6 +117,7 @@ public class DNSServiceResource extends AbstractResource {
     @GET
     @Path("recordoperations")
     @Produces(MediaType.APPLICATION_JSON)
+    @ResourceMethodSignature(output = RecordOperationsWrapper.class)
     public Response findRecordOperations() {
         return buildOkResponse(RecordOperationsWrapper.newInstance(Arrays.asList(RecordOperation.values())));       
     }
@@ -122,11 +125,14 @@ public class DNSServiceResource extends AbstractResource {
     /**
      * Find the record types.
      * 
+     * @param  zoneType  the zone type.
+     * 
      * @return  the record types.
      */
     @GET
     @Path("recordtypes")
     @Produces(MediaType.APPLICATION_JSON)
+    @ResourceMethodSignature(output = RecordTypesWrapper.class, queryParams = {@QueryParam("zoneType")})
     public Response findRecordTypes(@DefaultValue("both") @QueryParam("zoneType") final String zoneType) {
         return buildOkResponse(RecordTypesWrapper.newInstance(Arrays.asList(RecordType.values(ZoneType.fromString(zoneType)))));       
     }
@@ -135,22 +141,28 @@ public class DNSServiceResource extends AbstractResource {
      * Find the records for the view name and zone name.
      * Optionally, filter the records by the record type and/or record name.
      * 
-     * @param  viewName    the view name.
-     * @param  zoneName    the zone name.
-     * @param  recordType  the record type.
-     * @param  recordName  the record name.
+     * @param  viewName      the view name.
+     * @param  zoneName      the zone name.
+     * @param  recordType    the record type.
+     * @param  searchString  the search string.
      * 
      * @return  the records.
      */
     @GET
     @Path("views/{viewName}/zones/{zoneName}/records")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response findRecords(@PathParam("viewName") final String viewName, @PathParam("zoneName") final String zoneName, @DefaultValue("any") @QueryParam("recordType") final String recordType, @QueryParam("recordName") final String recordName) {
+    @ResourceMethodSignature(output = RecordsWrapper.class, pathParams = {@PathParam("viewName"), @PathParam("zoneName")}, queryParams = {@QueryParam("recordType"), @QueryParam("searchString")})
+    public Response findRecords(@PathParam("viewName") final String viewName, @PathParam("zoneName") final String zoneName, @DefaultValue("any") @QueryParam("recordType") final List<String> recordTypes, @DefaultValue("*") @QueryParam("searchString") final String searchString) {
         
         Response response;
-        
+
         try {
-            List<Record> records = this.dnsService.findRecords(viewName, zoneName, RecordType.fromString(recordType), recordName);
+            List<RecordType> actualRecordTypes = new ArrayList<RecordType>();
+            for (String recordType : recordTypes) {
+                actualRecordTypes.add(RecordType.fromString(recordType));
+            }
+            RecordFilter recordFilter = RecordFilter.newInstance(zoneName, actualRecordTypes, searchString);
+            List<Record> records = this.dnsService.findRecords(viewName, zoneName, recordFilter, this.useCache());
             response = buildOkResponse(RecordsWrapper.newInstance(records)); 
         } catch (ResourceNotFoundException e) {
             response = buildNotFoundResponse(e.getMessage(), null);

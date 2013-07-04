@@ -43,7 +43,6 @@ import org.lazydog.jdnsaas.model.Record;
 import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.SOARecord;
 import org.lazydog.jdnsaas.model.Zone;
-import org.lazydog.jdnsaas.model.ZoneIdentity;
 import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,31 +64,84 @@ public class ZoneCache {
     private ExecutorService notifyMessageMonitorPool;
     private int notifyMessageMonitorPort;
     private int notifyMessageMonitorThreads;
-    private ConcurrentMap<ZoneAction,Set<ZoneIdentity>> refreshZoneMap = new ConcurrentHashMap<ZoneAction,Set<ZoneIdentity>>();
+    private ConcurrentMap<ZoneAction,Set<Zone>> refreshZoneMap = new ConcurrentHashMap<ZoneAction,Set<Zone>>();
     private Runnable refreshZoneScheduler;
     private int refreshZoneSchedulerInitialDelay;
     private ExecutorService refreshZoneSchedulerPool;
     private int refreshZoneSchedulerThreads;
     private JDNSaaSRepository repository;
-    private ConcurrentMap<ZoneIdentity,List<Record>> zoneMap = new ConcurrentHashMap<ZoneIdentity,List<Record>>();
+    private ConcurrentMap<Zone,List<Record>> zoneMap = new ConcurrentHashMap<Zone,List<Record>>();
     private enum ZoneAction {
         ADD,
         DELETE,
         UPDATE;
     }
+          
+    /**
+     * Add the zone to the zone cache.
+     * 
+     * @param  zone  the zone.
+     */
+    private void addZone(final Zone zone) {
 
+        try {
+
+            // Add the zone to the zone cache.
+            List<Record> records = DNSServerExecutor.newInstance(zone).findRecords();
+            this.zoneMap.put(zone, records);
+            logger.debug("Added the zone {} with {} records to the zone cache.", zone, records.size());
+        } catch (Exception e) {
+            logger.warn("Unable to add the zone {} to the zone cache.", zone, e);
+        }
+    }
+    
+    /**
+     * Delete the zone from the zone cache.
+     * 
+     * @param  zone  the zone.
+     */
+    private void deleteZone(final Zone zone) {
+        List<Record> records = this.zoneMap.remove(zone);
+        logger.debug("Deleted the zone {} with {} records from the zone cache.", zone, records.size());
+    }
+
+    /**
+     * Find the records.
+     * 
+     * @param  viewName  the view name.
+     * @param  zoneName  the zone name.
+     * 
+     * @return  the records.
+     */
+    public List<Record> findRecords(final Zone zone) {
+        
+        List<Record> records = new ArrayList<Record>();
+        
+        // Loop through the cached zones in the zone map.
+        for (Zone cachedZone : this.zoneMap.keySet()) {
+            
+            // Check if the cached zone is the desired zone.
+            if (cachedZone.equals(zone)) {
+                records.addAll(this.zoneMap.get(cachedZone));
+                break;
+            }
+        }
+        
+        return records;
+    }
+    
     /**
      * Flag the zone for a refresh.
      * 
-     * @param  zoneIdentity  the zone identity.
+     * @param  zone  the zone.
      */
-    protected synchronized void flagForRefresh(final ZoneIdentity zoneIdentity) {
+    protected synchronized void flagZoneForRefresh(final Zone zone) {
         if (this.refreshZoneMap.containsKey(ZoneAction.UPDATE)) {
-            this.refreshZoneMap.get(ZoneAction.UPDATE).add(zoneIdentity);
+            this.refreshZoneMap.get(ZoneAction.UPDATE).add(zone);
         } else {
-            this.refreshZoneMap.put(ZoneAction.UPDATE, new HashSet<ZoneIdentity>(Arrays.asList(zoneIdentity)));
+            this.refreshZoneMap.put(ZoneAction.UPDATE, new HashSet<Zone>(Arrays.asList(zone)));
         }
-        logger.debug("Flagged the zone {} for refresh.", zoneIdentity);
+        logger.debug("Flagged the zone {} for refresh.", zone);
     }
     
     /**
@@ -97,92 +149,35 @@ public class ZoneCache {
      * 
      * @param  zoneName  the zone name.
      */
-    protected synchronized void flagForRefresh(final String zoneName) {
+    protected synchronized void flagZoneForRefresh(final String zoneName) {
 
-        // Loop through the zone identities in the zone map.
-        for (ZoneIdentity zoneIdentity : this.zoneMap.keySet()) {
+        // Loop through the zones in the zone map.
+        for (Zone zone : this.zoneMap.keySet()) {
 
             // Check if the zone is found.
-            if (zoneIdentity.getZoneName().equals(zoneName)) {
-                this.flagForRefresh(zoneIdentity);
+            if (zone.getName().equals(zoneName)) {
+                this.flagZoneForRefresh(zone);
             }
         }
     }
- 
-    /**
-     * Get the records for the specified zone identity from DNS.
-     * 
-     * @param  zoneIdentity  the zone identity.
-     * 
-     * @return  the records.
-     */
-    private List<Record> getRecordsFromDNS(final ZoneIdentity zoneIdentity) {
-        
-        List<Record> records = new ArrayList<Record>();
-        
-        try {
 
-            // Get the records for the zone.
-            Zone zone = this.repository.findZone(zoneIdentity.getViewName(), zoneIdentity.getZoneName());
-            records = DNSServerExecutor.newInstance(zone.getView().getResolvers(), null, zone.getTransferTSIGKey(), null, zone.getName()).findRecords(RecordType.ANY, null);
-        } catch (Exception e) {
-            logger.warn("Unable to find the records for the zone {}.", zoneIdentity, e);
-        }
-        
-        return records;
-    }
-     
     /**
-     * Get the records for the specified zone identity from DNS.
+     * Get the refresh interval for the zone from the zone cache.
      * 
-     * @param  zoneIdentity  the zone identity.
-     * @param  records       the records.
-     * 
-     * @return  the records.
-     */
-    private List<Record> getRecordsFromDNS(final ZoneIdentity zoneIdentity, List<Record> records) {
- 
-        try {
-
-            // Get the records for the zone.
-            Zone zone = this.repository.findZone(zoneIdentity.getViewName(), zoneIdentity.getZoneName());
-            records = DNSServerExecutor.newInstance(zone.getView().getResolvers(), null, zone.getTransferTSIGKey(), null, zone.getName()).updateRecords(records);
-        } catch (Exception e) {
-            logger.warn("Unable to find the records for the zone {}.", zoneIdentity, e);
-        }
-        
-        return records;
-    }
-    
-    /**
-     * Get the records for the specified zone identity from the zone cache.
-     * 
-     * @param  zoneIdentity  the zone identity.
-     * 
-     * @return  the records.
-     */
-    private List<Record> getRecordsFromCache(ZoneIdentity zoneIdentity) {
-        return this.zoneMap.get(zoneIdentity);
-    }
-        
-    /**
-     * Get the refresh interval for the specified zone identity from the zone cache.
-     * 
-     * @param  zoneIdentity  the zone identity.
-     * @param  zoneMap       the zone map.
+     * @param  zone  the zone.
      * 
      * @return  the refresh interval.
      */
-    private static long getRefreshInterval(ZoneIdentity zoneIdentity, ConcurrentMap<ZoneIdentity,List<Record>> zoneMap) {
+    private long getRefreshInterval(final Zone zone) {
         
         long refreshInterval = 0L;
 
-        List<Record> records = zoneMap.get(zoneIdentity);
+        List<Record> records = this.zoneMap.get(zone);
         
         for (Record record : records) {
             
             if (record.getType() == RecordType.SOA) {
-                refreshInterval = ((SOARecord)record).getData().getRefreshInterval();
+                refreshInterval = ((SOARecord)record).getRefreshInterval();
                 break;
             }
         }
@@ -191,49 +186,22 @@ public class ZoneCache {
     }
 
     /**
-     * Get the serial number for the specified zone identity from DNS.
+     * Get the serial number for the zone from the zone cache.
      * 
-     * @param  zoneIdentity  the zone identity.
-     * 
-     * @return  the serial number.
-     */
-    private long getSerialNumberFromDNS(ZoneIdentity zoneIdentity) {
-        
-        long serialNumber = 0L;
-        
-        try {
-                        
-            Zone zone = this.repository.findZone(zoneIdentity.getViewName(), zoneIdentity.getZoneName());
-            List<Record> soaRecords = DNSServerExecutor.newInstance(zone.getView().getResolvers(), null, zone.getTransferTSIGKey(), null, zone.getName()).findRecords(RecordType.SOA, "@");
-
-            if (soaRecords.size() > 0) {
-                serialNumber = ((SOARecord)soaRecords.get(0)).getData().getSerialNumber();
-            }
-
-        } catch (Exception e) {
-            logger.warn("Unable to find the SOA record for the zone {}.", zoneIdentity, e);
-        }
-
-        return serialNumber;
-    }
-
-    /**
-     * Get the serial number for the specified zone identity from the zone cache.
-     * 
-     * @param  zoneIdentity  the zone identity.
+     * @param  zone  the zone.
      * 
      * @return  the serial number.
      */
-    private long getSerialNumberFromCache(ZoneIdentity zoneIdentity) {
+    private long getSerialNumberFromCache(final Zone zone) {
         
         long serialNumber = 0L;
         
-        List<Record> records = this.zoneMap.get(zoneIdentity);
+        List<Record> records = this.zoneMap.get(zone);
         
         for (Record record : records) {
             
             if (record.getType() == RecordType.SOA) {
-                serialNumber = ((SOARecord)record).getData().getSerialNumber();
+                serialNumber = ((SOARecord)record).getSerialNumber();
                 break;
             }
         }
@@ -242,23 +210,31 @@ public class ZoneCache {
     }
     
     /**
-     * Get the zone identities.
+     * Get the serial number for the zone from DNS.
      * 
-     * @param  zones  the zones to get the zone identities for.
+     * @param  zone  the zone.
      * 
-     * @return  the zone identities.
+     * @return  the serial number.
      */
-    private static Set<ZoneIdentity> getZoneIdentities(List<Zone> zones) {
+    private long getSerialNumberFromDNS(final Zone zone) {
         
-        Set<ZoneIdentity> zoneIdentities = new HashSet<ZoneIdentity>();
+        long serialNumber = 0L;
         
-        for (Zone zone : zones) {
-            zoneIdentities.add(ZoneIdentity.newInstance(zone));
+        try {
+
+            List<Record> soaRecords = DNSServerExecutor.newInstance(zone).findRecords(RecordType.SOA, "@");
+
+            if (soaRecords.size() > 0) {
+                serialNumber = ((SOARecord)soaRecords.get(0)).getSerialNumber();
+            }
+
+        } catch (Exception e) {
+            logger.warn("Unable to find the SOA record for the zone {}.", zone, e);
         }
-        
-        return zoneIdentities;
+
+        return serialNumber;
     }
-    
+
     /**
      * Is the zone cache available?
      * 
@@ -277,22 +253,21 @@ public class ZoneCache {
             
             // Get the zones from the repository.
             List<Zone> repositoryZones = this.repository.findZones();
-            Set<ZoneIdentity> repositoryZoneIdentities = getZoneIdentities(repositoryZones);
             
             // Determine which zones need to be added to the cache.
-            Set<ZoneIdentity> addZoneIdentities = new HashSet<ZoneIdentity>(repositoryZoneIdentities);
-            addZoneIdentities.removeAll(this.zoneMap.keySet());
-            if (!addZoneIdentities.isEmpty()) {
-                this.refreshZoneMap.put(ZoneAction.ADD, addZoneIdentities);
-                logger.debug("Found {} zones to add to the zone cache.", addZoneIdentities.size());
+            Set<Zone> zonesToAdd = new HashSet<Zone>(repositoryZones);
+            zonesToAdd.removeAll(this.zoneMap.keySet());
+            if (!zonesToAdd.isEmpty()) {
+                this.refreshZoneMap.put(ZoneAction.ADD, zonesToAdd);
+                logger.debug("Found {} zones to add to the zone cache.", zonesToAdd.size());
             }
             
             // Determine which zones need to be deleted from the cache.
-            Set<ZoneIdentity> deleteZoneIdentities = new HashSet<ZoneIdentity>(this.zoneMap.keySet());
-            deleteZoneIdentities.removeAll(repositoryZoneIdentities);
-            if (!deleteZoneIdentities.isEmpty()) {
-                this.refreshZoneMap.put(ZoneAction.DELETE, deleteZoneIdentities);
-                logger.debug("Found {} zones to delete from the zone cache.", addZoneIdentities.size());
+            Set<Zone> zonesToDelete = new HashSet<Zone>(this.zoneMap.keySet());
+            zonesToDelete.removeAll(repositoryZones);
+            if (!zonesToDelete.isEmpty()) {
+                this.refreshZoneMap.put(ZoneAction.DELETE, zonesToDelete);
+                logger.debug("Found {} zones to delete from the zone cache.", zonesToDelete.size());
             }
         } catch (Exception e) {
             logger.warn("Unable to find the zones in the database.  Using the existing zone map.", e);
@@ -300,60 +275,45 @@ public class ZoneCache {
 
         // Check if a refresh is necessary.
         if (!this.refreshZoneMap.isEmpty()) {
-            
-            // Initialize the new zone map with the zone map.
-            ConcurrentMap<ZoneIdentity,List<Record>> newZoneMap = new ConcurrentHashMap<ZoneIdentity,List<Record>>(this.zoneMap);
-            
+
             // Handle adding zones to the cache.
             if (this.refreshZoneMap.containsKey(ZoneAction.ADD)) {
             
-                for (ZoneIdentity zoneIdentity : this.refreshZoneMap.get(ZoneAction.ADD)) {
-                    List<Record> records = getRecordsFromDNS(zoneIdentity);
-                    newZoneMap.put(zoneIdentity, records);
-                    logger.debug("Added {} records to the zone cache for the zone {}.", records.size(), zoneIdentity);
+                for (Zone zone : this.refreshZoneMap.get(ZoneAction.ADD)) {
+
+                    // Add the zone to the cache.
+                    this.addZone(zone);
                     
                     // Schedule a refresh for the zone.
-                    ((RefreshZoneScheduler)this.refreshZoneScheduler).schedule(zoneIdentity, getRefreshInterval(zoneIdentity, newZoneMap));
+                    ((RefreshZoneScheduler)this.refreshZoneScheduler).schedule(zone, this.getRefreshInterval(zone));
                 }
             }
             
             // Handle deleting zones from the cache.
             if (this.refreshZoneMap.containsKey(ZoneAction.DELETE)) {
                 
-                for (ZoneIdentity zoneIdentity : this.refreshZoneMap.get(ZoneAction.DELETE)) {
-                    List<Record> records = getRecordsFromCache(zoneIdentity);
-                    newZoneMap.remove(zoneIdentity);
-                    logger.debug("Deleted {} records from the zone cache for the zone {}.", records.size(), zoneIdentity);
+                for (Zone zone : this.refreshZoneMap.get(ZoneAction.DELETE)) {
+
+                    // Delete the zone from the cache.
+                    this.deleteZone(zone);
                     
                     // Unschedule a refresh for the zone.
-                    ((RefreshZoneScheduler)this.refreshZoneScheduler).unschedule(zoneIdentity);
+                    ((RefreshZoneScheduler)this.refreshZoneScheduler).unschedule(zone);
                 }
             }
 
             // Handle updating zones in the cache.
             if (this.refreshZoneMap.containsKey(ZoneAction.UPDATE)) {
                 
-                for (ZoneIdentity zoneIdentity : this.refreshZoneMap.get(ZoneAction.UPDATE)) {
+                for (Zone zone : this.refreshZoneMap.get(ZoneAction.UPDATE)) {
 
-                    // Get the DNS and cache serial numbers for the zone.
-                    long dnsSerialNumber = getSerialNumberFromDNS(zoneIdentity);
-                    long cacheSerialNumber = getSerialNumberFromCache(zoneIdentity);
-                    
-                    logger.debug("Comparing the DNS serial number {} to the zone cache serial number {} for the zone {}.", dnsSerialNumber, cacheSerialNumber, zoneIdentity);
-                    if (dnsSerialNumber > cacheSerialNumber) {
-                        logger.debug("{} records in the zone {} prior to the zone cache update.", this.zoneMap.get(zoneIdentity).size(), zoneIdentity);
-                        List<Record> records = getRecordsFromDNS(zoneIdentity, this.zoneMap.get(zoneIdentity));
-                        newZoneMap.put(zoneIdentity, records);
-                        logger.debug("{} records in the zone {} after the zone cache update.", records.size(), zoneIdentity);
-                    }
+                    // Update the zone in the cache.
+                    this.updateZone(zone);
                     
                     // Rechedule a refresh for the zone.
-                    ((RefreshZoneScheduler)this.refreshZoneScheduler).reschedule(zoneIdentity, getRefreshInterval(zoneIdentity, newZoneMap));
+                    ((RefreshZoneScheduler)this.refreshZoneScheduler).reschedule(zone, this.getRefreshInterval(zone));
                 }
             }
-            
-            // Replace the zone map with the new zone map.
-            this.zoneMap = newZoneMap;
             
             // Clear the refresh zone map.
             this.refreshZoneMap.clear();
@@ -366,27 +326,6 @@ public class ZoneCache {
     public synchronized void resume() {
         refresh();
         this.isAvailable = true;
-    }
-
-    /**
-     * Shutdown the zone cache.
-     */
-    @PreDestroy
-    public synchronized void shutdown() throws InterruptedException {
-        
-        logger.info("Stopping the zone cache ...");
-        this.suspend();
-        
-        // Shutdown the notify message monitor and refresh zone scheduler.
-        ((NotifyMessageMonitor)this.notifyMessageMonitor).shutdown();
-        this.notifyMessageMonitorPool.shutdown();
-        ((RefreshZoneScheduler)this.refreshZoneScheduler).shutdown();
-        this.refreshZoneSchedulerPool.shutdown();
-        
-        // Wait for the notify message monitor and refresh zone scheduler to shutdown.
-        this.notifyMessageMonitorPool.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
-        this.refreshZoneSchedulerPool.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
-        logger.info("Zone cache stopped.");
     }
 
     /**
@@ -455,6 +394,27 @@ public class ZoneCache {
     }
     
     /**
+     * Shutdown the zone cache.
+     */
+    @PreDestroy
+    public synchronized void shutdown() throws InterruptedException {
+        
+        logger.info("Stop the zone cache ...");
+        this.suspend();
+        
+        // Shutdown the notify message monitor and refresh zone scheduler.
+        ((NotifyMessageMonitor)this.notifyMessageMonitor).shutdown();
+        this.notifyMessageMonitorPool.shutdown();
+        ((RefreshZoneScheduler)this.refreshZoneScheduler).shutdown();
+        this.refreshZoneSchedulerPool.shutdown();
+        
+        // Wait for the notify message monitor and refresh zone scheduler to shutdown.
+        this.notifyMessageMonitorPool.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+        this.refreshZoneSchedulerPool.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+        logger.info("Zone cache stopped.");
+    }
+
+    /**
      * Startup the zone cache.
      * 
      * @throws  IOException  if unable to zone the record cache.
@@ -479,4 +439,31 @@ public class ZoneCache {
     public synchronized void suspend() {
         this.isAvailable = false;
     }  
+    
+    /**
+     * Update the zone in the zone cache.
+     * 
+     * @param  zone  the zone.
+     */
+    private void updateZone(final Zone zone) {
+ 
+        try {
+            
+            // Get the DNS and cache serial numbers for the zone.
+            long dnsSerialNumber = getSerialNumberFromDNS(zone);
+            long cacheSerialNumber = getSerialNumberFromCache(zone);
+
+            logger.debug("Comparing the DNS serial number {} to the zone cache serial number {} for the zone {}.", dnsSerialNumber, cacheSerialNumber, zone);
+            if (dnsSerialNumber > cacheSerialNumber) {
+                logger.debug("{} records in the zone {} prior to the zone cache update.", this.zoneMap.get(zone).size(), zone);
+
+                // Update the zone in the zone cache.
+                cacheSerialNumber = DNSServerExecutor.newInstance(zone).updateRecords(this.zoneMap.get(zone));
+                logger.debug("{} records in the zone {} after the zone cache update.", this.zoneMap.get(zone).size(), zone);
+                logger.debug("The DNS serial number is {} and the zone cache serial number is {} for the zone {}.", dnsSerialNumber, cacheSerialNumber, zone);
+            }
+        } catch (Exception e) {
+            logger.warn("Unable to update the zone {} in the zone cache.", zone, e);
+        }
+    }
 }

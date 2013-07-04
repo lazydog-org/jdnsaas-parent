@@ -20,11 +20,11 @@ package org.lazydog.jdnsaas;
 
 import java.util.List;
 import org.lazydog.jdnsaas.model.Record;
-import org.lazydog.jdnsaas.model.RecordType;
 import org.lazydog.jdnsaas.model.Resolver;
 import org.lazydog.jdnsaas.model.TSIGKey;
 import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
+import org.lazydog.jdnsaas.utility.RecordFilter;
 
 /**
  * DNS service.
@@ -36,17 +36,17 @@ public interface DNSService {
     /**
      * Find the records.
      * 
-     * @param  viewName    the view name.
-     * @param  zoneName    the zone name.
-     * @param  recordType  the record type.
-     * @param  recordName  the record name.
+     * @param  viewName      the view name.
+     * @param  zoneName      the zone name.
+     * @param  recordFilter  the record filter.
+     * @param  useCache      true if the zone cache should be used, otherwise false. 
      * 
      * @return  the records.
      * 
      * @throws  DNSServiceException        if unable to find the records due to an exception.
      * @throws  ResourceNotFoundException  if the zone is not found.
      */
-    List<Record> findRecords(String viewName, String zoneName, RecordType recordType, String recordName) throws DNSServiceException, ResourceNotFoundException;
+    List<Record> findRecords(String viewName, String zoneName, RecordFilter recordFilter, boolean useCache) throws DNSServiceException, ResourceNotFoundException;
     
     /**
      * Find the resolvers.

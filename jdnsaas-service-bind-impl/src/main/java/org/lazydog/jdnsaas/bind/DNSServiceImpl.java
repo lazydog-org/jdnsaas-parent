@@ -35,6 +35,8 @@ import org.lazydog.jdnsaas.model.View;
 import org.lazydog.jdnsaas.model.Zone;
 import org.lazydog.jdnsaas.model.ZoneType;
 import org.lazydog.jdnsaas.spi.repository.JDNSaaSRepository;
+import org.lazydog.jdnsaas.utility.RecordFilter;
+import org.lazydog.jdnsaas.utility.ZoneUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,10 +55,10 @@ public class DNSServiceImpl implements DNSService {
     /**
      * Find the records.
      * 
-     * @param  viewName    the view name.
-     * @param  zoneName    the zone name.
-     * @param  recordType  the record type.
-     * @param  recordName  the record name.
+     * @param  viewName      the view name.
+     * @param  zoneName      the zone name.
+     * @param  recordFilter  the record filter.
+     * @param  useCache      true if the zone cache should be used, otherwise false. 
      * 
      * @return  the records.
      * 
@@ -64,7 +66,7 @@ public class DNSServiceImpl implements DNSService {
      * @throws  ResourceNotFoundException  if the zone is not found.
      */
     @Override
-    public List<Record> findRecords(final String viewName, final String zoneName, final RecordType recordType, final String recordName) throws DNSServiceException, ResourceNotFoundException {
+    public List<Record> findRecords(final String viewName, final String zoneName, final RecordFilter recordFilter, final boolean useCache) throws DNSServiceException, ResourceNotFoundException {
         
         // Initialize the records.
         List<Record> records = new ArrayList<Record>();
@@ -74,16 +76,28 @@ public class DNSServiceImpl implements DNSService {
             // Find the zone.
             Zone zone = this.jdnsaasRepository.findZone(viewName, zoneName);
             if (zone == null) {
-                throw new ResourceNotFoundException("The zone (" + zoneName + ") for the view (" + viewName + ") is not found.");
+                throw new ResourceNotFoundException("The zone " + zoneName + " for the view " + viewName + " is not found.");
             }
 
-            // Find the DNS records.
-            records = DNSServerExecutor.newInstance(zone.getView().getResolvers(), zone.getQueryTSIGKey(), zone.getTransferTSIGKey(), null, zoneName).findRecords(recordType, recordName);
+            // Check if the zone cache should be used and the zone cache is available.
+            if (useCache && this.zoneCache.isAvailable()) {
+                
+                // Find the records.
+                records = this.zoneCache.findRecords(zone);
+            } else {
+                
+                if (useCache) {
+                    logger.info("The zone cache is unavailable; using the DNS server to find the records for the view {} and the zone {}.", viewName, zoneName);
+                }
+                
+                // Find the records.
+                records = DNSServerExecutor.newInstance(zone).findRecords();
+            }
         } catch (Exception e) {
-            throw new DNSServiceException("Unable to find the records for the view (" + viewName + "), the zone (" + zoneName + "), the record type (" + recordType + "), and the record name (" + recordName + ").", e);
+            throw new DNSServiceException("Unable to find the records for the view " + viewName + " and the zone " + zoneName + ".", e);
         }
         
-        return records;
+        return recordFilter.filter(records);
     }
     
     /**
@@ -152,10 +166,10 @@ public class DNSServiceImpl implements DNSService {
             // Find the view.
             view = this.jdnsaasRepository.findView(viewName);
             if (view == null) {
-                throw new ResourceNotFoundException("The view (" + viewName + ") is not found.");
+                throw new ResourceNotFoundException("The view " + viewName + " is not found.");
             }
         } catch (Exception e) {
-            throw new DNSServiceException("Unable to find the view (" + viewName + ").", e);
+            throw new DNSServiceException("Unable to find the view " + viewName + ".", e);
         }
     
         return view;
@@ -178,7 +192,7 @@ public class DNSServiceImpl implements DNSService {
             // Find the view names.
             viewNames = this.jdnsaasRepository.findViewNames();
         } catch (Exception e) {
-            throw new DNSServiceException("unable to find the view names.", e);
+            throw new DNSServiceException("Unable to find the view names.", e);
         }
  
         return viewNames;
@@ -205,14 +219,14 @@ public class DNSServiceImpl implements DNSService {
             // Find the zone.
             zone = this.jdnsaasRepository.findZone(viewName, zoneName);
             if (zone == null) {
-                throw new ResourceNotFoundException("The zone (" + zoneName + ") for the view (" + viewName + ") is not found.");
+                throw new ResourceNotFoundException("The zone " + zoneName + " for the view " + viewName + " is not found.");
             }
 
             // Set some zone properties.
             zone.setType(ZoneUtility.newInstance(zoneName).isForwardZone() ? ZoneType.FORWARD : ZoneType.REVERSE);
             zone.setSupportedRecordTypes(Arrays.asList(RecordType.values(zone.getType())));
         } catch (Exception e) {
-            throw new DNSServiceException("Unable to find the zone (" + zoneName + ") for the view (" + viewName + ").", e);
+            throw new DNSServiceException("Unable to find the zone " + zoneName + " for the view " + viewName + ".", e);
         }
         
         return zone;
@@ -238,29 +252,18 @@ public class DNSServiceImpl implements DNSService {
             // Find the view.
             View view = this.jdnsaasRepository.findView(viewName);
             if (view == null) {
-                throw new ResourceNotFoundException("The view (" + viewName + ") is not found.");
+                throw new ResourceNotFoundException("The view " + viewName + " is not found.");
             }
             
            // Find the zone names.
            zoneNames = this.jdnsaasRepository.findZoneNames(viewName);
        } catch (Exception e) {
-           throw new DNSServiceException("Unable to find the zone names for the view (" + viewName + ").", e);
+           throw new DNSServiceException("Unable to find the zone names for the view " + viewName + ".", e);
        }
 
         return zoneNames;
     }
 
-    /**
-     * Create a new instance of the DNS service class.
-     * 
-     * @return  a new instance of the DNS service class.
-     * 
-     * @throws DNSServiceException  if unable to create a new instance of the DNS service class due to an exception.
-     */
-    public static DNSService newInstance() throws DNSServiceException {
-        return new DNSServiceImpl();
-    }
-    
     /**
      * Process the record operations.
      * 
@@ -283,13 +286,13 @@ public class DNSServiceImpl implements DNSService {
             // Find the zone.
             Zone zone = this.jdnsaasRepository.findZone(viewName, zoneName);
             if (zone == null) {
-                throw new ResourceNotFoundException("The zone (" + zoneName + ") for view (" + viewName + ") is not found.");
+                throw new ResourceNotFoundException("The zone " + zoneName + " for view " + viewName + " is not found.");
             }
 
             // Process the records.
-            success = DNSServerExecutor.newInstance(zone.getView().getResolvers(), null, null, zone.getUpdateTSIGKey(), zoneName).processRecordOperations(records);
+            success = DNSServerExecutor.newInstance(zone).processRecordOperations(records);
         } catch (Exception e) {
-            throw new DNSServiceException("Unable to process the record operations for the view (" + viewName + ") and the zone (" + zoneName + ") due to an exception.", e);
+            throw new DNSServiceException("Unable to process the record operations for the view " + viewName + " and the zone " + zoneName + " due to an exception.", e);
         }
         
         return success;

@@ -18,6 +18,7 @@
  */
 package org.lazydog.jdnsaas.bind;
 
+import org.lazydog.jdnsaas.utility.ZoneUtility;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ public final class RecordConverter {
      */
     private org.xbill.DNS.Record createDnsAAAARecord(final AAAARecord aaaaRecord) throws TextParseException, UnknownHostException {
         return new org.xbill.DNS.AAAARecord(Name.fromString(this.zoneUtility.absolutize(aaaaRecord.getName())), DClass.IN, aaaaRecord.getTimeToLive().longValue(), 
-                InetAddress.getByName(aaaaRecord.getData().getIpv6Address()));
+                InetAddress.getByName(aaaaRecord.getIpv6Address()));
     }
     
     /**
@@ -86,7 +87,7 @@ public final class RecordConverter {
      */
     private org.xbill.DNS.Record createDnsARecord(final ARecord aRecord) throws TextParseException, UnknownHostException {
         return new org.xbill.DNS.ARecord(Name.fromString(this.zoneUtility.absolutize(aRecord.getName())), DClass.IN, aRecord.getTimeToLive().longValue(), 
-                InetAddress.getByName(aRecord.getData().getIpAddress()));
+                InetAddress.getByName(aRecord.getIpAddress()));
     }
           
     /**
@@ -100,7 +101,7 @@ public final class RecordConverter {
      */
     private org.xbill.DNS.Record createDnsCNAMERecord(final CNAMERecord cnameRecord) throws TextParseException {
         return new org.xbill.DNS.CNAMERecord(Name.fromString(this.zoneUtility.absolutize(cnameRecord.getName())), DClass.IN, cnameRecord.getTimeToLive().longValue(), 
-                Name.fromString(this.zoneUtility.absolutize(cnameRecord.getData().getTarget())));
+                Name.fromString(this.zoneUtility.absolutize(cnameRecord.getTarget())));
     }
                  
     /**
@@ -114,7 +115,7 @@ public final class RecordConverter {
      */
     private org.xbill.DNS.Record createDnsMXRecord(final MXRecord mxRecord) throws TextParseException {
         return new org.xbill.DNS.MXRecord(Name.fromString(this.zoneUtility.absolutize(mxRecord.getName())), DClass.IN, mxRecord.getTimeToLive().longValue(), 
-                mxRecord.getData().getPriority().intValue(), Name.fromString(this.zoneUtility.absolutize(mxRecord.getData().getTarget())));
+                mxRecord.getPriority().intValue(), Name.fromString(this.zoneUtility.absolutize(mxRecord.getTarget())));
     }
                   
     /**
@@ -128,7 +129,7 @@ public final class RecordConverter {
      */
     private org.xbill.DNS.Record createDnsNSRecord(final NSRecord nsRecord) throws TextParseException {
         return new org.xbill.DNS.NSRecord(Name.fromString(this.zoneUtility.absolutize(nsRecord.getName())), DClass.IN, nsRecord.getTimeToLive().longValue(), 
-                Name.fromString(this.zoneUtility.absolutize(nsRecord.getData().getTarget())));
+                Name.fromString(this.zoneUtility.absolutize(nsRecord.getTarget())));
     }
                       
     /**
@@ -142,7 +143,7 @@ public final class RecordConverter {
      */
     private org.xbill.DNS.Record createDnsPTRRecord(final PTRRecord ptrRecord) throws TextParseException {
         return new org.xbill.DNS.PTRRecord(Name.fromString(this.zoneUtility.absolutize(this.zoneUtility.getReverseTets(ptrRecord.getName()))), DClass.IN, ptrRecord.getTimeToLive().longValue(), 
-                Name.fromString(this.zoneUtility.absolutize(ptrRecord.getData().getTarget())));
+                Name.fromString(this.zoneUtility.absolutize(ptrRecord.getTarget())));
     }
                    
     /**
@@ -156,9 +157,9 @@ public final class RecordConverter {
      */
     private org.xbill.DNS.Record createDnsSOARecord(final SOARecord soaRecord) throws TextParseException {
         return new org.xbill.DNS.SOARecord(Name.fromString(this.zoneUtility.absolutize(soaRecord.getName())), DClass.IN, soaRecord.getTimeToLive().longValue(),
-                Name.fromString(this.zoneUtility.absolutize(soaRecord.getData().getMasterNameServer())), Name.fromString(soaRecord.getData().getEmailAddress()),
-                soaRecord.getData().getSerialNumber().longValue(), soaRecord.getData().getRefreshInterval().longValue(), soaRecord.getData().getRetryInterval().longValue(),
-                soaRecord.getData().getExpireInterval().longValue(), soaRecord.getData().getMinimumTimeToLive().longValue());
+                Name.fromString(this.zoneUtility.absolutize(soaRecord.getMasterNameServer())), Name.fromString(soaRecord.getEmailAddress()),
+                soaRecord.getSerialNumber().longValue(), soaRecord.getRefreshInterval().longValue(), soaRecord.getRetryInterval().longValue(),
+                soaRecord.getExpireInterval().longValue(), soaRecord.getMinimumTimeToLive().longValue());
     }
                    
     /**
@@ -172,8 +173,8 @@ public final class RecordConverter {
      */
     private org.xbill.DNS.Record createDnsSRVRecord(final SRVRecord srvRecord) throws TextParseException {
         return new org.xbill.DNS.SRVRecord(Name.fromString(this.zoneUtility.absolutize(srvRecord.getName())), DClass.IN, srvRecord.getTimeToLive().longValue(), 
-                srvRecord.getData().getPriority().intValue(), srvRecord.getData().getWeight().intValue(), 
-                srvRecord.getData().getPort().intValue(), Name.fromString(this.zoneUtility.absolutize(srvRecord.getData().getTarget())));
+                srvRecord.getPriority().intValue(), srvRecord.getWeight().intValue(), 
+                srvRecord.getPort().intValue(), Name.fromString(this.zoneUtility.absolutize(srvRecord.getTarget())));
     }
                            
     /**
@@ -187,7 +188,7 @@ public final class RecordConverter {
      */
     private org.xbill.DNS.Record createDnsTXTRecord(final TXTRecord txtRecord) throws TextParseException {
         return new org.xbill.DNS.TXTRecord(Name.fromString(this.zoneUtility.absolutize(txtRecord.getName())), DClass.IN, txtRecord.getTimeToLive().longValue(), 
-                txtRecord.getData().getValues());
+                txtRecord.getValues());
     }
     
     /**
@@ -286,7 +287,7 @@ public final class RecordConverter {
      * @throws  IllegalAccessException  if the record class or record data class are not accessible.
      * @throws  InstantiationException  if the record class or record data class cannot be instantiated.
      */
-    private <T extends Record<U>, U extends Record.Data> Record createRecord(final Class<T> recordClass, final org.xbill.DNS.Record dnsRecord, final Object... dataElements) throws IllegalAccessException, InstantiationException {
+    private <T extends Record> Record createRecord(final Class<T> recordClass, final org.xbill.DNS.Record dnsRecord, final Object... dataElements) throws IllegalAccessException, InstantiationException {
         return Record.newInstance(recordClass, this.zoneUtility.relativize(dnsRecord.getName().toString()), dnsRecord.getTTL(), dataElements);
     }
 
@@ -336,13 +337,14 @@ public final class RecordConverter {
     /**
      * Convert the DNS record to a record.
      * 
-     * @param  dnsRecord  the DNS record.
+     * @param  dnsRecord              the DNS record.
+     * @param  ignoreConversionError  true to ignore a conversion error, otherwise false.
      * 
      * @return  the record.
      * 
-     * @throws  RecordConverterException  if the DNS record cannot be converted to a record.
+     * @throws  RecordConverterException  if the DNS record cannot be converted to a record and ignore conversion error is false.
      */
-    public Record fromDnsRecord(final org.xbill.DNS.Record dnsRecord) throws RecordConverterException {
+    public Record fromDnsRecord(final org.xbill.DNS.Record dnsRecord, final boolean ignoreConversionError) throws RecordConverterException {
 
         Record record = null;
         
@@ -379,24 +381,29 @@ public final class RecordConverter {
                     record = this.createTXTRecord((org.xbill.DNS.TXTRecord)dnsRecord);
                     break;
             }
+            logger.trace("Converted from {}\n to {}\n", dnsRecord, record);  
         } catch (Exception e) {
-            throw new RecordConverterException("The DNS record, " + dnsRecord + ", cannot be converted to a record.", e);
+            if (ignoreConversionError) {
+                logger.warn("The DNS record, {}, cannot be converted to a record.", dnsRecord, e);
+            } else {
+                throw new RecordConverterException("The DNS record, " + dnsRecord + ", cannot be converted to a record.", e);
+            }
         }
-        
-        logger.debug("Converted from {}\n to {}\n", dnsRecord, record);      
+    
         return record;       
     }
         
     /**
      * Convert the DNS records to records.
      * 
-     * @param  dnsRecords  the DNS records.
+     * @param  dnsRecords             the DNS records.
+     * @param  ignoreConversionError  true to ignore a conversion error, otherwise false.
      * 
      * @return  the records.
      * 
-     * @throws  RecordConverterException  if the DNS records cannot be converted to records.
+     * @throws  RecordConverterException  if any DNS record cannot be converted to a record and ignore conversion error is false.
      */
-    public List<Record> fromDnsRecords(final List<org.xbill.DNS.Record> dnsRecords) throws RecordConverterException {
+    public List<Record> fromDnsRecords(final List<org.xbill.DNS.Record> dnsRecords, final boolean ignoreConversionError) throws RecordConverterException {
         
         List<Record> records = new ArrayList<Record>();
         
@@ -404,7 +411,7 @@ public final class RecordConverter {
         for (org.xbill.DNS.Record dnsRecord : dnsRecords) {
 
             // Get the record from the DNS record.
-            Record record = this.fromDnsRecord(dnsRecord);
+            Record record = this.fromDnsRecord(dnsRecord, ignoreConversionError);
 
             // Check if the record exists.
             if (record != null) {
@@ -442,13 +449,14 @@ public final class RecordConverter {
     /**
      * Convert the record to a DNS record.
      * 
-     * @param  record  the record.
+     * @param  record                 the record.
+     * @param  ignoreConversionError  true to ignore a conversion error, otherwise false.
      * 
      * @return  the DNS record.
      * 
-     * @throws  RecordConverterException  if the record cannot be converted to a DNS record.
+     * @throws  RecordConverterException  if the record cannot be converted to a DNS record and ignore conversion error is false.
      */
-    public org.xbill.DNS.Record toDnsRecord(final Record record) throws RecordConverterException {
+    public org.xbill.DNS.Record toDnsRecord(final Record record, final boolean ignoreConversionError) throws RecordConverterException {
 
         org.xbill.DNS.Record dnsRecord = null;
         
@@ -485,33 +493,37 @@ public final class RecordConverter {
                     dnsRecord = this.createDnsTXTRecord((TXTRecord)record);
                     break;
             }
+            logger.trace("Converted to {}\n from {}\n", dnsRecord, record);
         } catch (Exception e) {
-            throw new RecordConverterException("The record, " + record + ", cannot be converted to a DNS record.", e);
+            if (ignoreConversionError) {
+                logger.warn("The record, {}, cannot be converted to a DNS record.", record, e);
+            } else {
+                throw new RecordConverterException("The record, " + record + ", cannot be converted to a DNS record.", e);
+            }
         }
-                
-        logger.debug("Converted to {}\n from {}\n", dnsRecord, record); 
+ 
         return dnsRecord;
     }
     
             
     /**
-     * Convert the DNS records to records.
+     * Convert the records to DNS records.
      * 
-     * @param  dnsRecords  the DNS records.
+     * @param  records                the records.
+     * @param  ignoreConversionError  true to ignore a conversion error, otherwise false.
      * 
-     * @return  the records.
+     * @return  the DNS records.
      * 
-     * @throws  RecordConverterException  if the DNS records cannot be converted to records.
+     * @throws  RecordConverterException  if any record cannot be converted to a DNS record and ignore conversion error is false.
      */
-    public List<org.xbill.DNS.Record> toDnsRecords(final List<Record> records) throws RecordConverterException {
+    public List<org.xbill.DNS.Record> toDnsRecords(final List<Record> records, final boolean ignoreConversionError) throws RecordConverterException {
         
         List<org.xbill.DNS.Record> dnsRecords = new ArrayList<org.xbill.DNS.Record>();
         
         // Loop through the records.
         for (Record record : records) {
 
-            // Get the DNS record from the record.
-            org.xbill.DNS.Record dnsRecord = this.toDnsRecord(record);
+            org.xbill.DNS.Record dnsRecord = this.toDnsRecord(record, ignoreConversionError);
 
             // Check if the record exists.
             if (dnsRecord != null) {

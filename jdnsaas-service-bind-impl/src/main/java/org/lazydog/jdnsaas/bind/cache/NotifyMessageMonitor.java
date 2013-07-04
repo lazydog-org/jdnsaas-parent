@@ -27,7 +27,6 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Notify message monitor.
  * 
@@ -157,7 +156,7 @@ public class NotifyMessageMonitor implements Runnable {
                         
                 // Since there is a notify message, flag the zone for a refresh.
                 // TODO: use the address and port to find the exact zone.  Currently, all the zones with the same name in different views will be flagged for refresh.
-                NotifyMessageMonitor.this.zoneCache.flagForRefresh(requestMessage.getZoneName());
+                NotifyMessageMonitor.this.zoneCache.flagZoneForRefresh(requestMessage.getZoneName());
             } catch (InvalidRequestMessageException e) {
                 logger.warn("An invalid notify request message was received.  Not sending a response to {} port {}.", this.requestPacket.getAddress(), this.requestPacket.getPort(), e);
             } catch (IOException e) {

@@ -92,6 +92,10 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.codehaus.enunciate</groupId>
+            <artifactId>enunciate-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>eclipselink</artifactId>
         </dependency>

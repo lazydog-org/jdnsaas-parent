@@ -23,60 +23,52 @@ package org.lazydog.jdnsaas.model;
  * 
  * @author  Ron Rickard
  */
-public class MXRecord extends Record<MXRecord.Data> {
+public class MXRecord extends Record {
     
     private static final long serialVersionUID = 1L;
-    
+    private Integer priority = new Integer(0);
+    private String target;
+        
     /**
      * Initialize the record with the record type.
      */
     public MXRecord() {
         this.setType(RecordType.MX);
     }
-    
+
     /**
-     * MX record data.
+     * Get the priority.
+     * 
+     * @return  the priority.
      */
-    public static class Data extends Record.Data {
-
-        private static final long serialVersionUID = 1L;
-        private Integer priority = new Integer(0);
-        private String target;
-
-        /**
-         * Get the priority.
-         * 
-         * @return  the priority.
-         */
-        public Integer getPriority() {
-            return this.priority;
-        }
-
-        /**
-         * Get the target.
-         * 
-         * @return  the target.
-         */
-        public String getTarget() {
-            return this.target;
-        }
-
-        /**
-         * Set the priority.
-         * 
-         * @param  priority  the priority.
-         */
-        public void setPriority(final Integer priority) {
-            this.priority = replaceNull(priority, new Integer(0));
-        }
-
-        /**
-         * Set the target.
-         * 
-         * @param  target  the target.
-         */
-        public void setTarget(final String target) {
-            this.target = target;
-        } 
+    public Integer getPriority() {
+        return this.priority;
     }
+
+    /**
+     * Get the target.
+     * 
+     * @return  the target.
+     */
+    public String getTarget() {
+        return this.target;
+    }
+
+    /**
+     * Set the priority.
+     * 
+     * @param  priority  the priority.
+     */
+    public void setPriority(final Integer priority) {
+        this.priority = replaceNull(priority, new Integer(0));
+    }
+
+    /**
+     * Set the target.
+     * 
+     * @param  target  the target.
+     */
+    public void setTarget(final String target) {
+        this.target = target;
+    } 
 }

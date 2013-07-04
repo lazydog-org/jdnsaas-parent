@@ -18,6 +18,7 @@
  */
 package org.lazydog.jdnsaas.rest.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import org.lazydog.jdnsaas.model.Zone;
 
 /**
@@ -25,6 +26,7 @@ import org.lazydog.jdnsaas.model.Zone;
  * 
  * @author  Ron Rickard
  */
+@XmlRootElement                                         // Needed by Enunciate.
 public class ZoneWrapper extends Zone {
     
     private static final long serialVersionUID = 1L;

@@ -57,6 +57,7 @@
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
         <com.sun.jersey.version>1.17</com.sun.jersey.version>
+        <org.codehaus.enunciate.version>1.26.2</org.codehaus.enunciate.version>
         <org.slf4j.version>1.7.5</org.slf4j.version>
     </properties>
     <scm>
@@ -91,7 +92,7 @@
                 <plugin>
                     <groupId>org.codehaus.enunciate</groupId>
                     <artifactId>maven-enunciate-plugin</artifactId>
-                    <version>1.26.2</version>
+                    <version>${org.codehaus.enunciate.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -177,6 +178,11 @@
                 <groupId>org.apache.derby</groupId>
                 <artifactId>derby</artifactId>
                 <version>10.9.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.enunciate</groupId>
+                <artifactId>enunciate-core</artifactId>
+                <version>${org.codehaus.enunciate.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.dbunit</groupId>

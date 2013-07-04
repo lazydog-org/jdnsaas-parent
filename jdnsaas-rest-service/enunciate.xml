@@ -20,6 +20,7 @@
         <spring-app disabled="true"/>
         <xfire disabled="true"/>
         <xfire-client disabled="true"/>
-        <xml disabled="false"/>
+        <xml disabled="true"/>
     </modules>
+    <api-import pattern="org.lazydog.jdnsaas.model.*"/>
 </enunciate>

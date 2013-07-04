@@ -29,6 +29,7 @@ import java.util.List;
 public class Zone extends Entity {
     
     private static final long serialVersionUID = 1L;
+    private static final Zone NO_ZONE = new Zone();
     private String name;
     private TSIGKey queryTSIGKey;
     private List<Record> records = new ArrayList<Record>();
@@ -143,6 +144,15 @@ public class Zone extends Entity {
      */
     public String getViewName() {
         return (this.view != null) ? this.view.getName() : null;
+    }
+               
+    /**
+     * Create no zone.
+     * 
+     * @return  no zone.
+     */
+    public static Zone noZone() {
+        return NO_ZONE;
     }
     
     /**

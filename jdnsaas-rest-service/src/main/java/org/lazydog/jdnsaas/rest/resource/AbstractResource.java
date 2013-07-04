@@ -108,7 +108,7 @@ public abstract class AbstractResource {
      * @return  the response.
      */
     private Response buildResponse(final Object responseEntity, final Status status) {
-        logger.trace("Responding with [{}] {}.", status.getStatusCode(), this.convertToJSONString(responseEntity));
+        logger.debug("Responding with [{}] {}.", status.getStatusCode(), this.convertToJSONString(responseEntity));
         return Response.status(status).entity(responseEntity).build();
     }
     
@@ -130,7 +130,7 @@ public abstract class AbstractResource {
                 // Convert the entity to a JSON string.
                 jsonString = this.providers.getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE).getContext(entity.getClass()).writeValueAsString(entity);
             } catch (IOException e) {
-                logger.trace("Failed to convert " + entity + " to JSON string.", e);
+                logger.warn("Failed to convert " + entity + " to JSON string.", e);
             }
         }
         
@@ -169,7 +169,7 @@ public abstract class AbstractResource {
         // Flag that the cache should be used if the use cache HTTP header exists and is set to true.
         List<String> values = this.httpHeaders.getRequestHeader(USE_CACHE_HTTP_HEADER);
         useCache = (values != null && !values.isEmpty() && Boolean.valueOf(values.get(0)).booleanValue());
-        logger.info("Use cache flag is {}.", useCache);
+        logger.info("Use-Cache header is {}.", useCache);
         
         return useCache;
     }

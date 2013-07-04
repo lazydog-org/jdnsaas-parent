@@ -19,7 +19,7 @@
 package org.lazydog.jdnsaas.bind.cache;
 
 import java.io.IOException;
-import org.lazydog.jdnsaas.bind.ZoneUtility;
+import org.lazydog.jdnsaas.utility.ZoneUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xbill.DNS.Flags;
@@ -99,11 +99,11 @@ final class NotifyRequestMessage {
     }
     
     /**
-     * Create the notify request message.
+     * Create a new instance of the notify request message class.
      * 
      * @param  requestMessage  the request message (in DNS wire format.)
      * 
-     * @return  the DNS request message.
+     * @return  a new instance of the notify request message class.
      * 
      * @throws  InvalidRequestMessageException  if unable to create the notify request message.
      */

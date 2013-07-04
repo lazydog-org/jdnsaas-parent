@@ -23,41 +23,33 @@ package org.lazydog.jdnsaas.model;
  * 
  * @author  Ron Rickard
  */
-public class AAAARecord extends Record<AAAARecord.Data> {
+public class AAAARecord extends Record {
     
     private static final long serialVersionUID = 1L;
-
+    private String ipv6Address;
+    
     /**
      * Initialize the record with the record type.
      */
     public AAAARecord() {
         this.setType(RecordType.AAAA);
     }
-    
+
     /**
-     * AAAA record data.
+     * Get the IPv6 address.
+     * 
+     * @return  the IPv6 address.
      */
-    public static class Data extends Record.Data {
+    public String getIpv6Address() {
+        return this.ipv6Address;
+    }
 
-        private static final long serialVersionUID = 1L;
-        private String ipv6Address;
-
-        /**
-         * Get the IPv6 address.
-         * 
-         * @return  the IPv6 address.
-         */
-        public String getIpv6Address() {
-            return this.ipv6Address;
-        }
-
-        /**
-         * Set the IPv6 address.
-         * 
-         * @param  ipv6Address  the IPv6 address.
-         */
-        public void setIpv6Address(final String ipv6Address) {
-            this.ipv6Address = ipv6Address;
-        }
+    /**
+     * Set the IPv6 address.
+     * 
+     * @param  ipv6Address  the IPv6 address.
+     */
+    public void setIpv6Address(final String ipv6Address) {
+        this.ipv6Address = ipv6Address;
     }
 }

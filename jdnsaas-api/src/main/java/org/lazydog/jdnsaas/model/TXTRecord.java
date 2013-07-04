@@ -26,9 +26,10 @@ import java.util.List;
  * 
  * @author  Ron Rickard
  */
-public class TXTRecord extends Record<TXTRecord.Data> {
+public class TXTRecord extends Record {
     
     private static final long serialVersionUID = 1L;
+    private List<String> values;
     
     /**
      * Initialize the record with the record type.
@@ -36,31 +37,22 @@ public class TXTRecord extends Record<TXTRecord.Data> {
     public TXTRecord() {
         this.setType(RecordType.TXT);
     }
-    
+
     /**
-     * TXT record data.
+     * Get the values.
+     * 
+     * @return  the values.
+     */    
+    public List<String> getValues() {
+        return values;
+    }
+
+    /**
+     * Set the values.
+     * 
+     * @param  values  the values.
      */
-    public static class Data extends Record.Data {
-
-        private static final long serialVersionUID = 1L;
-        private List<String> values;
-
-        /**
-         * Get the values.
-         * 
-         * @return  the values.
-         */    
-        public List<String> getValues() {
-            return values;
-        }
-
-        /**
-         * Set the values.
-         * 
-         * @param  values  the values.
-         */
-        public void setValues(final List<String> values) {
-            this.values = replaceNull(values, new ArrayList<String>());
-        }    
+    public void setValues(final List<String> values) {
+        this.values = replaceNull(values, new ArrayList<String>());
     }
 }
