@@ -125,6 +125,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.0.13</version>
+            </dependency>
+            <dependency>
                 <groupId>com.sun.jersey</groupId>
                 <artifactId>jersey-client</artifactId>
                 <version>${com.sun.jersey.version}</version>
@@ -158,11 +163,6 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.10</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>1.0.13</version>
             </dependency>
             <dependency>
                 <groupId>mysql</groupId>

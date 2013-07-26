@@ -130,7 +130,7 @@ public abstract class AbstractResource {
                 // Convert the entity to a JSON string.
                 jsonString = this.providers.getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE).getContext(entity.getClass()).writeValueAsString(entity);
             } catch (IOException e) {
-                logger.warn("Failed to convert " + entity + " to JSON string.", e);
+                logger.warn("Failed to convert {} to JSON string.", entity, e);
             }
         }
         
