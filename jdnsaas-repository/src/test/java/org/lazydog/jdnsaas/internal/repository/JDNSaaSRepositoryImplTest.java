@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright 2013 lazydog.org.
  *
  * This file is part of JDNSaaS.
@@ -28,8 +28,10 @@ import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
+import org.jboss.weld.environment.se.Weld;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lazydog.jdnsaas.model.Resolver;
 import org.lazydog.jdnsaas.model.TSIGKey;
@@ -48,20 +50,19 @@ import org.unitils.reflectionassert.ReflectionComparatorMode;
 public class JDNSaaSRepositoryImplTest {
     
     private static final String TEST_FILE = "dataset.xml";
-    private JDNSaaSRepository jdnsaasRepository;
+    private static JDNSaaSRepository jdnsaasRepository;
 
-    public JDNSaaSRepositoryImplTest() throws Exception {
+    @BeforeClass
+    public static void beforeClass() throws Exception {
         
         // Ensure the derby.log file is in the target directory.
         System.setProperty("derby.system.home", "./target");
         
         // Create the JDNSaaS database.
         DriverManager.getConnection("jdbc:derby:memory:./target/jdnsaas;create=true");
-        
-        // Create the JDNSaaS repository.
-        jdnsaasRepository = new JDNSaaSRepositoryImpl();
-        ((JDNSaaSRepositoryImpl)jdnsaasRepository).setPersistenceUnitName("jdnsaasTest");
-        ((JDNSaaSRepositoryImpl)jdnsaasRepository).startup();
+
+        // Get the JDNSaaS repository.
+        jdnsaasRepository = new Weld().initialize().instance().select(JDNSaaSRepository.class).get();
     }
 
     @AfterClass
@@ -83,13 +84,10 @@ public class JDNSaaSRepositoryImplTest {
         
         // Refresh the dataset in the database.
         DatabaseOperation.CLEAN_INSERT.execute(databaseConnection, getDataSet());
-        
-        // Close the database connection.
-        databaseConnection.close();
 
         // Since the database was modified outside of the entity manager control, clear the entities and the cache.
-        ((JDNSaaSRepositoryImpl)this.jdnsaasRepository).getEntityManager().clear();
-        ((JDNSaaSRepositoryImpl)this.jdnsaasRepository).getEntityManager().getEntityManagerFactory().getCache().evictAll();
+        ((JDNSaaSRepositoryImpl)jdnsaasRepository).getEntityManager().clear();
+        ((JDNSaaSRepositoryImpl)jdnsaasRepository).getEntityManager().getEntityManagerFactory().getCache().evictAll();
     }
  
     @Test
@@ -109,7 +107,7 @@ public class JDNSaaSRepositoryImplTest {
         resolver2.setId(2);
         resolver2.setPort(53);
         List<Resolver> expectedResolvers = Arrays.asList(resolver1, resolver2);
-        assertReflectionEquals(expectedResolvers, this.jdnsaasRepository.findResolvers(), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedResolvers, jdnsaasRepository.findResolvers(), ReflectionComparatorMode.LENIENT_ORDER);
     }
      
     @Test
@@ -130,7 +128,7 @@ public class JDNSaaSRepositoryImplTest {
         tsigKey3.setName("tsigkeyname3");
         tsigKey3.setValue("tsigkeyvalue3");
         List<TSIGKey> expectedTSIGKeys = Arrays.asList(tsigKey1, tsigKey2, tsigKey3);
-        assertReflectionEquals(expectedTSIGKeys, this.jdnsaasRepository.findTSIGKeys(), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedTSIGKeys, jdnsaasRepository.findTSIGKeys(), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     @Test
@@ -153,18 +151,18 @@ public class JDNSaaSRepositoryImplTest {
         expectedView.setId(1);
         expectedView.setName("view1");
         expectedView.setResolvers(Arrays.asList(resolver1, resolver2));
-        assertReflectionEquals(expectedView, this.jdnsaasRepository.findView("view1"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedView, jdnsaasRepository.findView("view1"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedView = new View();
         expectedView.setId(2);
         expectedView.setName("view2");
         expectedView.setResolvers(Arrays.asList(resolver1));
-        assertReflectionEquals(expectedView, this.jdnsaasRepository.findView("view2"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedView, jdnsaasRepository.findView("view2"), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     @Test
     public void testFindViewNames() {
         List<String> expectedViewNames = new ArrayList<String>(Arrays.asList("view1", "view2"));
-        assertReflectionEquals(expectedViewNames, this.jdnsaasRepository.findViewNames(), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedViewNames, jdnsaasRepository.findViewNames(), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     @Test
@@ -204,14 +202,14 @@ public class JDNSaaSRepositoryImplTest {
         expectedZone.setTransferTSIGKey(transferTSIGKey);
         expectedZone.setUpdateTSIGKey(updateTSIGKey);
         expectedZone.setView(view);
-        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("view1", "zone1"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedZone, jdnsaasRepository.findZone("view1", "zone1"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedZone = new Zone();
         expectedZone.setId(2);
         expectedZone.setName("zone2");
         expectedZone.setTransferTSIGKey(transferTSIGKey);
         expectedZone.setUpdateTSIGKey(updateTSIGKey);
         expectedZone.setView(view);
-        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("view1", "zone2"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedZone, jdnsaasRepository.findZone("view1", "zone2"), ReflectionComparatorMode.LENIENT_ORDER);
         view = new View();
         view.setId(2);
         view.setName("view2");
@@ -222,22 +220,22 @@ public class JDNSaaSRepositoryImplTest {
         expectedZone.setQueryTSIGKey(queryTSIGKey);
         expectedZone.setUpdateTSIGKey(updateTSIGKey);
         expectedZone.setView(view);
-        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("view2", "zone2"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedZone, jdnsaasRepository.findZone("view2", "zone2"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedZone = new Zone();
         expectedZone.setId(4);
         expectedZone.setName("zone3");
         expectedZone.setQueryTSIGKey(queryTSIGKey);
         expectedZone.setTransferTSIGKey(transferTSIGKey);
         expectedZone.setView(view);
-        assertReflectionEquals(expectedZone, this.jdnsaasRepository.findZone("view2", "zone3"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedZone, jdnsaasRepository.findZone("view2", "zone3"), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     @Test
     public void testFindZoneNames() {
         List<String> expectedZoneNames = new ArrayList<String>(Arrays.asList("zone1", "zone2"));
-        assertReflectionEquals(expectedZoneNames, this.jdnsaasRepository.findZoneNames("view1"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedZoneNames, jdnsaasRepository.findZoneNames("view1"), ReflectionComparatorMode.LENIENT_ORDER);
         expectedZoneNames = new ArrayList<String>(Arrays.asList("zone2", "zone3"));
-        assertReflectionEquals(expectedZoneNames, this.jdnsaasRepository.findZoneNames("view2"), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedZoneNames, jdnsaasRepository.findZoneNames("view2"), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     @Test
@@ -300,11 +298,11 @@ public class JDNSaaSRepositoryImplTest {
         zone4.setTransferTSIGKey(transferTSIGKey);
         zone4.setView(view);
         List<Zone> expectedZones = Arrays.asList(zone1, zone2, zone3, zone4);
-        assertReflectionEquals(expectedZones, this.jdnsaasRepository.findZones(), ReflectionComparatorMode.LENIENT_ORDER);
+        assertReflectionEquals(expectedZones, jdnsaasRepository.findZones(), ReflectionComparatorMode.LENIENT_ORDER);
     }
 
     private IDatabaseConnection getDatabaseConnection() throws Exception {
-        return new DatabaseConnection(((JDNSaaSRepositoryImpl)this.jdnsaasRepository).getConnection());
+        return new DatabaseConnection(((JDNSaaSRepositoryImpl)jdnsaasRepository).getConnection());
     }
     
     private static IDataSet getDataSet() throws Exception {

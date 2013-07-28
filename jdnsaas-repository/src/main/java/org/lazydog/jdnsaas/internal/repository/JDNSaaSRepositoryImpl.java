@@ -26,6 +26,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceContext;
+import org.apache.myfaces.extensions.cdi.jpa.api.Transactional;
 import org.lazydog.jdnsaas.model.Resolver;
 import org.lazydog.jdnsaas.model.TSIGKey;
 import org.lazydog.jdnsaas.model.View;
@@ -49,6 +51,8 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
 
     private static final Logger logger = LoggerFactory.getLogger(JDNSaaSRepositoryImpl.class);
     private String persistenceUnitName;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     /**
      * Find the resolvers.
@@ -159,7 +163,7 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
      * @return  the zones.
      */
     @Override
-    public List<Zone> findZones() {        
+    public List<Zone> findZones() {
         return this.findList(Zone.class);
     }
     
@@ -200,9 +204,15 @@ public class JDNSaaSRepositoryImpl extends AbstractRepository implements JDNSaaS
     @PostConstruct
     public void startup() {
         
-        logger.info("Startup the JDNSaaS repository.");
+        logger.info("Startup the repository.");
 
-        // Set the entity manager.
-        this.setEntityManager(Persistence.createEntityManagerFactory(this.persistenceUnitName).createEntityManager());
+        // Check if the entity manager was not injected.
+        // This will occur if this is a standalone application or Tomcat.
+        if (this.entityManager == null) {
+            
+            // Set the entity manager using the persistence unit name.
+            this.entityManager = Persistence.createEntityManagerFactory(this.persistenceUnitName).createEntityManager();
+        }
+        this.setEntityManager(this.entityManager);
     }
 }
